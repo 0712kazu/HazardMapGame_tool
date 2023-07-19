@@ -8,6 +8,7 @@ from qgis.gui import *
 
 from sample_menu_01 import SampleMenu01
 from sample_menu_02 import SampleMenu02
+from sample_menu_03 import SampleMenu03
 
 PLUGIN_NAME = "sample"
 
@@ -22,18 +23,26 @@ class Sample:
         self.toolbar = self.iface.addToolBar(PLUGIN_NAME)
         self.toolbar.setObjectName(PLUGIN_NAME)
 
+        # ツールバーのUIを生成
+        self.toolbar = self.iface.addToolBar("HGM DATA")
+        self.toolButton = QToolButton()
+        self.toolButton.setMenu(QMenu())
+        self.toolButton.setPopupMode(QToolButton.MenuButtonPopup)
+        self.toolButton.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "imgs/icon.png")))
+        self.toolbar.addWidget(self.toolButton)
+
     def add_action(
-        self,
-        icon_path,
-        text,
-        callback,
-        enabled_flag=True,
-        add_to_menu=True,
-        add_to_toolbar=True,
-        status_tip=None,
-        whats_this=None,
-        parent=None,
-    ):
+            self,
+            icon_path,
+            text,
+            callback,
+            enabled_flag=True,
+            add_to_menu=True,
+            add_to_toolbar=True,
+            status_tip=None,
+            whats_this=None,
+            parent=None,
+            as_default=False):
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -43,20 +52,42 @@ class Sample:
         if whats_this is not None:
             action.setWhatsThis(whats_this)
         if add_to_toolbar:
-            self.toolbar.addAction(action)
+            self.toolButton.menu().addAction(action)
+        if as_default:
+            self.toolButton.setDefaultAction(action)
         if add_to_menu:
-            self.iface.addPluginToMenu(self.menu, action)
+            self.iface.addPluginToWebMenu(
+                PLUGIN_NAME,
+                action)
         self.actions.append(action)
         return action
 
     def initGui(self):
+        self.win = self.iface.mainWindow()
+        self.add_action(
+            icon_path="",
+            text="データベース接続",
+            callback=self.show_menu_03,
+            parent=self.win)
+        self.add_action(
+            icon_path="",
+            text="シームレスデータ整備",
+            callback=self.show_menu_01,
+            parent=self.win)
+        self.add_action(
+            icon_path="",
+            text="HMGデータ作成",
+            callback=self.show_menu_02,
+            parent=self.win)
+
+
         # メニュー設定
-        self.add_action(
-            icon_path=None, text="Menu01", callback=self.show_menu_01, parent=self.win
-        )
-        self.add_action(
-            icon_path=None, text="Menu02", callback=self.show_menu_02, parent=self.win
-        )
+        # self.add_action(
+        #     icon_path=None, text="シームレスデータ整備", callback=self.show_menu_01, parent=self.win
+        # )
+        # self.add_action(
+        #     icon_path=None, text="HMGデータ作成", callback=self.show_menu_02, parent=self.win
+        # )
 
     def unload(self):
         for action in self.actions:
@@ -71,3 +102,7 @@ class Sample:
     def show_menu_02(self):
         self.sample_menu_02 = SampleMenu02()
         self.sample_menu_02.show()
+
+    def show_menu_03(self):
+        self.sample_menu_03 = SampleMenu03()
+        self.sample_menu_03.show()

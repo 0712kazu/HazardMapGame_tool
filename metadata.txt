@@ -1,7 +1,7 @@
 [general]
-name=Sample
+name=HMG DATA GENERATOR
 qgisMinimumVersion=3.0
-about=QGIS Sample Plugin
+about=HMG DATA GENERATOR
 description=QGIS Sample Plugin
 version=1.0
 

@@ -1,49 +1,195 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
+ <class>dialog</class>
+ <widget class="QDialog" name="dialog">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>318</width>
-    <height>68</height>
+    <width>660</width>
+    <height>433</height>
    </rect>
   </property>
-  <property name="windowTitle">
-   <string>Dialog</string>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>200</verstretch>
+   </sizepolicy>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <widget class="QLineEdit" name="lineEdit">
-     <property name="minimumSize">
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>シームレスデータ整備</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="5" column="0">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>300</width>
-       <height>0</height>
+       <width>20</width>
+       <height>40</height>
       </size>
      </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupBox_3">
+     <property name="title">
+      <string>関連項目</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="1" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_5"/>
+      </item>
+      <item row="0" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_4"/>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>行政界</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_7">
+        <property name="text">
+         <string>土地利用</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
-   <item>
+   <item row="6" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="pushButton_run">
        <property name="text">
-        <string>OK</string>
+        <string>処理開始</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="pushButton_cancel">
        <property name="text">
-        <string>キャンセル</string>
+        <string>閉じる</string>
        </property>
       </widget>
      </item>
     </layout>
    </item>
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>ハザードデータレイヤ</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="2" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_2"/>
+      </item>
+      <item row="1" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_3"/>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_13">
+        <property name="text">
+         <string>A40:津波浸水想定区域</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_8">
+        <property name="text">
+         <string>P20:避難所</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget"/>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_9">
+        <property name="text">
+         <string>G04:傾斜度</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>B01:確率論的地震動予測</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_12">
+        <property name="text">
+         <string>A33:土砂災害警戒区域</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label_11">
+        <property name="text">
+         <string>A31:洪水浸水想定区域</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="label_14">
+        <property name="text">
+         <string>A49:高潮浸水想定区域</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_6"/>
+      </item>
+      <item row="4" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_7"/>
+      </item>
+      <item row="5" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_8"/>
+      </item>
+      <item row="6" column="1">
+       <widget class="QgsFileWidget" name="mQgsFileWidget_9"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QgsFileWidget</class>
+   <extends>QWidget</extends>
+   <header>qgsfilewidget.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
