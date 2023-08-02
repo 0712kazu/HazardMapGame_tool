@@ -66,11 +66,6 @@ class Sample:
         self.win = self.iface.mainWindow()
         self.add_action(
             icon_path="",
-            text="データベース接続",
-            callback=self.show_menu_03,
-            parent=self.win)
-        self.add_action(
-            icon_path="",
             text="シームレスデータ整備",
             callback=self.show_menu_01,
             parent=self.win)
