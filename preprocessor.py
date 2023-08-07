@@ -9,11 +9,11 @@ from qgis.PyQt import uic
 from qgis.utils import iface
 
 
-class SampleMenu01(QDialog):
+class Preprocessor(QDialog):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi(
-            os.path.join(os.path.dirname(__file__), "sample_menu_01.ui"), self
+            os.path.join(os.path.dirname(__file__), "preprocessor.ui"), self
         )
 
         self.ui.pushButton_run.clicked.connect(self.get_and_show_input_text)

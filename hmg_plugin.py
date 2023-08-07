@@ -6,9 +6,8 @@ from PyQt5.QtWidgets import *
 from qgis.core import *
 from qgis.gui import *
 
-from sample_menu_01 import SampleMenu01
-from sample_menu_02 import SampleMenu02
-from sample_menu_03 import SampleMenu03
+from preprocessor import Preprocessor
+from hmg_data_generator import HGMDataGenerator
 
 PLUGIN_NAME = "sample"
 
@@ -91,13 +90,9 @@ class Sample:
         del self.toolbar
 
     def show_menu_01(self):
-        self.sample_menu_01 = SampleMenu01()
+        self.sample_menu_01 = Preprocessor()
         self.sample_menu_01.show()
 
     def show_menu_02(self):
-        self.sample_menu_02 = SampleMenu02()
+        self.sample_menu_02 = HGMDataGenerator()
         self.sample_menu_02.show()
-
-    def show_menu_03(self):
-        self.sample_menu_03 = SampleMenu03()
-        self.sample_menu_03.show()
