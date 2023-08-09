@@ -6,8 +6,7 @@ from PyQt5.QtWidgets import *
 from qgis.core import *
 from qgis.gui import *
 
-from preprocessor import Preprocessor
-from hmg_data_generator import HGMDataGenerator
+from ui.main_window import MainWindow
 
 PLUGIN_NAME = "sample"
 
@@ -22,13 +21,7 @@ class Sample:
         self.toolbar = self.iface.addToolBar(PLUGIN_NAME)
         self.toolbar.setObjectName(PLUGIN_NAME)
 
-        # ツールバーのUIを生成
-        self.toolbar = self.iface.addToolBar("HGM DATA")
-        self.toolButton = QToolButton()
-        self.toolButton.setMenu(QMenu())
-        self.toolButton.setPopupMode(QToolButton.MenuButtonPopup)
-        self.toolButton.setIcon(QIcon(os.path.join(os.path.dirname(__file__), "imgs/icon.png")))
-        self.toolbar.addWidget(self.toolButton)
+        self.main_window = MainWindow()
 
     def add_action(
             self,
@@ -40,8 +33,7 @@ class Sample:
             add_to_toolbar=True,
             status_tip=None,
             whats_this=None,
-            parent=None,
-            as_default=False):
+            parent=None):
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -51,37 +43,20 @@ class Sample:
         if whats_this is not None:
             action.setWhatsThis(whats_this)
         if add_to_toolbar:
-            self.toolButton.menu().addAction(action)
-        if as_default:
-            self.toolButton.setDefaultAction(action)
+            self.toolbar.addAction(action)
         if add_to_menu:
-            self.iface.addPluginToWebMenu(
-                PLUGIN_NAME,
+            self.iface.addPluginToMenu(
+                self.menu,
                 action)
         self.actions.append(action)
         return action
 
     def initGui(self):
-        self.win = self.iface.mainWindow()
-        self.add_action(
-            icon_path="",
-            text="シームレスデータ整備",
-            callback=self.show_menu_01,
-            parent=self.win)
         self.add_action(
             icon_path="",
             text="HMGデータ作成",
-            callback=self.show_menu_02,
+            callback=self.show_data_generator_window,
             parent=self.win)
-
-
-        # メニュー設定
-        # self.add_action(
-        #     icon_path=None, text="シームレスデータ整備", callback=self.show_menu_01, parent=self.win
-        # )
-        # self.add_action(
-        #     icon_path=None, text="HMGデータ作成", callback=self.show_menu_02, parent=self.win
-        # )
 
     def unload(self):
         for action in self.actions:
@@ -89,10 +64,5 @@ class Sample:
             self.iface.removeToolBarIcon(action)
         del self.toolbar
 
-    def show_menu_01(self):
-        self.sample_menu_01 = Preprocessor()
-        self.sample_menu_01.show()
-
-    def show_menu_02(self):
-        self.sample_menu_02 = HGMDataGenerator()
-        self.sample_menu_02.show()
+    def show_data_generator_window(self):
+        self.main_window.show()

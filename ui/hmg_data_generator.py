@@ -14,62 +14,58 @@ from qgis.utils import iface
 from maptool import POIMapTool
 
 
-class HGMDataGenerator(QDialog):
-    def __init__(self):
-        super().__init__()
-        self.ui = uic.loadUi(
-            os.path.join(os.path.dirname(__file__), "hmg_data_generator.ui"), self
-        )
-
+class HGMDataGenerator:
+    def __init__(self, main: QDialog):
+        self.main = main
         self.canvas = iface.mapCanvas()
 
-        self.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+        self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # ラムダ式でもconnectできる
-        self.ui.pushButton_choosepnt.clicked.connect(
+        self.main.pushButton_choosepnt.clicked.connect(
             self.activate_maptool_point
         )
-        self.ui.pushButton_mesh.clicked.connect(
-            lambda: self.generate_mesh(self.ui.lineEdit_x.text(), self.ui.lineEdit_y.text())
+        self.main.pushButton_mesh.clicked.connect(
+            lambda: self.generate_mesh(self.main.lineEdit_x.text(), self.main.lineEdit_y.text())
         )
-        self.ui.pushButton_cancel.clicked.connect(lambda: self.close())
+        self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
 
         # 縮尺コントローラー
         self.scale_list = [10000, 25000, 50000, 100000, 250000]
-        self.ui.comboBox_scale.addItems(list(map(lambda x: f"1:{x}", self.scale_list)))
-        self.ui.comboBox_scale.currentTextChanged.connect(self._on_combobox_scale_changed)
+        self.main.comboBox_scale.addItems(list(map(lambda x: f"1:{x}", self.scale_list)))
+        self.main.comboBox_scale.currentTextChanged.connect(self._on_combobox_scale_changed)
         self.canvas.scaleChanged.connect(self._on_map_scale_changed)
 
         # 都道府県リストを読み込む
-        self.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
+        self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
         self.pref_city_csv = os.path.join(os.path.dirname(__file__), constants.data_dir, "bnd_a_wm.csv")
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             knames = list(dict.fromkeys([row['KNAME'] for row in reader]))
             for kname in knames:
-                self.comboBox_pref.addItem(kname)
+                self.main.comboBox_pref.addItem(kname)
 
-        self.comboBox_city.currentTextChanged.connect(self._on_city_changed)
+        self.main.comboBox_city.currentTextChanged.connect(self._on_city_changed)
 
     def _on_pref_changed(self, text):
-        self.comboBox_city.clear()
+        self.main.comboBox_city.clear()
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             names = list(dict.fromkeys([row['NAME'] for row in reader if row['KNAME'] == text]))
             for name in names:
-                self.comboBox_city.addItem(name)
+                self.main.comboBox_city.addItem(name)
 
     def _on_city_changed(self):
         try:
             with open(self.pref_city_csv, "r") as f:
                 reader = csv.DictReader(f)
                 bbox = [[row['x_min'], row["x_max"], row["y_min"], row["y_max"]] for row in reader if
-                        row['KNAME'] == self.comboBox_pref.currentText() and row[
-                            'NAME'] == self.comboBox_city.currentText()][0]
+                        row['KNAME'] == self.main.comboBox_pref.currentText() and row[
+                            'NAME'] == self.main.comboBox_city.currentText()][0]
 
             self.canvas.setExtent(QgsRectangle(float(bbox[0]), float(bbox[2]), float(bbox[1]), float(bbox[3])))
             self.canvas.refresh()
-        except:
+        except IndexError:
             pass
 
     def _on_combobox_scale_changed(self, scale):
@@ -77,12 +73,12 @@ class HGMDataGenerator(QDialog):
 
     def _on_map_scale_changed(self, scale):
         nearest_scale = min(self.scale_list, key=lambda x: abs(x - scale))
-        self.ui.comboBox_scale.setCurrentText(f"1:{nearest_scale}")
+        self.main.comboBox_scale.setCurrentText(f"1:{nearest_scale}")
 
     def activate_maptool_point(self):
         def show_xy(point):
-            self.ui.lineEdit_x.setText(str(point.x()))
-            self.ui.lineEdit_y.setText(str(point.y()))
+            self.main.lineEdit_x.setText(str(point.x()))
+            self.main.lineEdit_y.setText(str(point.y()))
 
         maptool = POIMapTool()
         maptool.clicked.connect(show_xy)
@@ -93,8 +89,8 @@ class HGMDataGenerator(QDialog):
             with open(self.pref_city_csv, "r") as f:
                 reader = csv.DictReader(f)
                 bbox = [[row['x_min'], row["x_max"], row["y_min"], row["y_max"]] for row in reader if
-                        row['KNAME'] == self.comboBox_pref.currentText() and row[
-                            'NAME'] == self.comboBox_city.currentText()][0]
+                        row['KNAME'] == self.main.comboBox_pref.currentText() and row[
+                            'NAME'] == self.main.comboBox_city.currentText()][0]
 
             grid_extent = f"{bbox[0]}, {bbox[1]},{bbox[2]},{bbox[3]} [EPSG:3857]"
             scale = iface.mapCanvas().scale()
@@ -102,7 +98,7 @@ class HGMDataGenerator(QDialog):
 
 
 
-        elif self.radioButton_point.isChecked():
+        elif self.main.radioButton_point.isChecked():
             """中心点座標からメッシュを作成する"""
             center_x = float(center_x)
             center_y = float(center_y)
@@ -122,7 +118,7 @@ class HGMDataGenerator(QDialog):
                                        'OUTPUT': QgsProcessing.TEMPORARY_OUTPUT})["OUTPUT"]
 
         QgsProject.instance().addMapLayer(output_layer)
-        output_layer.setName(f"mesh_{self.comboBox_pref.currentText()}_{self.comboBox_city.currentText()}")
+        output_layer.setName(f"mesh_{self.main.comboBox_pref.currentText()}_{self.main.comboBox_city.currentText()}")
         output_layer.setOpacity(0.5)
 
         # ワクを作成
