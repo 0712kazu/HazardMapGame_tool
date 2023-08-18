@@ -188,12 +188,13 @@ class HGMDataGenerator:
 
         if size_x >= size_y:
             # 向き：横
-            grid_extent_str = f"{grid_x_min}, {grid_x_max},{center_y - grid_map_size * (short_size_n / 2 - 0.1)},{center_y + grid_map_size * (short_size_n / 2 - 0.1)} [EPSG:3857]"
+            # 中心点からの距離をピッタリにすると、グリッドが一個多くできることがあるので、0.01mを引いている
+            grid_extent_str = f"{grid_x_min}, {grid_x_max},{center_y - grid_map_size * (short_size_n / 2 - 0.01)},{center_y + grid_map_size * (short_size_n / 2 - 0.01)} [EPSG:3857]"
             waku_rec = QgsRectangle(center_x - long_side_a1 * scale / 2, center_y - short_side_a1 * scale / 2,
                                     center_x + long_side_a1 * scale / 2, center_y + short_side_a1 * scale / 2)
         else:
             # 向き：縦
-            grid_extent_str = f"{center_x - grid_map_size * (short_size_n / 2 - 0.1)}, {center_x + grid_map_size * (short_size_n / 2 - 0.1)},{grid_y_min},{grid_y_max} [EPSG:3857]"
+            grid_extent_str = f"{center_x - grid_map_size * (short_size_n / 2 - 0.01)}, {center_x + grid_map_size * (short_size_n / 2 - 0.01)},{grid_y_min},{grid_y_max} [EPSG:3857]"
             waku_rec = QgsRectangle(center_x - short_side_a1 * scale / 2, center_y - long_side_a1 * scale / 2,
                                     center_x + short_side_a1 * scale / 2, center_y + long_side_a1 * scale / 2)
 
