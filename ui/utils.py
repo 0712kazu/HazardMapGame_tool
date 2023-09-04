@@ -1,5 +1,5 @@
 import os
-import shutil
+import zipfile
 
 
 def unpack_zips_from_dir(target_dir: str, extracted_dir: str):
@@ -12,7 +12,9 @@ def unpack_zips_from_dir(target_dir: str, extracted_dir: str):
 
     os.mkdir(extracted_dir)
 
-    [shutil.unpack_archive(zip_filename, extracted_dir) for zip_filename in zips]
+    for zip_filename in zips:
+        with zipfile.ZipFile(zip_filename, "r") as zip_ref:
+            zip_ref.extractall(extracted_dir)
 
 
 def get_shapefiles_from_dir(target_dir: str) -> list:
