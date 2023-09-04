@@ -2,6 +2,7 @@ import os
 import glob
 import subprocess
 import shutil
+import processing
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -67,7 +68,7 @@ class Preprocessor:
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
-    def preprocess_tochiriyou(self, root_directory, output_directory):
+    def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
@@ -88,9 +89,46 @@ class Preprocessor:
             )
         shutil.rmtree(extracted_dir)
 
-    def preprocess_kozui(self, root_directory, output_directory):
+    def preprocess_kozui(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
 
-        print(shapefiles)
+        # merge all shapefiles in one
+        merged_shapefiles = processing.run(
+            "native:mergevectorlayers",
+            {
+                "LAYERS": shapefiles,
+                "CRS": None,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # fix geometries
+        kouzui_cleaned = processing.run(
+            "native:fixgeometries",
+            {
+                "INPUT": merged_shapefiles,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # Depth calculation
+        # TO DO: Consolidate fields in input shp and update formula
+        processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": kouzui_cleaned,
+                "FIELD_NAME": "depth",
+                "FIELD_TYPE": 0,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": 'CASE\r\nWHEN "A31_001" = 11\r\nTHEN 0.2\r\nWHEN "A31_001" = 12\r\nTHEN 0.7\r\nWHEN "A31_001" = 13\r\nTHEN 1.4\r\nWHEN "A31_001" = 14\r\nTHEN 3\r\nWHEN "A31_001" = 15\r\nTHEN 7\r\nWHEN "A31_001" = 21\r\nTHEN 0.2\r\nWHEN "A31_001" = 22\r\nTHEN 0.7\r\nWHEN "A31_001" = 23\r\nTHEN 1.4\r\nWHEN "A31_001" = 24\r\nTHEN 2.4\r\nWHEN "A31_001" = 25\r\nTHEN 3.4\r\nWHEN "A31_001" = 26\r\nTHEN 4.4\r\nWHEN "A31_001" = 27\r\nTHEN 7\r\nWHEN "A31_101" = 1\r\nTHEN 0.2\r\nWHEN "A31_101" = 2\r\nTHEN 2\r\nWHEN "A31_101" = 3\r\nTHEN 3.6\r\nWHEN "A31_101" = 4\r\nTHEN 7\r\nWHEN "A31_101" = 5\r\nTHEN 14\r\nWHEN "A31_101" = 6\r\nTHEN 25\r\nWHEN "A31_201" = 1\r\nTHEN 0.2\r\nWHEN "A31_201" = 2\r\nTHEN 2\r\nWHEN "A31_201" = 3\r\nTHEN 3.6\r\nWHEN "A31_201" = 4\r\nTHEN 7\r\nWHEN "A31_201" = 5\r\nTHEN 14\r\nWHEN "A31_201" = 6\r\nTHEN 25\r\nWHEN "A31_301" = 1\r\nTHEN 0.2\r\nWHEN "A31_301" = 2\r\nTHEN 2\r\nWHEN "A31_301" = 3\r\nTHEN 3.6\r\nWHEN "A31_301" = 4\r\nTHEN 7\r\nWHEN "A31_301" = 5\r\nTHEN 14\r\nWHEN "A31_301" = 6\r\nTHEN 25\r\nWHEN "A31_401" = 1\r\nTHEN 0.2\r\nWHEN "A31_401" = 2\r\nTHEN 2\r\nWHEN "A31_401" = 3\r\nTHEN 3.6\r\nWHEN "A31_401" = 4\r\nTHEN 7\r\nWHEN "A31_401" = 5\r\nTHEN 14\r\nWHEN "A31_401" = 6\r\nTHEN 25\r\nWHEN "A31_105" = 1\r\nTHEN 0.2\r\nWHEN "A31_105" = 2\r\nTHEN 2\r\nWHEN "A31_105" = 3\r\nTHEN 3.6\r\nWHEN "A31_105" = 4\r\nTHEN 7\r\nWHEN "A31_105" = 5\r\nTHEN 14\r\nWHEN "A31_105" = 6\r\nTHEN 25\r\nWHEN "A31_205" = 1\r\nTHEN 0.2\r\nWHEN "A31_205" = 2\r\nTHEN 2\r\nWHEN "A31_205" = 3\r\nTHEN 3.6\r\nWHEN "A31_205" = 4\r\nTHEN 7\r\nWHEN "A31_205" = 5\r\nTHEN 14\r\nWHEN "A31_205" = 6\r\nTHEN 25\r\nWHEN "A31_405" = 1\r\nTHEN 0.2\r\nWHEN "A31_405" = 2\r\nTHEN 2\r\nWHEN "A31_405" = 3\r\nTHEN 3.6\r\nWHEN "A31_405" = 4\r\nTHEN 7\r\nWHEN "A31_405" = 5\r\nTHEN 14\r\nWHEN "A31_405" = 6\r\nTHEN 25\r\nEND',
+                "OUTPUT": os.path.join(output_directory, "kouzui_merged.gpkg"),
+            },
+        )
+
+        # TO DO: remove fields and keep only fid and depth
+
+        # TO DO: debug to force delete files in TEMP
+        # shutil.rmtree(extracted_dir)
