@@ -92,5 +92,5 @@ class Preprocessor:
         extracted_dir = os.path.join(root_directory, "temp")
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-        print("KOZUI!")
+
         print(shapefiles)
