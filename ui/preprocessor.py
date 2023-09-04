@@ -11,7 +11,12 @@ from qgis.gui import *
 from qgis.PyQt import uic
 from qgis.utils import iface
 
-from constants import INPUT_DIR_TOCHIRIYOU, INPUT_DIR_ZISUBERI, OUTPUT_DIR
+from constants import (
+    INPUT_DIR_KOZUI,
+    INPUT_DIR_TOCHIRIYOU,
+    INPUT_DIR_ZISUBERI,
+    OUTPUT_DIR,
+)
 from ui.utils import unpack_zips_from_dir, get_shapefiles_from_dir
 
 
@@ -33,6 +38,7 @@ class Preprocessor:
         selected_dir = QFileDialog.getExistingDirectory(self.main, "フォルダを選択")
 
         for folder_name, filewidget in (
+            (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_ZISUBERI, self.main.QgsFileWidget_zisuberi),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
