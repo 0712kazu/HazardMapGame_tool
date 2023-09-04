@@ -2,7 +2,7 @@ import os
 import shutil
 
 
-def unzip(target_dir: str, extracted_dir: str):
+def unpack_zips_from_dir(target_dir: str, extracted_dir: str):
     """unpack all zip files in target_dir to extract_dir"""
     zips = [
         os.path.join(target_dir, f)

@@ -12,7 +12,7 @@ from qgis.PyQt import uic
 from qgis.utils import iface
 
 from constants import INPUT_DIR_TOCHIRIYOU, INPUT_DIR_ZISUBERI, OUTPUT_DIR
-from utils import unzip, get_shapefiles_from_dir
+from ui.utils import unpack_zips_from_dir, get_shapefiles_from_dir
 
 
 class Preprocessor:
@@ -63,7 +63,7 @@ class Preprocessor:
 
     def preprocess_tochiriyou(self, root_directory, output_directory):
         extracted_dir = os.path.join(root_directory, "temp")
-        unzip(root_directory, extracted_dir)
+        unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
 
         cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shapefiles[0]}"
@@ -84,5 +84,7 @@ class Preprocessor:
 
     def preprocess_kozui(self, root_directory, output_directory):
         extracted_dir = os.path.join(root_directory, "temp")
-        unzip(root_directory, extracted_dir)
+        unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
         print("KOZUI!")
+        print(shapefiles)
