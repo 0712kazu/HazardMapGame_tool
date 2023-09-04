@@ -12,6 +12,7 @@ from qgis.PyQt import uic
 from qgis.utils import iface
 
 from constants import INPUT_DIR_TOCHIRIYOU, INPUT_DIR_ZISUBERI, OUTPUT_DIR
+from utils import unzip, get_shapefiles_from_dir
 
 
 class Preprocessor:
@@ -46,33 +47,25 @@ class Preprocessor:
 
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
-            error_message = "シームレスフォルダーが設定してない。"
+            error_message = "シームレスフォルダーが設定していません。"
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
         if self.main.QgsFileWidget_tochiriyou.filePath():
-            self.preprocess_tochiriyou()
+            self.preprocess_tochiriyou(
+                self.main.QgsFileWidget_tochiriyou.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
         if self.main.QgsFileWidget_kozui.filePath():
-            self.preprocess_kozui()
+            self.preprocess_kozui(
+                self.main.QgsFileWidget_kozui.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
 
-    def preprocess_tochiriyou(self):
-        root_directory = self.main.QgsFileWidget_tochiriyou.filePath()
-        output_directory = self.main.FileWidgetSeamlessDir.filePath()
-
-        zips = [
-            os.path.join(root_directory, f)
-            for f in os.listdir(root_directory)
-            if f.endswith(".zip")
-        ]
+    def preprocess_tochiriyou(self, root_directory, output_directory):
         extracted_dir = os.path.join(root_directory, "temp")
-        os.mkdir(extracted_dir)
+        unzip(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
 
-        [shutil.unpack_archive(zip_filename, extracted_dir) for zip_filename in zips]
-
-        shapefiles = [
-            os.path.join(extracted_dir, f)
-            for f in os.listdir(extracted_dir)
-            if f.endswith(".shp")
-        ]
         cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shapefiles[0]}"
         subprocess.run(
             cmd,
@@ -89,5 +82,7 @@ class Preprocessor:
             )
         shutil.rmtree(extracted_dir)
 
-    def preprocess_kozui(self):
+    def preprocess_kozui(self, root_directory, output_directory):
+        extracted_dir = os.path.join(root_directory, "temp")
+        unzip(root_directory, extracted_dir)
         print("KOZUI!")
