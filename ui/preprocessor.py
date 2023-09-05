@@ -114,7 +114,7 @@ class Preprocessor:
         )["OUTPUT"]
 
         # Depth calculation
-        processing.run(
+        kouzui_calculated = processing.run(
             "native:fieldcalculator",
             {
                 "INPUT": kouzui_cleaned,
@@ -125,11 +125,19 @@ class Preprocessor:
                 "FORMULA": self._make_depth_calculation_formula(
                     kouzui_cleaned.fields().names()
                 ),
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # retain only fid and depth fields (remove all others)
+        processing.run(
+            "native:retainfields",
+            {
+                "INPUT": kouzui_calculated,
+                "FIELDS": ["fid", "depth"],
                 "OUTPUT": os.path.join(output_directory, "kouzui_merged.gpkg"),
             },
         )
-
-        # TO DO: remove fields and keep only fid and depth
 
         # TO DO: debug to force delete files in TEMP
         # shutil.rmtree(extracted_dir)
