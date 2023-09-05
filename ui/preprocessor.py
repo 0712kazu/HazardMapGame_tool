@@ -114,7 +114,6 @@ class Preprocessor:
         )["OUTPUT"]
 
         # Depth calculation
-        # TO DO: Consolidate fields in input shp and update formula
         processing.run(
             "native:fieldcalculator",
             {
@@ -123,7 +122,9 @@ class Preprocessor:
                 "FIELD_TYPE": 0,
                 "FIELD_LENGTH": 0,
                 "FIELD_PRECISION": 0,
-                "FORMULA": 'CASE\r\nWHEN "A31_001" = 11\r\nTHEN 0.2\r\nWHEN "A31_001" = 12\r\nTHEN 0.7\r\nWHEN "A31_001" = 13\r\nTHEN 1.4\r\nWHEN "A31_001" = 14\r\nTHEN 3\r\nWHEN "A31_001" = 15\r\nTHEN 7\r\nWHEN "A31_001" = 21\r\nTHEN 0.2\r\nWHEN "A31_001" = 22\r\nTHEN 0.7\r\nWHEN "A31_001" = 23\r\nTHEN 1.4\r\nWHEN "A31_001" = 24\r\nTHEN 2.4\r\nWHEN "A31_001" = 25\r\nTHEN 3.4\r\nWHEN "A31_001" = 26\r\nTHEN 4.4\r\nWHEN "A31_001" = 27\r\nTHEN 7\r\nWHEN "A31_101" = 1\r\nTHEN 0.2\r\nWHEN "A31_101" = 2\r\nTHEN 2\r\nWHEN "A31_101" = 3\r\nTHEN 3.6\r\nWHEN "A31_101" = 4\r\nTHEN 7\r\nWHEN "A31_101" = 5\r\nTHEN 14\r\nWHEN "A31_101" = 6\r\nTHEN 25\r\nWHEN "A31_201" = 1\r\nTHEN 0.2\r\nWHEN "A31_201" = 2\r\nTHEN 2\r\nWHEN "A31_201" = 3\r\nTHEN 3.6\r\nWHEN "A31_201" = 4\r\nTHEN 7\r\nWHEN "A31_201" = 5\r\nTHEN 14\r\nWHEN "A31_201" = 6\r\nTHEN 25\r\nWHEN "A31_301" = 1\r\nTHEN 0.2\r\nWHEN "A31_301" = 2\r\nTHEN 2\r\nWHEN "A31_301" = 3\r\nTHEN 3.6\r\nWHEN "A31_301" = 4\r\nTHEN 7\r\nWHEN "A31_301" = 5\r\nTHEN 14\r\nWHEN "A31_301" = 6\r\nTHEN 25\r\nWHEN "A31_401" = 1\r\nTHEN 0.2\r\nWHEN "A31_401" = 2\r\nTHEN 2\r\nWHEN "A31_401" = 3\r\nTHEN 3.6\r\nWHEN "A31_401" = 4\r\nTHEN 7\r\nWHEN "A31_401" = 5\r\nTHEN 14\r\nWHEN "A31_401" = 6\r\nTHEN 25\r\nWHEN "A31_105" = 1\r\nTHEN 0.2\r\nWHEN "A31_105" = 2\r\nTHEN 2\r\nWHEN "A31_105" = 3\r\nTHEN 3.6\r\nWHEN "A31_105" = 4\r\nTHEN 7\r\nWHEN "A31_105" = 5\r\nTHEN 14\r\nWHEN "A31_105" = 6\r\nTHEN 25\r\nWHEN "A31_205" = 1\r\nTHEN 0.2\r\nWHEN "A31_205" = 2\r\nTHEN 2\r\nWHEN "A31_205" = 3\r\nTHEN 3.6\r\nWHEN "A31_205" = 4\r\nTHEN 7\r\nWHEN "A31_205" = 5\r\nTHEN 14\r\nWHEN "A31_205" = 6\r\nTHEN 25\r\nWHEN "A31_405" = 1\r\nTHEN 0.2\r\nWHEN "A31_405" = 2\r\nTHEN 2\r\nWHEN "A31_405" = 3\r\nTHEN 3.6\r\nWHEN "A31_405" = 4\r\nTHEN 7\r\nWHEN "A31_405" = 5\r\nTHEN 14\r\nWHEN "A31_405" = 6\r\nTHEN 25\r\nEND',
+                "FORMULA": self._make_depth_calculation_formula(
+                    kouzui_cleaned.fields().names()
+                ),
                 "OUTPUT": os.path.join(output_directory, "kouzui_merged.gpkg"),
             },
         )
@@ -132,3 +133,27 @@ class Preprocessor:
 
         # TO DO: debug to force delete files in TEMP
         # shutil.rmtree(extracted_dir)
+
+    def _make_depth_calculation_formula(self, fields: list) -> str:
+        """make sql formula to calculate depth field
+        based on input field and specs"""
+        depth_formula = "CASE "
+        kouzui_v1_fields = ["A31_001"]
+        kouzui_v2_fields = [
+            "A31_101",
+            "A31_105",
+            "A31_201",
+            "A31_205",
+            "A31_301",
+            "A31_305",
+            "A31_401",
+            "A31_405",
+        ]
+        for field in fields:
+            if field in kouzui_v1_fields:
+                depth_formula += f'WHEN "{field}" = 11 THEN 0.2 WHEN "{field}" = 12 THEN 0.7 WHEN "{field}" = 13 THEN 1.4 WHEN "{field}" = 14 THEN 3 WHEN "{field}" = 15 THEN 7 WHEN "{field}" = 21 THEN 0.2 WHEN "{field}" = 22 THEN 0.7 WHEN "{field}" = 23 THEN 1.4 WHEN "{field}" = 24 THEN 2.4 WHEN "{field}" = 25 THEN 3.4 WHEN "{field}" = 26 THEN 4.4 WHEN "{field}" = 27 THEN 7 '
+            if field in kouzui_v2_fields:
+                depth_formula += f'WHEN "{field}" = 1 THEN 0.2 WHEN "{field}" = 2 THEN 2 WHEN "{field}" = 3 THEN 3.6 WHEN "{field}" = 4 THEN 7 WHEN "{field}" = 5 THEN 14 WHEN "{field}" = 6 THEN 25 '
+        depth_formula += "END"
+
+        return depth_formula
