@@ -2,7 +2,8 @@ import os
 import glob
 import subprocess
 import shutil
-import processing
+from osgeo import gdal
+
 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -93,10 +94,30 @@ class Preprocessor:
         extracted_dir = os.path.join(root_directory, "temp")
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-        merged_shapefiles = os.path.join(output_directory, "tmp_merged_shapefiles.gpkg")
+        merged_shapefiles = os.path.join(output_directory, "kouzui_merged.gpkg")
 
         # merge all shapefiles in one
-        cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln kozuishpmerged -f GPKG {merged_shapefiles} {shapefiles[0]}"
+        # fix geometries
+        # normalized with SQL
+        cmd = [
+            "ogr2ogr",
+            "-lco",
+            "ENCODING=cp932",
+            "-oo",
+            "ENCODING=cp932",
+            "-nln",
+            "kouzui_merged",
+            "-dialect",
+            "SQLITE",
+            "-sql",
+            self._make_depth_sql(shapefiles[0]),
+            "-makevalid",
+            "-f",
+            "GPKG",
+            merged_shapefiles,
+            shapefiles[0],
+        ]
+
         subprocess.run(
             cmd,
             shell=True,
@@ -104,7 +125,28 @@ class Preprocessor:
         )
 
         for shp in shapefiles[1:]:
-            cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln kozuishpmerged -f GPKG -append -addfields -update {merged_shapefiles} {shp}"
+            cmd = [
+                "ogr2ogr",
+                "-lco",
+                "ENCODING=cp932",
+                "-oo",
+                "ENCODING=cp932",
+                "-nln",
+                "kouzui_merged",
+                "-dialect",
+                "SQLITE",
+                "-sql",
+                self._make_depth_sql(shp),
+                "-makevalid",
+                "-f",
+                "GPKG",
+                "-append",
+                "-addfields",
+                "-update",
+                merged_shapefiles,
+                shp,
+            ]
+
             subprocess.run(
                 cmd,
                 shell=True,
@@ -112,48 +154,10 @@ class Preprocessor:
             )
         shutil.rmtree(extracted_dir)
 
-        # fix geometries
-        kouzui_cleaned = processing.run(
-            "native:fixgeometries",
-            {
-                "INPUT": merged_shapefiles,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-
-        # Depth calculation
-        kouzui_calculated = processing.run(
-            "native:fieldcalculator",
-            {
-                "INPUT": kouzui_cleaned,
-                "FIELD_NAME": "depth",
-                "FIELD_TYPE": 0,
-                "FIELD_LENGTH": 0,
-                "FIELD_PRECISION": 0,
-                "FORMULA": self._make_depth_calculation_formula(
-                    kouzui_cleaned.fields().names()
-                ),
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-
-        # retain only fid and depth fields (remove all others)
-        processing.run(
-            "native:retainfields",
-            {
-                "INPUT": kouzui_calculated,
-                "FIELDS": ["fid", "depth"],
-                "OUTPUT": os.path.join(output_directory, "kouzui_merged.gpkg"),
-            },
-        )
-
-        # delete tmp merged gpkg file
-        os.remove(merged_shapefiles)
-
-    def _make_depth_calculation_formula(self, fields: list) -> str:
+    def _make_depth_sql(self, input_geodata: str) -> str:
         """make sql formula to calculate depth field
         based on input field and specs"""
-        depth_formula = "CASE "
+
         kouzui_v1_fields = ["A31_001"]
         kouzui_v2_fields = [
             "A31_101",
@@ -165,11 +169,22 @@ class Preprocessor:
             "A31_401",
             "A31_405",
         ]
-        for field in fields:
-            if field in kouzui_v1_fields:
-                depth_formula += f'WHEN "{field}" = 11 THEN 0.2 WHEN "{field}" = 12 THEN 0.7 WHEN "{field}" = 13 THEN 1.4 WHEN "{field}" = 14 THEN 3 WHEN "{field}" = 15 THEN 7 WHEN "{field}" = 21 THEN 0.2 WHEN "{field}" = 22 THEN 0.7 WHEN "{field}" = 23 THEN 1.4 WHEN "{field}" = 24 THEN 2.4 WHEN "{field}" = 25 THEN 3.4 WHEN "{field}" = 26 THEN 4.4 WHEN "{field}" = 27 THEN 7 '
-            if field in kouzui_v2_fields:
-                depth_formula += f'WHEN "{field}" = 1 THEN 0.2 WHEN "{field}" = 2 THEN 2 WHEN "{field}" = 3 THEN 3.6 WHEN "{field}" = 4 THEN 7 WHEN "{field}" = 5 THEN 14 WHEN "{field}" = 6 THEN 25 '
-        depth_formula += "END"
 
-        return depth_formula
+        gdal_layer = gdal.OpenEx(input_geodata)
+        lyr = gdal_layer.GetLayer(0)
+        depth_sql = "SELECT geometry, CASE "
+
+        # v1
+        for field in kouzui_v1_fields:
+            if lyr.GetLayerDefn().GetFieldIndex(field) != -1:
+                depth_sql += f"WHEN {field} = 11 THEN 0.2 WHEN {field} = 12 THEN 0.7 WHEN {field} = 13 THEN 1.4 WHEN {field} = 14 THEN 3 WHEN {field} = 15 THEN 7 WHEN {field} = 21 THEN 0.2 WHEN {field} = 22 THEN 0.7 WHEN {field} = 23 THEN 1.4 WHEN {field} = 24 THEN 2.4 WHEN {field} = 25 THEN 3.4 WHEN {field} = 26 THEN 4.4 WHEN {field} = 27 THEN 7 "
+
+        # v2
+        for field in kouzui_v2_fields:
+            if lyr.GetLayerDefn().GetFieldIndex(field) != -1:
+                depth_sql += f"WHEN {field} = 1 THEN 0.2 WHEN {field} = 2 THEN 2 WHEN {field} = 3 THEN 3.6 WHEN {field} = 4 THEN 7 WHEN {field} = 5 THEN 14 WHEN {field} = 6 THEN 25 "
+
+        depth_sql += "END AS depth "
+        depth_sql += f'FROM "{lyr.GetName()}"'
+
+        return depth_sql
