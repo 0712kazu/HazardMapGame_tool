@@ -93,16 +93,24 @@ class Preprocessor:
         extracted_dir = os.path.join(root_directory, "temp")
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
+        merged_shapefiles = os.path.join(output_directory, "tmp_merged_shapefiles.gpkg")
 
         # merge all shapefiles in one
-        merged_shapefiles = processing.run(
-            "native:mergevectorlayers",
-            {
-                "LAYERS": shapefiles,
-                "CRS": None,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
+        cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln kozuishpmerged -f GPKG {merged_shapefiles} {shapefiles[0]}"
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+
+        for shp in shapefiles[1:]:
+            cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln kozuishpmerged -f GPKG -append -addfields -update {merged_shapefiles} {shp}"
+            subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
+            )
+        shutil.rmtree(extracted_dir)
 
         # fix geometries
         kouzui_cleaned = processing.run(
@@ -139,8 +147,8 @@ class Preprocessor:
             },
         )
 
-        # TO DO: debug to force delete files in TEMP
-        # shutil.rmtree(extracted_dir)
+        # delete tmp merged gpkg file
+        os.remove(merged_shapefiles)
 
     def _make_depth_calculation_formula(self, fields: list) -> str:
         """make sql formula to calculate depth field
