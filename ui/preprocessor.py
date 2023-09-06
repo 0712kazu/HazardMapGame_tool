@@ -177,12 +177,31 @@ class Preprocessor:
         # v1
         for field in kouzui_v1_fields:
             if lyr.GetLayerDefn().GetFieldIndex(field) != -1:
-                depth_sql += f"WHEN {field} = 11 THEN 0.2 WHEN {field} = 12 THEN 0.7 WHEN {field} = 13 THEN 1.4 WHEN {field} = 14 THEN 3 WHEN {field} = 15 THEN 7 WHEN {field} = 21 THEN 0.2 WHEN {field} = 22 THEN 0.7 WHEN {field} = 23 THEN 1.4 WHEN {field} = 24 THEN 2.4 WHEN {field} = 25 THEN 3.4 WHEN {field} = 26 THEN 4.4 WHEN {field} = 27 THEN 7 "
+                depth_sql += (
+                    f"WHEN {field} = 11 THEN 0.2 "
+                    f"WHEN {field} = 12 THEN 0.7 "
+                    f"WHEN {field} = 13 THEN 1.4 "
+                    f"WHEN {field} = 14 THEN 3 "
+                    f"WHEN {field} = 15 THEN 7 "
+                    f"WHEN {field} = 21 THEN 0.2 "
+                    f"WHEN {field} = 22 THEN 0.7 "
+                    f"WHEN {field} = 23 THEN 1.4 "
+                    f"WHEN {field} = 24 THEN 2.4 "
+                    f"WHEN {field} = 25 THEN 3.4 "
+                    f"WHEN {field} = 26 THEN 4.4 "
+                    f"WHEN {field} = 27 THEN 7 "
+                )
 
-        # v2
         for field in kouzui_v2_fields:
             if lyr.GetLayerDefn().GetFieldIndex(field) != -1:
-                depth_sql += f"WHEN {field} = 1 THEN 0.2 WHEN {field} = 2 THEN 2 WHEN {field} = 3 THEN 3.6 WHEN {field} = 4 THEN 7 WHEN {field} = 5 THEN 14 WHEN {field} = 6 THEN 25 "
+                depth_sql += (
+                    f"WHEN {field} = 1 THEN 0.2 "
+                    f"WHEN {field} = 2 THEN 2 "
+                    f"WHEN {field} = 3 THEN 3.6 "
+                    f"WHEN {field} = 4 THEN 7 "
+                    f"WHEN {field} = 5 THEN 14 "
+                    f"WHEN {field} = 6 THEN 25 "
+                )
 
         depth_sql += "END AS depth "
         depth_sql += f'FROM "{lyr.GetName()}"'
