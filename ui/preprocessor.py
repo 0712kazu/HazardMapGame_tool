@@ -1,10 +1,9 @@
-import os
 import glob
-import subprocess
+import os
 import shutil
+import subprocess
+
 from osgeo import gdal
-
-
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
@@ -19,7 +18,7 @@ from constants import (
     INPUT_DIR_ZISUBERI,
     OUTPUT_DIR,
 )
-from ui.utils import unpack_zips_from_dir, get_shapefiles_from_dir
+from ui.utils import get_shapefiles_from_dir, unpack_zips_from_dir
 
 
 class Preprocessor:
