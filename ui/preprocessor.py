@@ -26,7 +26,7 @@ class Preprocessor:
     def __init__(self, main: QDialog):
         self.main = main
 
-        self.main.pushButton_run.clicked.connect(self.run)
+        self.main.pushButton_run_2.clicked.connect(self.run)
         self.main.pushButton_cancel.clicked.connect(self.main.close)
 
         self.main.pushButton_select_dir.clicked.connect(
