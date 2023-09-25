@@ -4,13 +4,7 @@ import shutil
 import subprocess
 
 from osgeo import gdal
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qgis.core import *
-from qgis.gui import *
-from qgis.PyQt import uic
-from qgis.utils import iface
+from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from constants import (
     INPUT_DIR_KOZUI,
