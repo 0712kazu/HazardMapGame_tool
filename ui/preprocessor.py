@@ -67,7 +67,11 @@ class Preprocessor:
         unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
 
-        cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shapefiles[0]}"
+        cmd = (
+            f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG "
+            f"{os.path.join(output_directory, 'tochiriyou_merged.gpkg')}"
+            f" {shapefiles[0]}"
+        )
         subprocess.run(
             cmd,
             shell=True,
@@ -75,7 +79,11 @@ class Preprocessor:
         )
 
         for shp in shapefiles[1:]:
-            cmd = f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG -append -update {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shp}"
+            cmd = (
+                f"ogr2ogr -lco ENCODING=cp932"
+                f" -oo ENCODING=cp932 -f GPKG -append -update"
+                f" {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shp}"
+            )
             subprocess.run(
                 cmd,
                 shell=True,

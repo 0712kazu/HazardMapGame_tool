@@ -1,9 +1,6 @@
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qgis.core import *
-from qgis.gui import *
-from qgis.PyQt import uic
+from PyQt5.QtCore import Qt, pyqtSignal
+from qgis.core import QgsPointXY, QgsRectangle
+from qgis.gui import QgsMapTool, QgsRubberBand, QgsVertexMarker
 from qgis.utils import iface
 
 
@@ -11,6 +8,7 @@ class POIMapTool(QgsMapTool):
     """
     Canvasをクッリクし、ポイントジオメトリを取得するマップツール
     """
+
     clicked = pyqtSignal(object)
 
     def __init__(self):
@@ -88,8 +86,10 @@ class RectangleMapTool(QgsMapTool):
     def rectangle(self):
         if self.startPoint is None or self.endPoint is None:
             return None
-        elif (self.startPoint.x() == self.endPoint.x() or \
-              self.startPoint.y() == self.endPoint.y()):
+        elif (
+            self.startPoint.x() == self.endPoint.x()
+            or self.startPoint.y() == self.endPoint.y()
+        ):
             return None
         return QgsRectangle(self.startPoint, self.endPoint)
 
