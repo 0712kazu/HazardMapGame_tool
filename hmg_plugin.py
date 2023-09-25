@@ -1,10 +1,7 @@
 import os
 
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from qgis.core import *
-from qgis.gui import *
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QAction
 
 from ui.main_window import MainWindow
 
@@ -24,16 +21,17 @@ class Sample:
         self.main_window = MainWindow()
 
     def add_action(
-            self,
-            icon_path,
-            text,
-            callback,
-            enabled_flag=True,
-            add_to_menu=True,
-            add_to_toolbar=True,
-            status_tip=None,
-            whats_this=None,
-            parent=None):
+        self,
+        icon_path,
+        text,
+        callback,
+        enabled_flag=True,
+        add_to_menu=True,
+        add_to_toolbar=True,
+        status_tip=None,
+        whats_this=None,
+        parent=None,
+    ):
         icon = QIcon(icon_path)
         action = QAction(icon, text, parent)
         action.triggered.connect(callback)
@@ -45,9 +43,7 @@ class Sample:
         if add_to_toolbar:
             self.toolbar.addAction(action)
         if add_to_menu:
-            self.iface.addPluginToMenu(
-                self.menu,
-                action)
+            self.iface.addPluginToMenu(self.menu, action)
         self.actions.append(action)
         return action
 
@@ -56,7 +52,8 @@ class Sample:
             icon_path="",
             text="HMGデータ作成",
             callback=self.show_data_generator_window,
-            parent=self.win)
+            parent=self.win,
+        )
 
     def unload(self):
         for action in self.actions:
