@@ -2,6 +2,8 @@ import glob
 import os
 import zipfile
 
+from qgis.core import QgsProject, QgsVectorLayer
+
 
 def unpack_zips_from_dir(target_dir: str, extracted_dir: str):
     """unpack all zip files in target_dir to extract_dir"""
@@ -35,18 +37,14 @@ def extract_sjis_zip(src_zip: str, dest: str) -> None:
             zfile.extract(info, dest)
 
 
-def list_sjis_zip(src_zip: str):
-    """SJIS の zip ファイルの中身をファイル名の文字化けを避けてリストアップする"""
-    info_all = []
-    with zipfile.ZipFile(src_zip) as zfile:
-        for info in zfile.infolist():
-            _rename(info)
-            info_all.append(info)
-    return info_all
-
-
 def _rename(info: zipfile.ZipInfo) -> None:
     """ヘルパー: `ZipInfo` の中身をデコードし直す"""
     LANG_ENC_FLAG = 0x800
     encoding = "utf-8" if info.flag_bits & LANG_ENC_FLAG else "cp437"
     info.filename = info.filename.encode(encoding).decode("cp932")
+
+
+def add_vlayer_from_file(path: str, layername: str):
+    """SAGAアルゴリズムの出力ファイルを一時ファイルにする時、OUTPUTがファイルパスなので、
+    ファイルからベクタレイヤをQGISに追加する"""
+    QgsProject.instance().addMapLayer(QgsVectorLayer(path, layername, "ogr"))

@@ -4,6 +4,7 @@ import shutil
 import subprocess
 
 from osgeo import gdal
+from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from constants import (
@@ -64,7 +65,8 @@ class Preprocessor:
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
-        unpack_zips_from_dir(root_directory, extracted_dir)
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
 
         cmd = (
@@ -93,67 +95,71 @@ class Preprocessor:
 
     def preprocess_kozui(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
-        unpack_zips_from_dir(root_directory, extracted_dir)
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         merged_shapefiles = os.path.join(output_directory, "kouzui_merged.gpkg")
+
+        # merge all shp to gpkg
+        ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
 
         # merge all shapefiles in one
         # fix geometries
         # normalized with SQL
-        cmd = [
-            "ogr2ogr",
-            "-lco",
-            "ENCODING=cp932",
-            "-oo",
-            "ENCODING=cp932",
-            "-nln",
-            "kouzui_merged",
-            "-dialect",
-            "SQLITE",
-            "-sql",
-            self._make_depth_sql(shapefiles[0]),
-            "-makevalid",
-            "-f",
-            "GPKG",
-            merged_shapefiles,
-            shapefiles[0],
-        ]
+        # cmd = [
+        #     "ogr2ogr",
+        #     "-lco",
+        #     "ENCODING=cp932",
+        #     "-oo",
+        #     "ENCODING=cp932",
+        #     "-nln",
+        #     "kouzui_merged",
+        #     "-dialect",
+        #     "SQLITE",
+        #     "-sql",
+        #     self._make_depth_sql(shapefiles[0]),
+        #     "-makevalid",
+        #     "-f",
+        #     "GPKG",
+        #     merged_shapefiles,
+        #     shapefiles[0],
+        # ]
+        #
+        # subprocess.run(
+        #     cmd,
+        #     shell=True,
+        #     check=True,
+        # )
 
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-        )
-
-        for shp in shapefiles[1:]:
-            cmd = [
-                "ogr2ogr",
-                "-lco",
-                "ENCODING=cp932",
-                "-oo",
-                "ENCODING=cp932",
-                "-nln",
-                "kouzui_merged",
-                "-dialect",
-                "SQLITE",
-                "-sql",
-                self._make_depth_sql(shp),
-                "-makevalid",
-                "-f",
-                "GPKG",
-                "-append",
-                "-addfields",
-                "-update",
-                merged_shapefiles,
-                shp,
-            ]
-
-            subprocess.run(
-                cmd,
-                shell=True,
-                check=True,
-            )
-        shutil.rmtree(extracted_dir)
+        # for shp in shapefiles[1:]:
+        #     cmd = [
+        #         "ogr2ogr",
+        #         "-lco",
+        #         "ENCODING=cp932",
+        #         "-oo",
+        #         "ENCODING=cp932",
+        #         "-nln",
+        #         "kouzui_merged",
+        #         "-dialect",
+        #         "SQLITE",
+        #         "-sql",
+        #         self._make_depth_sql(shp),
+        #         "-makevalid",
+        #         "-f",
+        #         "GPKG",
+        #         "-append",
+        #         "-addfields",
+        #         "-update",
+        #         merged_shapefiles,
+        #         shp,
+        #     ]
+        #
+        #     subprocess.run(
+        #         cmd,
+        #         shell=True,
+        #         check=True,
+        #     )
+        # shutil.rmtree(extracted_dir)
 
     def _make_depth_sql(self, input_geodata: str) -> str:
         """make sql formula to calculate depth field
