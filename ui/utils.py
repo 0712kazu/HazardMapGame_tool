@@ -35,16 +35,6 @@ def extract_sjis_zip(src_zip: str, dest: str) -> None:
             zfile.extract(info, dest)
 
 
-def list_sjis_zip(src_zip: str):
-    """SJIS の zip ファイルの中身をファイル名の文字化けを避けてリストアップする"""
-    info_all = []
-    with zipfile.ZipFile(src_zip) as zfile:
-        for info in zfile.infolist():
-            _rename(info)
-            info_all.append(info)
-    return info_all
-
-
 def _rename(info: zipfile.ZipInfo) -> None:
     """ヘルパー: `ZipInfo` の中身をデコードし直す"""
     LANG_ENC_FLAG = 0x800
