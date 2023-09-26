@@ -16,7 +16,7 @@ from qgis.gui import QtCore
 from qgis.utils import iface
 
 import constants
-from converter import seamless2hmg_kosui
+from converter.seamless2hmg import seamless2hmg_kosui
 from maptool import POIMapTool
 
 
