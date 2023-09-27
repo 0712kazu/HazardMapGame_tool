@@ -26,30 +26,32 @@ def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
     depth_sql = "SELECT geometry, CASE "
 
     for field in kouzui_v1_fields:
-        depth_sql += (
-            f"WHEN {field} = 11 THEN 0.2 "
-            f"WHEN {field} = 12 THEN 0.7 "
-            f"WHEN {field} = 13 THEN 1.4 "
-            f"WHEN {field} = 14 THEN 3 "
-            f"WHEN {field} = 15 THEN 7 "
-            f"WHEN {field} = 21 THEN 0.2 "
-            f"WHEN {field} = 22 THEN 0.7 "
-            f"WHEN {field} = 23 THEN 1.4 "
-            f"WHEN {field} = 24 THEN 2.4 "
-            f"WHEN {field} = 25 THEN 3.4 "
-            f"WHEN {field} = 26 THEN 4.4 "
-            f"WHEN {field} = 27 THEN 7 "
-        )
+        if kozui_layer.fields().lookupField(field) != -1:
+            depth_sql += (
+                f"WHEN {field} = 11 THEN 0.2 "
+                f"WHEN {field} = 12 THEN 0.7 "
+                f"WHEN {field} = 13 THEN 1.4 "
+                f"WHEN {field} = 14 THEN 3 "
+                f"WHEN {field} = 15 THEN 7 "
+                f"WHEN {field} = 21 THEN 0.2 "
+                f"WHEN {field} = 22 THEN 0.7 "
+                f"WHEN {field} = 23 THEN 1.4 "
+                f"WHEN {field} = 24 THEN 2.4 "
+                f"WHEN {field} = 25 THEN 3.4 "
+                f"WHEN {field} = 26 THEN 4.4 "
+                f"WHEN {field} = 27 THEN 7 "
+            )
 
     for field in kouzui_v2_fields:
-        depth_sql += (
-            f"WHEN {field} = 1 THEN 0.2 "
-            f"WHEN {field} = 2 THEN 2 "
-            f"WHEN {field} = 3 THEN 3.6 "
-            f"WHEN {field} = 4 THEN 7 "
-            f"WHEN {field} = 5 THEN 14 "
-            f"WHEN {field} = 6 THEN 25 "
-        )
+        if kozui_layer.fields().lookupField(field) != -1:
+            depth_sql += (
+                f"WHEN {field} = 1 THEN 0.2 "
+                f"WHEN {field} = 2 THEN 2 "
+                f"WHEN {field} = 3 THEN 3.6 "
+                f"WHEN {field} = 4 THEN 7 "
+                f"WHEN {field} = 5 THEN 14 "
+                f"WHEN {field} = 6 THEN 25 "
+            )
 
     depth_sql += "END AS depth "
     depth_sql += f"FROM {kozui_layer.name()}"
