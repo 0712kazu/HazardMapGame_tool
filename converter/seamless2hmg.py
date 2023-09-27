@@ -93,14 +93,25 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    QgsProject.instance().addMapLayer(kozui_cliped)
+    kozui_cliped_fixed = processing.run(
+        "native:fixgeometries",
+        {
+            "INPUT": kozui_cliped,
+            "METHOD": 1,  # strucutre
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    kozui_cliped_fixed.setName("kozui_cliped")
+
+    QgsProject.instance().addMapLayer(kozui_cliped_fixed)
 
     # 標準化
     kozui_standard = processing.run(
         "qgis:executesql",
         {
-            "INPUT_DATASOURCES": [kozui_cliped],
-            "INPUT_QUERY": _make_depth_sql(kozui_cliped),
+            "INPUT_DATASOURCES": [kozui_cliped_fixed],
+            "INPUT_QUERY": _make_depth_sql(kozui_cliped_fixed),
             "INPUT_UID_FIELD": "",
             "INPUT_GEOMETRY_FIELD": "",
             "INPUT_GEOMETRY_TYPE": None,
