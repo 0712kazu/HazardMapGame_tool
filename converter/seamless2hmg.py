@@ -1,6 +1,12 @@
 import processing
 from PyQt5.QtWidgets import QProgressBar
-from qgis.core import QgsProcessingFeedback, QgsProject, QgsVectorLayer
+from qgis.core import (
+    QgsFeatureRequest,
+    QgsProcessingFeatureSourceDefinition,
+    QgsProcessingFeedback,
+    QgsProject,
+    QgsVectorLayer,
+)
 from qgis.gui import QgisInterface
 
 
@@ -73,7 +79,13 @@ def seamless2hmg_kosui(
     kozui_cliped = processing.run(
         "native:clip",
         {
-            "INPUT": kozui_lyr.source(),
+            "INPUT": QgsProcessingFeatureSourceDefinition(
+                kozui_lyr.source(),
+                selectedFeaturesOnly=False,
+                featureLimit=-1,
+                flags=QgsProcessingFeatureSourceDefinition.FlagOverrideDefaultGeometryCheck,
+                geometryCheck=QgsFeatureRequest.GeometryNoCheck,
+            ),
             "OVERLAY": waku_lyr,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
