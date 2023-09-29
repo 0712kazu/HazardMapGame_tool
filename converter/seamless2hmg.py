@@ -1,6 +1,7 @@
 import processing
 from PyQt5.QtWidgets import QProgressBar
 from qgis.core import (
+    QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
     QgsProcessingFeatureSourceDefinition,
     QgsProcessingFeedback,
@@ -8,6 +9,8 @@ from qgis.core import (
     QgsVectorLayer,
 )
 from qgis.gui import QgisInterface
+
+from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 
 def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
@@ -85,7 +88,7 @@ def seamless2hmg_kosui(
                 kozui_lyr.source(),
                 selectedFeaturesOnly=False,
                 featureLimit=-1,
-                flags=QgsProcessingFeatureSourceDefinition.FlagOverrideDefaultGeometryCheck,
+                flags=qpfsd.FlagOverrideDefaultGeometryCheck,
                 geometryCheck=QgsFeatureRequest.GeometryNoCheck,
             ),
             "OVERLAY": waku_lyr,
