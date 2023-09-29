@@ -101,3 +101,4 @@ class Preprocessor:
 
         # merge all shp to gpkg
         ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
+        shutil.rmtree(extracted_dir)
