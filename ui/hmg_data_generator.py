@@ -16,6 +16,7 @@ from qgis.gui import QtCore
 from qgis.utils import iface
 
 import constants
+from converter.seamless2hmg import seamless2hmg_kosui
 from maptool import POIMapTool
 
 
@@ -34,6 +35,7 @@ class HGMDataGenerator:
             )
         )
         self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
+        self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
         # 縮尺コントローラー
         self.scale_list = [10000, 25000, 50000, 100000, 250000]
@@ -156,10 +158,7 @@ class HGMDataGenerator:
             },
         )["OUTPUT"]
         QgsProject.instance().addMapLayer(output_layer)
-        output_layer.setName(
-            f"mesh_{self.main.comboBox_pref.currentText()}"
-            f"_{self.main.comboBox_city.currentText()}"
-        )
+        output_layer.setName("mesh")
         output_layer.setOpacity(0.5)
         return output_layer
 
@@ -258,10 +257,19 @@ class HGMDataGenerator:
                 center_y + long_side_a1 * scale / 2,
             )
 
-        self.add_rect_as_a_layer(
-            waku_rec,
-            f"waku_{self.main.comboBox_pref.currentText()}"
-            f"_{self.main.comboBox_city.currentText()}",
-        )
+        self.add_rect_as_a_layer(waku_rec, "waku")
         self.canvas.setExtent(waku_rec)
         self.create_grid(grid_extent_str, grid_map_size)
+
+    def process_hmg(self):
+        kosui_lyr = QgsVectorLayer(
+            os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(), "kouzui_merged.gpkg"
+            ),
+            "kozui_merged",
+            "ogr",
+        )
+        waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
+        mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
+
+        seamless2hmg_kosui(kosui_lyr, waku_lyr, mesh_lyr, iface)

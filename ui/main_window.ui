@@ -525,7 +525,7 @@
          </property>
          <layout class="QFormLayout" name="formLayout">
           <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_processgmg">
+           <widget class="QPushButton" name="pushButton_processhmg">
             <property name="text">
              <string>HMGデータの作成を開始する</string>
             </property>
