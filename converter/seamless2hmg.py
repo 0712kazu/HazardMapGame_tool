@@ -123,7 +123,20 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    QgsProject.instance().addMapLayer(kozui_standard)
+    opt = (
+        "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step"
+        " +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84"
+    )
+
+    kozui_standard = processing.run(
+        "native:reprojectlayer",
+        {
+            "INPUT": kozui_standard,
+            "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+            "OPERATION": opt,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
 
     # 20m間隔ポイントを作成
     pnt_lyr = processing.run(
