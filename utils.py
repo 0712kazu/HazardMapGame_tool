@@ -1,6 +1,7 @@
 import glob
 import os
 import zipfile
+from osgeo import ogr
 
 from qgis.core import QgsProject, QgsVectorLayer
 
@@ -48,3 +49,12 @@ def add_vlayer_from_file(path: str, layername: str):
     """SAGAアルゴリズムの出力ファイルを一時ファイルにする時、OUTPUTがファイルパスなので、
     ファイルからベクタレイヤをQGISに追加する"""
     QgsProject.instance().addMapLayer(QgsVectorLayer(path, layername, "ogr"))
+
+
+def geom_type_from_shp(input_shp: str) -> str:
+    shapefile = ogr.Open(input_shp)
+    layer = shapefile.GetLayer()
+
+    for feature in layer:
+        geometry = feature.GetGeometryRef()
+        return geometry.GetGeometryName()
