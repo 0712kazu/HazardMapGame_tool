@@ -1,7 +1,6 @@
 import glob
 import os
 import shutil
-import subprocess
 
 from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
@@ -9,10 +8,15 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 from constants import (
     INPUT_DIR_KOZUI,
     INPUT_DIR_TOCHIRIYOU,
-    INPUT_DIR_ZISUBERI,
+    INPUT_DIR_JISUBERI,
     OUTPUT_DIR,
 )
-from utils import get_shapefiles_from_dir, unpack_zips_from_dir
+from utils import (
+    get_shapefiles_from_dir,
+    unpack_zips_from_dir,
+    geom_type_from_shp,
+    merge_shapefiles,
+)
 
 
 class Preprocessor:
@@ -35,7 +39,7 @@ class Preprocessor:
         for folder_name, filewidget in (
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
-            (INPUT_DIR_ZISUBERI, self.main.QgsFileWidget_zisuberi),
+            (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
         ):
             folders = glob.glob(
@@ -61,6 +65,11 @@ class Preprocessor:
                 self.main.QgsFileWidget_kozui.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+        if self.main.QgsFileWidget_jisuberi.filePath():
+            self.preprocess_jisuberi(
+                self.main.QgsFileWidget_jisuberi.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
@@ -68,28 +77,11 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
 
-        cmd = (
-            f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -f GPKG "
-            f"{os.path.join(output_directory, 'tochiriyou_merged.gpkg')}"
-            f" {shapefiles[0]}"
-        )
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, "tochiriyou_merged.gpkg")
         )
 
-        for shp in shapefiles[1:]:
-            cmd = (
-                f"ogr2ogr -lco ENCODING=cp932"
-                f" -oo ENCODING=cp932 -f GPKG -append -update"
-                f" {os.path.join(output_directory, 'tochiriyou_merged.gpkg')} {shp}"
-            )
-            subprocess.run(
-                cmd,
-                shell=True,
-                check=True,
-            )
         shutil.rmtree(extracted_dir)
 
     def preprocess_kozui(self, root_directory: str, output_directory: str):
@@ -101,4 +93,22 @@ class Preprocessor:
 
         # merge all shp to gpkg
         ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
+        shutil.rmtree(extracted_dir)
+
+    def preprocess_jisuberi(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
+
+        # get only polygon shapefiles
+        for shapefile in shapefiles:
+            if geom_type_from_shp(shapefile) != "POLYGON":
+                shapefiles.remove(shapefile)
+
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, "jisuberi_merged.gpkg")
+        )
+
         shutil.rmtree(extracted_dir)

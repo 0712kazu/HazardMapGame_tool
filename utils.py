@@ -1,6 +1,8 @@
 import glob
 import os
+import subprocess
 import zipfile
+from osgeo import ogr
 
 from qgis.core import QgsProject, QgsVectorLayer
 
@@ -48,3 +50,39 @@ def add_vlayer_from_file(path: str, layername: str):
     """SAGAアルゴリズムの出力ファイルを一時ファイルにする時、OUTPUTがファイルパスなので、
     ファイルからベクタレイヤをQGISに追加する"""
     QgsProject.instance().addMapLayer(QgsVectorLayer(path, layername, "ogr"))
+
+
+def geom_type_from_shp(input_shp: str) -> str:
+    shapefile = ogr.Open(input_shp)
+    layer = shapefile.GetLayer()
+
+    for feature in layer:
+        geometry = feature.GetGeometryRef()
+        return geometry.GetGeometryName()
+
+
+def merge_shapefiles(shapefiles: list, output_path: str):
+    """merge all shapefiles given in a file path list into a single geopackage file"""
+    layer_name = os.path.splitext(os.path.basename(output_path))[0]
+    cmd = (
+        f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln {layer_name} -f GPKG "
+        f"{output_path}"
+        f" {shapefiles[0]}"
+    )
+    subprocess.run(
+        cmd,
+        shell=True,
+        check=True,
+    )
+
+    for shp in shapefiles[1:]:
+        cmd = (
+            f"ogr2ogr -lco ENCODING=cp932"
+            f" -oo ENCODING=cp932 -nln {layer_name} -f GPKG -append -update"
+            f" {output_path} {shp}"
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
