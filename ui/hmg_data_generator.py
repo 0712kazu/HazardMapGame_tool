@@ -16,7 +16,7 @@ from qgis.gui import QtCore
 from qgis.utils import iface
 
 import constants
-from converter.seamless2hmg import seamless2hmg_kosui
+from converter.seamless2hmg import seamless2hmg_kosui, seamless2hmg_jisuberi
 from maptool import POIMapTool
 
 
@@ -262,14 +262,27 @@ class HGMDataGenerator:
         self.create_grid(grid_extent_str, grid_map_size)
 
     def process_hmg(self):
+        waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
+        mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
+
         kosui_lyr = QgsVectorLayer(
             os.path.join(
                 self.main.FileWidgetSeamlessDir.filePath(), "kouzui_merged.gpkg"
             ),
-            "kozui_merged",
+            "kouzui_merged",
             "ogr",
         )
-        waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
-        mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
+        if kosui_lyr:
+            mesh_lyr = seamless2hmg_kosui(kosui_lyr, waku_lyr, mesh_lyr, iface)
 
-        seamless2hmg_kosui(kosui_lyr, waku_lyr, mesh_lyr, iface)
+        jisuberi_lyr = QgsVectorLayer(
+            os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(), "jisuberi_merged.gpkg"
+            ),
+            "jisuberi_merged",
+            "ogr",
+        )
+        if jisuberi_lyr:
+            mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+
+        QgsProject.instance().addMapLayer(mesh_lyr)
