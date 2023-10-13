@@ -265,24 +265,28 @@ class HGMDataGenerator:
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
-        kosui_lyr = QgsVectorLayer(
-            os.path.join(
-                self.main.FileWidgetSeamlessDir.filePath(), "kouzui_merged.gpkg"
-            ),
-            "kouzui_merged",
-            "ogr",
+        kouzui_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "kouzui_merged.gpkg"
         )
-        if kosui_lyr:
-            mesh_lyr = seamless2hmg_kosui(kosui_lyr, waku_lyr, mesh_lyr, iface)
+        if os.path.exists(kouzui_path):
+            kouzui_lyr = QgsVectorLayer(
+                kouzui_path,
+                "kouzui_merged",
+                "ogr",
+            )
+            mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
 
-        jisuberi_lyr = QgsVectorLayer(
-            os.path.join(
-                self.main.FileWidgetSeamlessDir.filePath(), "jisuberi_merged.gpkg"
-            ),
-            "jisuberi_merged",
-            "ogr",
+        jisuberi_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "jisuberi_merged.gpkg"
         )
-        if jisuberi_lyr:
-            mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+        if os.path.exists(jisuberi_path):
+            jisuberi_lyr = QgsVectorLayer(
+                jisuberi_path,
+                "jisuberi_merged",
+                "ogr",
+            )
+            if jisuberi_lyr:
+                mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
 
+        mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)

@@ -191,7 +191,6 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
     qgis_iface.messageBar().clearWidgets()
 
-    # QgsProject.instance().addMapLayer(kosui_sum_mesh)
     return kosui_sum_mesh
 
 
@@ -302,4 +301,3 @@ def seamless2hmg_jisuberi(
     )["OUTPUT"]
 
     return jisuberi_sum_mesh
-    # QgsProject.instance().addMapLayer(jisuberi_sum_mesh)
