@@ -287,6 +287,7 @@ def seamless2hmg_jisuberi(
     )["OUTPUT"]
 
     # populate null values with 0
+    landslide_sql = 'CASE WHEN "landslide_area" > 0 THEN "landslide_area" ELSE 0 END'
     jisuberi_sum_mesh = processing.run(
         "native:fieldcalculator",
         {
@@ -295,7 +296,7 @@ def seamless2hmg_jisuberi(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": 'CASE WHEN "landslide_area" > 0 THEN "landslide_area" ELSE 0 END',
+            "FORMULA": landslide_sql,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
