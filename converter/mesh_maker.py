@@ -43,13 +43,20 @@ def _add_rect_as_a_layer(rect: QgsRectangle, layer_name: str):
     rect_layer.setOpacity(0.5)
 
 
-def generate_mesh_point(center_x, center_y) -> QgsVectorLayer:
-    center_x = float(center_x)
-    center_y = float(center_y)
+def generate_mesh_point(
+    center_x: float, center_y: float, orientation: str
+) -> QgsVectorLayer:
     scale = 25000
     grid_map_size = 6 * scale / 100
+
+    # default : 横
     nrows = 8
     ncolumns = 12
+
+    if orientation == "縦":
+        nrows = 12
+        ncolumns = 8
+
     grid_extent_str = (
         f"{center_x - (grid_map_size * ncolumns / 2)},"
         f" {center_x + (grid_map_size * ncolumns / 2)},"
@@ -63,14 +70,15 @@ def generate_mesh_point(center_x, center_y) -> QgsVectorLayer:
     # A1の紙のサイズ
     space = 6 * scale / 100
     mesh_extent = mesh_lyr.extent()
-    waku = QgsRectangle(
+    waku_rec = QgsRectangle(
         mesh_extent.xMinimum() - space,
         mesh_extent.yMinimum() - space,
         mesh_extent.xMaximum() + space,
         mesh_extent.yMaximum() + space,
     )
-    iface.mapCanvas().setExtent(waku)
+    iface.mapCanvas().setExtent(waku_rec)
     iface.mapCanvas().refresh()
+    _add_rect_as_a_layer(waku_rec, "waku")
 
     return mesh_lyr
 

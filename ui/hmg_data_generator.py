@@ -29,11 +29,12 @@ class HGMDataGenerator:
 
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
-        self.main.pushButton_mesh.clicked.connect(
-            lambda: self.generate_mesh(
-                self.main.lineEdit_x.text(), self.main.lineEdit_y.text()
-            )
-        )
+        # self.main.pushButton_mesh.clicked.connect(
+        #     lambda: self.generate_mesh(
+        #         float(self.main.lineEdit_x.text()), float(self.main.lineEdit_y.text())
+        #     )
+        # )
+        self.main.pushButton_mesh.clicked.connect(self.generate_mesh)
         self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
@@ -106,7 +107,7 @@ class HGMDataGenerator:
         maptool.clicked.connect(show_xy)
         iface.mapCanvas().setMapTool(maptool)
 
-    def generate_mesh(self, center_x, center_y):
+    def generate_mesh(self):
         if self.main.radioButton_city.isChecked():
             # 市区町村からメッシュを作成する
             mesh_lyr = generate_mesh_city(
@@ -117,7 +118,11 @@ class HGMDataGenerator:
 
         elif self.main.radioButton_point.isChecked():
             # 中心点座標からメッシュを作成する
-            mesh_lyr = generate_mesh_point(center_x, center_y)
+            mesh_lyr = generate_mesh_point(
+                float(self.main.lineEdit_x.text()),
+                float(self.main.lineEdit_y.text()),
+                self.main.comboBox_orientation.currentText(),
+            )
 
         # exclude offshore mesh (more than 90% of water)
         landuse_path = os.path.join(
