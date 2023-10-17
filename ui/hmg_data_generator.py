@@ -109,13 +109,29 @@ class HGMDataGenerator:
     def generate_mesh(self, center_x, center_y):
         if self.main.radioButton_city.isChecked():
             # 市区町村からメッシュを作成する
-            self.generate_mesh_shikucyoson()
+            mesh_lyr = self.generate_mesh_shikucyoson()
 
         elif self.main.radioButton_point.isChecked():
             # 中心点座標からメッシュを作成する
-            self.generate_mesh_point(center_x, center_y)
+            mesh_lyr = self.generate_mesh_point(center_x, center_y)
 
-    def generate_mesh_point(self, center_x, center_y):
+        # exclude offshore mesh (more than 90% of water)
+        landuse_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "tochiriyou_merged.gpkg"
+        )
+        if os.path.exists(landuse_path):
+            landuse_lyr = QgsVectorLayer(
+                landuse_path,
+                "landuse_merged",
+                "ogr",
+            )
+            mesh_lyr = self._exclude_offshore_mesh(mesh_lyr, landuse_lyr)
+
+        QgsProject.instance().addMapLayer(mesh_lyr)
+        mesh_lyr.setName("mesh")
+        mesh_lyr.setOpacity(0.5)
+
+    def generate_mesh_point(self, center_x, center_y) -> QgsVectorLayer:
         center_x = float(center_x)
         center_y = float(center_y)
         scale = 25000
@@ -129,11 +145,12 @@ class HGMDataGenerator:
             f"{center_y + (grid_map_size * nrows / 2)} [EPSG:3857]"
         )
 
-        mesh_layer = self.create_grid(grid_extent_str, grid_map_size)
+        mesh_lyr = self.create_grid(grid_extent_str, grid_map_size)
+
         # ワクを作成
         # A1の紙のサイズ
         space = 6 * scale / 100
-        mesh_extent = mesh_layer.extent()
+        mesh_extent = mesh_lyr.extent()
         waku = QgsRectangle(
             mesh_extent.xMinimum() - space,
             mesh_extent.yMinimum() - space,
@@ -142,6 +159,8 @@ class HGMDataGenerator:
         )
         self.canvas.setExtent(waku)
         self.canvas.refresh()
+
+        return mesh_lyr
 
     def create_grid(self, grid_extent_str, grid_map_size):
         output_layer = processing.run(
@@ -157,9 +176,7 @@ class HGMDataGenerator:
                 "OUTPUT": QgsProcessing.TEMPORARY_OUTPUT,
             },
         )["OUTPUT"]
-        QgsProject.instance().addMapLayer(output_layer)
-        output_layer.setName("mesh")
-        output_layer.setOpacity(0.5)
+
         return output_layer
 
     def add_rect_as_a_layer(self, rect: QgsRectangle, layer_name: str):
@@ -172,7 +189,7 @@ class HGMDataGenerator:
         QgsProject.instance().addMapLayer(rect_layer)
         rect_layer.setOpacity(0.5)
 
-    def generate_mesh_shikucyoson(self):
+    def generate_mesh_shikucyoson(self) -> QgsVectorLayer:
         space = 200  # 余白
         mesh_size = 0.06  # メッシュのサイズ=6cm
 
@@ -259,7 +276,110 @@ class HGMDataGenerator:
 
         self.add_rect_as_a_layer(waku_rec, "waku")
         self.canvas.setExtent(waku_rec)
-        self.create_grid(grid_extent_str, grid_map_size)
+        mesh_lyr = self.create_grid(grid_extent_str, grid_map_size)
+
+        return mesh_lyr
+
+    def _exclude_offshore_mesh(
+        self, mesh_lyr: QgsVectorLayer, landuse_lyr: QgsVectorLayer
+    ) -> QgsVectorLayer:
+        # clip landuse to only mesh area
+        landuse_clipped = processing.run(
+            "native:clip",
+            {
+                "INPUT": landuse_lyr,
+                "OVERLAY": mesh_lyr,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # reproject to mesh CRS
+        landuse_reprojected = processing.run(
+            "native:reprojectlayer",
+            {
+                "INPUT": landuse_clipped,
+                "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+                "OPERATION": "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # intersect with mesh CRS
+        landuse_intersected = processing.run(
+            "native:intersection",
+            {
+                "INPUT": mesh_lyr,
+                "OVERLAY": landuse_reprojected,
+                "INPUT_FIELDS": [],
+                "OVERLAY_FIELDS": ["土地利用種"],
+                "OVERLAY_FIELDS_PREFIX": "",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+                "GRID_SIZE": None,
+            },
+        )["OUTPUT"]
+
+        # remove water landuse (1100 and 1500 values of 土地利用種)
+        inland_meshes = processing.run(
+            "native:extractbyexpression",
+            {
+                "INPUT": landuse_intersected,
+                "EXPRESSION": " \"土地利用種\" NOT IN ( '1100' , '1500' )",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # dissolve by hmg mesh
+        inland_meshes_dissolved = processing.run(
+            "native:dissolve",
+            {
+                "INPUT": inland_meshes,
+                "FIELD": ["id"],
+                "SEPARATE_DISJOINT": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # calculate inland area
+        inland_meshes_area = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": inland_meshes_dissolved,
+                "FIELD_NAME": "inland_area",
+                "FIELD_TYPE": 0,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": " $area ",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # join inland area to input hmg mesh
+        mesh_inland_area = processing.run(
+            "native:joinattributestable",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD": "id",
+                "INPUT_2": inland_meshes_area,
+                "FIELD_2": "id",
+                "FIELDS_TO_COPY": ["inland_area"],
+                "METHOD": 1,
+                "DISCARD_NONMATCHING": False,
+                "PREFIX": "",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # keep only mesh which have >= 10% of inland area
+        offshore_excluded_meshes = processing.run(
+            "native:extractbyexpression",
+            {
+                "INPUT": mesh_inland_area,
+                "EXPRESSION": ' "inland_area" / $area >= 0.1',
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        return offshore_excluded_meshes
 
     def process_hmg(self):
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
