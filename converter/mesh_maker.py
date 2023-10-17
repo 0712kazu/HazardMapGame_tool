@@ -180,12 +180,16 @@ def exclude_offshore_mesh(
     )["OUTPUT"]
 
     # reproject to mesh CRS
+    proj_operation = (
+        "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step"
+        " +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84"
+    )
     landuse_reprojected = processing.run(
         "native:reprojectlayer",
         {
             "INPUT": landuse_clipped,
             "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
-            "OPERATION": "+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84",
+            "OPERATION": proj_operation,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
