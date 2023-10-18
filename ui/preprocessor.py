@@ -9,6 +9,7 @@ from constants import (
     INPUT_DIR_KOZUI,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_JISUBERI,
+    INPUT_DIR_SAIGAI,
     OUTPUT_DIR,
 )
 from utils import (
@@ -40,6 +41,7 @@ class Preprocessor:
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
+            (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
         ):
             folders = glob.glob(
@@ -70,7 +72,12 @@ class Preprocessor:
                 self.main.QgsFileWidget_jisuberi.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-
+        if self.main.QgsFileWidget_saigai.filePath():
+            self.preprocess_saigai(
+                self.main.QgsFileWidget_saigai.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+    
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
@@ -109,6 +116,24 @@ class Preprocessor:
         # merge all shp to gpkg
         merge_shapefiles(
             shapefiles, os.path.join(output_directory, "jisuberi_merged.gpkg")
+        )
+
+        shutil.rmtree(extracted_dir)
+    
+    def preprocess_saigai(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
+
+        # get only polygon shapefiles
+        for shapefile in shapefiles:
+            if geom_type_from_shp(shapefile) != "POLYGON":
+                shapefiles.remove(shapefile)
+
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, "saigai_merged.gpkg")
         )
 
         shutil.rmtree(extracted_dir)
