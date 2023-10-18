@@ -29,23 +29,19 @@ class HGMDataGenerator:
 
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
-        # self.main.pushButton_mesh.clicked.connect(
-        #     lambda: self.generate_mesh(
-        #         float(self.main.lineEdit_x.text()), float(self.main.lineEdit_y.text())
-        #     )
-        # )
         self.main.pushButton_mesh.clicked.connect(self.generate_mesh)
         self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
         # 縮尺コントローラー
         self.scale_list = [10000, 25000, 50000, 100000, 250000]
-        self.main.comboBox_scale.addItems(
-            list(map(lambda x: f"1:{x}", self.scale_list))
-        )
-        self.main.comboBox_scale.currentTextChanged.connect(
-            self._on_combobox_scale_changed
-        )
+        # self.main.comboBox_scale.addItems(
+        #     list(map(lambda x: f"1:{x}", self.scale_list))
+        # )
+        # self.main.comboBox_scale.currentTextChanged.connect(
+        #     self._on_scale_widget_changed
+        # )
+        self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
         self.canvas.scaleChanged.connect(self._on_map_scale_changed)
 
         # 都道府県リストを読み込む
@@ -91,12 +87,14 @@ class HGMDataGenerator:
         except IndexError:
             pass
 
-    def _on_combobox_scale_changed(self, scale):
-        self.canvas.zoomScale(int(scale.split(":")[1]))
+    def _on_scale_widget_changed(self):
+        scale = self.main.scale_widget.scale()
+        self.canvas.zoomScale(scale)
 
     def _on_map_scale_changed(self, scale):
-        nearest_scale = min(self.scale_list, key=lambda x: abs(x - scale))
-        self.main.comboBox_scale.setCurrentText(f"1:{nearest_scale}")
+        self.main.scale_widget.setScale(scale)
+        # nearest_scale = min(self.scale_list, key=lambda x: abs(x - scale))
+        # self.main.comboBox_scale.setCurrentText(f"1:{nearest_scale}")
 
     def activate_maptool_point(self):
         def show_xy(point):
