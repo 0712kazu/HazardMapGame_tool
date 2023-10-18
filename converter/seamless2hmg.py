@@ -191,4 +191,114 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
     qgis_iface.messageBar().clearWidgets()
 
-    QgsProject.instance().addMapLayer(kosui_sum_mesh)
+    return kosui_sum_mesh
+
+
+def seamless2hmg_jisuberi(
+    jisuberi_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+):
+    # reproject to 3857
+    jisuberi_reprojected = processing.run(
+        "native:reprojectlayer",
+        {
+            "INPUT": jisuberi_lyr,
+            "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # intersect with mesh
+    jisuberi_mesh_intersect = processing.run(
+        "native:intersection",
+        {
+            "INPUT": jisuberi_reprojected,
+            "OVERLAY": mesh_lyr,
+            "INPUT_FIELDS": [],
+            "OVERLAY_FIELDS": ["id"],
+            "OVERLAY_FIELDS_PREFIX": "mesh_",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+            "GRID_SIZE": None,
+        },
+    )["OUTPUT"]
+
+    # calculate area of intersect polygon
+    jisuberi_mesh_intersect_area = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": jisuberi_mesh_intersect,
+            "FIELD_NAME": "area",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": " $area ",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # aggregate sum area for each mesh id
+    jisuberi_area_by_mesh = processing.run(
+        "native:aggregate",
+        {
+            "INPUT": jisuberi_mesh_intersect_area,
+            "GROUP_BY": '"mesh_id"',
+            "AGGREGATES": [
+                {
+                    "aggregate": "first_value",
+                    "delimiter": ",",
+                    "input": '"mesh_id"',
+                    "length": 0,
+                    "name": "mesh_id",
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 4,
+                    "type_name": "int8",
+                },
+                {
+                    "aggregate": "sum",
+                    "delimiter": ",",
+                    "input": '"area"',
+                    "length": 0,
+                    "name": "landslide_area",
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 6,
+                    "type_name": "double precision",
+                },
+            ],
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # join with origin mesh
+    mesh_join_landslide_area = processing.run(
+        "native:joinattributestable",
+        {
+            "INPUT": mesh_lyr,
+            "FIELD": "id",
+            "INPUT_2": jisuberi_area_by_mesh,
+            "FIELD_2": "mesh_id",
+            "FIELDS_TO_COPY": ["landslide_area"],
+            "METHOD": 1,
+            "DISCARD_NONMATCHING": False,
+            "PREFIX": "",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # populate null values with 0
+    landslide_sql = 'CASE WHEN "landslide_area" > 0 THEN "landslide_area" ELSE 0 END'
+    jisuberi_sum_mesh = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_join_landslide_area,
+            "FIELD_NAME": "landslide_area",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": landslide_sql,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    return jisuberi_sum_mesh
