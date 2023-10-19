@@ -35,12 +35,6 @@ class HGMDataGenerator:
 
         # 縮尺コントローラー
         self.scale_list = [10000, 25000, 50000, 100000, 250000]
-        # self.main.comboBox_scale.addItems(
-        #     list(map(lambda x: f"1:{x}", self.scale_list))
-        # )
-        # self.main.comboBox_scale.currentTextChanged.connect(
-        #     self._on_scale_widget_changed
-        # )
         self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
         self.canvas.scaleChanged.connect(self._on_map_scale_changed)
 
@@ -93,8 +87,6 @@ class HGMDataGenerator:
 
     def _on_map_scale_changed(self, scale):
         self.main.scale_widget.setScale(scale)
-        # nearest_scale = min(self.scale_list, key=lambda x: abs(x - scale))
-        # self.main.comboBox_scale.setCurrentText(f"1:{nearest_scale}")
 
     def activate_maptool_point(self):
         def show_xy(point):

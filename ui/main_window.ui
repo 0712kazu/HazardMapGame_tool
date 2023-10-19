@@ -342,7 +342,7 @@
             <item row="2" column="0">
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>A1印刷時の縮尺</string>
+               <string>縮尺</string>
               </property>
              </widget>
             </item>
