@@ -77,7 +77,7 @@ class Preprocessor:
                 self.main.QgsFileWidget_saigai.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-    
+
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
@@ -119,7 +119,7 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
-    
+
     def preprocess_saigai(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
