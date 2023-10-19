@@ -330,9 +330,6 @@
              </widget>
             </item>
             <item row="2" column="1">
-             <!-- <widget class="QComboBox" name="comboBox_scale"/>
-            </item>
-            <item> -->
                 <widget class="QgsScaleWidget" name="scale_widget">
                 <property name="showCurrentScaleButton">
                     <bool>true</bool>
@@ -494,6 +491,19 @@
                 <string>X</string>
                </property>
               </widget>
+             </item>
+             <item row="9" column="0">
+              <widget class="QLabel" name="label_6">
+               <property name="text">
+                <string>メッシュ数</string>
+               </property>
+              </widget>
+             </item>
+             <item row="9" column="1">
+              <widget class="QSpinBox" name="nb_mesh1"/>
+             </item>
+             <item row="9" column="2">
+              <widget class="QSpinBox" name="nb_mesh2"/>
              </item>
             </layout>
            </widget>

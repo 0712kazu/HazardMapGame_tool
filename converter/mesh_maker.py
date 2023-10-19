@@ -44,18 +44,19 @@ def _add_rect_as_a_layer(rect: QgsRectangle, layer_name: str):
 
 
 def generate_mesh_point(
-    center_x: float, center_y: float, orientation: str
+    center_x: float, center_y: float, nb_mesh1: int, nb_mesh2: int, orientation: str
 ) -> QgsVectorLayer:
     scale = 25000
     grid_map_size = 6 * scale / 100
 
+    mesh_rows_col = [nb_mesh1, nb_mesh2]
     # default : 横
-    nrows = 8
-    ncolumns = 12
+    nrows = min(mesh_rows_col)
+    ncolumns = max(mesh_rows_col)
 
     if orientation == "縦":
-        nrows = 12
-        ncolumns = 8
+        nrows = max(mesh_rows_col)
+        ncolumns = min(mesh_rows_col)
 
     grid_extent_str = (
         f"{center_x - (grid_map_size * ncolumns / 2)},"
