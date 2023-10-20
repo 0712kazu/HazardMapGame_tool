@@ -11,7 +11,11 @@ from qgis.gui import QtCore
 from qgis.utils import iface
 
 import constants
-from converter.seamless2hmg import seamless2hmg_kosui, seamless2hmg_jisuberi
+from converter.seamless2hmg import (
+    seamless2hmg_kosui,
+    seamless2hmg_jisuberi,
+    seamless2hmg_saigai,
+)
 from converter.mesh_maker import (
     generate_mesh_city,
     generate_mesh_point,
@@ -165,6 +169,18 @@ class HGMDataGenerator:
             )
             if jisuberi_lyr:
                 mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+
+        saigai_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "saigai_merged.gpkg"
+        )
+        if os.path.exists(saigai_path):
+            saigai_lyr = QgsVectorLayer(
+                saigai_path,
+                "saigai_merged",
+                "ogr",
+            )
+            if saigai_lyr:
+                mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr)
 
         mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)
