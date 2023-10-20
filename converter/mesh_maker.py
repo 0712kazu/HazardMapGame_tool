@@ -50,13 +50,18 @@ def generate_mesh_point(
     grid_map_size = 6 * scale / 100
 
     mesh_rows_col = [nb_mesh1, nb_mesh2]
+    max_rows_col = [8, 12]
     # default : 横
     nrows = min(mesh_rows_col)
     ncolumns = max(mesh_rows_col)
+    max_nrows = min(max_rows_col)
+    max_ncolumns = max(max_rows_col)
 
     if orientation == "縦":
         nrows = max(mesh_rows_col)
         ncolumns = min(mesh_rows_col)
+        max_nrows = max(max_rows_col)
+        max_ncolumns = min(max_rows_col)
 
     grid_extent_str = (
         f"{center_x - (grid_map_size * ncolumns / 2)},"
@@ -69,8 +74,17 @@ def generate_mesh_point(
 
     # ワクを作成
     # A1の紙のサイズ
+
+    grid_max_extent_str = (
+        f"{center_x - (grid_map_size * max_ncolumns / 2)},"
+        f" {center_x + (grid_map_size * max_ncolumns / 2)},"
+        f"{center_y - (grid_map_size * max_nrows / 2)},"
+        f"{center_y + (grid_map_size * max_nrows / 2)} [EPSG:3857]"
+    )
+    mesh_to_waku_lyr = _create_grid(grid_max_extent_str, grid_map_size)
+
     space = 6 * scale / 100
-    mesh_extent = mesh_lyr.extent()
+    mesh_extent = mesh_to_waku_lyr.extent()
     waku_rec = QgsRectangle(
         mesh_extent.xMinimum() - space,
         mesh_extent.yMinimum() - space,
