@@ -31,10 +31,11 @@ class HGMDataGenerator:
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
         self.main.pushButton_mesh.clicked.connect(self.generate_mesh)
         self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
+        self.main.pushButton_cancel_2.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
         # 縮尺コントローラー
-        self.scale_list = [10000, 25000, 50000, 100000, 250000]
+        # self.scale_list = [10000, 25000, 50000, 100000, 250000]
         self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
         self.canvas.scaleChanged.connect(self._on_map_scale_changed)
 
@@ -50,6 +51,12 @@ class HGMDataGenerator:
                 self.main.comboBox_pref.addItem(kname)
 
         self.main.comboBox_city.currentTextChanged.connect(self._on_city_changed)
+
+        # mesh size
+        self.main.nb_mesh1.setRange(1, 12)
+        self.main.nb_mesh1.setValue(12)
+        self.main.nb_mesh2.setRange(1, 8)
+        self.main.nb_mesh2.setValue(8)
 
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
@@ -111,6 +118,8 @@ class HGMDataGenerator:
             mesh_lyr = generate_mesh_point(
                 float(self.main.lineEdit_x.text()),
                 float(self.main.lineEdit_y.text()),
+                self.main.nb_mesh1.value(),
+                self.main.nb_mesh2.value(),
                 self.main.comboBox_orientation.currentText(),
             )
 

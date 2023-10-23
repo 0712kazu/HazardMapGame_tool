@@ -14,6 +14,10 @@ from qgis.core import (
 from qgis.utils import iface
 
 
+def _get_a1_paper_size():
+    return [0.841, 0.584]  # in meters
+
+
 def _create_grid(grid_extent_str: str, grid_map_size: float) -> QgsVectorLayer:
     output_layer = processing.run(
         "native:creategrid",
@@ -43,19 +47,47 @@ def _add_rect_as_a_layer(rect: QgsRectangle, layer_name: str):
     rect_layer.setOpacity(0.5)
 
 
+def _generate_waku_rectangle(
+    center_x: float,
+    center_y: float,
+    a1_width: float,
+    a1_height: float,
+    scale: float,
+):
+    """create a rectangle called 'waku' which fit to paper size (here a1)
+    and add to map"""
+    waku_rec = QgsRectangle(
+        center_x - a1_width * scale / 2,
+        center_y - a1_height * scale / 2,
+        center_x + a1_width * scale / 2,
+        center_y + a1_height * scale / 2,
+    )
+
+    iface.mapCanvas().setExtent(waku_rec)
+    iface.mapCanvas().refresh()
+    _add_rect_as_a_layer(waku_rec, "waku")
+
+
 def generate_mesh_point(
-    center_x: float, center_y: float, orientation: str
+    center_x: float, center_y: float, nb_mesh1: int, nb_mesh2: int, orientation: str
 ) -> QgsVectorLayer:
     scale = 25000
     grid_map_size = 6 * scale / 100
 
+    mesh_rows_col = [nb_mesh1, nb_mesh2]
+    a1_size = _get_a1_paper_size()
+
     # default : 横
-    nrows = 8
-    ncolumns = 12
+    nrows = min(mesh_rows_col)
+    ncolumns = max(mesh_rows_col)
+    a1_height = min(a1_size)
+    a1_width = max(a1_size)
 
     if orientation == "縦":
-        nrows = 12
-        ncolumns = 8
+        nrows = max(mesh_rows_col)
+        ncolumns = min(mesh_rows_col)
+        a1_height = max(a1_size)
+        a1_width = min(a1_size)
 
     grid_extent_str = (
         f"{center_x - (grid_map_size * ncolumns / 2)},"
@@ -66,19 +98,8 @@ def generate_mesh_point(
 
     mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
-    # ワクを作成
-    # A1の紙のサイズ
-    space = 6 * scale / 100
-    mesh_extent = mesh_lyr.extent()
-    waku_rec = QgsRectangle(
-        mesh_extent.xMinimum() - space,
-        mesh_extent.yMinimum() - space,
-        mesh_extent.xMaximum() + space,
-        mesh_extent.yMaximum() + space,
-    )
-    iface.mapCanvas().setExtent(waku_rec)
-    iface.mapCanvas().refresh()
-    _add_rect_as_a_layer(waku_rec, "waku")
+    # A1の紙のサイズに合わせてワクを作成
+    _generate_waku_rectangle(center_x, center_y, a1_width, a1_height, scale)
 
     return mesh_lyr
 
@@ -88,8 +109,7 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
     mesh_size = 0.06  # メッシュのサイズ=6cm
 
     # A1の紙のサイズ
-    long_side_a1 = 0.841
-    short_side_a1 = 0.584
+    a1_size = _get_a1_paper_size()
 
     # スケールの閾値
     scale_threshold = 25000
@@ -146,12 +166,8 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
             f"{center_y - grid_map_size * (short_size_n / 2 - 0.01)},"
             f"{center_y + grid_map_size * (short_size_n / 2 - 0.01)} [EPSG:3857]"
         )
-        waku_rec = QgsRectangle(
-            center_x - long_side_a1 * scale / 2,
-            center_y - short_side_a1 * scale / 2,
-            center_x + long_side_a1 * scale / 2,
-            center_y + short_side_a1 * scale / 2,
-        )
+        a1_height = min(a1_size)
+        a1_width = max(a1_size)
 
     else:
         # 向き：縦
@@ -160,15 +176,13 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
             f"{center_x + grid_map_size * (short_size_n / 2 - 0.01)},"
             f"{grid_y_min},{grid_y_max} [EPSG:3857]"
         )
-        waku_rec = QgsRectangle(
-            center_x - short_side_a1 * scale / 2,
-            center_y - long_side_a1 * scale / 2,
-            center_x + short_side_a1 * scale / 2,
-            center_y + long_side_a1 * scale / 2,
-        )
+        a1_height = max(a1_size)
+        a1_width = min(a1_size)
 
-    _add_rect_as_a_layer(waku_rec, "waku")
-    iface.mapCanvas().setExtent(waku_rec)
+    # A1の紙のサイズに合わせてワクを作成
+    _generate_waku_rectangle(center_x, center_y, a1_width, a1_height, scale)
+
+    # メッシュ作成
     mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
     return mesh_lyr
