@@ -13,6 +13,127 @@ from qgis.gui import QgisInterface
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 
+def _sum_surfaces_intersect_meshes(
+    seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
+) -> QgsVectorLayer:
+    # fix_geometries
+    seamless_fix = processing.run(
+        "native:fixgeometries",
+        {
+            "INPUT": seamless_lyr,
+            "METHOD": 1,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # reproject to 3857
+    seamless_reprojected = processing.run(
+        "native:reprojectlayer",
+        {
+            "INPUT": seamless_fix,
+            "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # intersect with mesh
+    seamless_mesh_intersect = processing.run(
+        "native:intersection",
+        {
+            "INPUT": seamless_reprojected,
+            "OVERLAY": mesh_lyr,
+            "INPUT_FIELDS": [],
+            "OVERLAY_FIELDS": ["id"],
+            "OVERLAY_FIELDS_PREFIX": "mesh_",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+            "GRID_SIZE": None,
+        },
+    )["OUTPUT"]
+
+    # calculate area of intersect polygon
+    seamless_mesh_intersect_area = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": seamless_mesh_intersect,
+            "FIELD_NAME": "area",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": " $area ",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # aggregate sum area for each mesh id
+    seamless_area_by_mesh = processing.run(
+        "native:aggregate",
+        {
+            "INPUT": seamless_mesh_intersect_area,
+            "GROUP_BY": '"mesh_id"',
+            "AGGREGATES": [
+                {
+                    "aggregate": "first_value",
+                    "delimiter": ",",
+                    "input": '"mesh_id"',
+                    "length": 0,
+                    "name": "mesh_id",
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 4,
+                    "type_name": "int8",
+                },
+                {
+                    "aggregate": "sum",
+                    "delimiter": ",",
+                    "input": '"area"',
+                    "length": 0,
+                    "name": calculate_field,
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 6,
+                    "type_name": "double precision",
+                },
+            ],
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # join with origin mesh
+    mesh_join_seamless_area = processing.run(
+        "native:joinattributestable",
+        {
+            "INPUT": mesh_lyr,
+            "FIELD": "id",
+            "INPUT_2": seamless_area_by_mesh,
+            "FIELD_2": "mesh_id",
+            "FIELDS_TO_COPY": [calculate_field],
+            "METHOD": 1,
+            "DISCARD_NONMATCHING": False,
+            "PREFIX": "",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # populate null values with 0
+    seamless_sql = (
+        f'CASE WHEN "{calculate_field}" > 0 THEN "{calculate_field}" ELSE 0 END'
+    )
+    seamless_sum_mesh = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_join_seamless_area,
+            "FIELD_NAME": calculate_field,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": seamless_sql,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    return seamless_sum_mesh
+
+
 def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
     kouzui_v1_fields = ["A31_001"]
     kouzui_v2_fields = [
@@ -198,107 +319,11 @@ def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
 ):
-    # reproject to 3857
-    jisuberi_reprojected = processing.run(
-        "native:reprojectlayer",
-        {
-            "INPUT": jisuberi_lyr,
-            "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
+    return _sum_surfaces_intersect_meshes(jisuberi_lyr, mesh_lyr, "landslide_area")
 
-    # intersect with mesh
-    jisuberi_mesh_intersect = processing.run(
-        "native:intersection",
-        {
-            "INPUT": jisuberi_reprojected,
-            "OVERLAY": mesh_lyr,
-            "INPUT_FIELDS": [],
-            "OVERLAY_FIELDS": ["id"],
-            "OVERLAY_FIELDS_PREFIX": "mesh_",
-            "OUTPUT": "TEMPORARY_OUTPUT",
-            "GRID_SIZE": None,
-        },
-    )["OUTPUT"]
 
-    # calculate area of intersect polygon
-    jisuberi_mesh_intersect_area = processing.run(
-        "native:fieldcalculator",
-        {
-            "INPUT": jisuberi_mesh_intersect,
-            "FIELD_NAME": "area",
-            "FIELD_TYPE": 0,
-            "FIELD_LENGTH": 0,
-            "FIELD_PRECISION": 0,
-            "FORMULA": " $area ",
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
-
-    # aggregate sum area for each mesh id
-    jisuberi_area_by_mesh = processing.run(
-        "native:aggregate",
-        {
-            "INPUT": jisuberi_mesh_intersect_area,
-            "GROUP_BY": '"mesh_id"',
-            "AGGREGATES": [
-                {
-                    "aggregate": "first_value",
-                    "delimiter": ",",
-                    "input": '"mesh_id"',
-                    "length": 0,
-                    "name": "mesh_id",
-                    "precision": 0,
-                    "sub_type": 0,
-                    "type": 4,
-                    "type_name": "int8",
-                },
-                {
-                    "aggregate": "sum",
-                    "delimiter": ",",
-                    "input": '"area"',
-                    "length": 0,
-                    "name": "landslide_area",
-                    "precision": 0,
-                    "sub_type": 0,
-                    "type": 6,
-                    "type_name": "double precision",
-                },
-            ],
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
-
-    # join with origin mesh
-    mesh_join_landslide_area = processing.run(
-        "native:joinattributestable",
-        {
-            "INPUT": mesh_lyr,
-            "FIELD": "id",
-            "INPUT_2": jisuberi_area_by_mesh,
-            "FIELD_2": "mesh_id",
-            "FIELDS_TO_COPY": ["landslide_area"],
-            "METHOD": 1,
-            "DISCARD_NONMATCHING": False,
-            "PREFIX": "",
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
-
-    # populate null values with 0
-    landslide_sql = 'CASE WHEN "landslide_area" > 0 THEN "landslide_area" ELSE 0 END'
-    jisuberi_sum_mesh = processing.run(
-        "native:fieldcalculator",
-        {
-            "INPUT": mesh_join_landslide_area,
-            "FIELD_NAME": "landslide_area",
-            "FIELD_TYPE": 0,
-            "FIELD_LENGTH": 0,
-            "FIELD_PRECISION": 0,
-            "FORMULA": landslide_sql,
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
-
-    return jisuberi_sum_mesh
+def seamless2hmg_saigai(
+    saigai_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+):
+    return _sum_surfaces_intersect_meshes(saigai_lyr, mesh_lyr, "disaster_risk_area")
