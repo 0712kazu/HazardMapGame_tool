@@ -74,6 +74,10 @@ def generate_mesh_point(
     scale = 25000
     grid_map_size = 6 * scale / 100
 
+    # move center point coordinates from 1/4 mesh size
+    grid_center_x = center_x + (grid_map_size / 4)
+    grid_center_y = center_y + (grid_map_size / 4)
+
     mesh_rows_col = [nb_mesh1, nb_mesh2]
     a1_size = _get_a1_paper_size()
 
@@ -90,16 +94,16 @@ def generate_mesh_point(
         a1_width = min(a1_size)
 
     grid_extent_str = (
-        f"{center_x - (grid_map_size * ncolumns / 2)},"
-        f" {center_x + (grid_map_size * ncolumns / 2)},"
-        f"{center_y - (grid_map_size * nrows / 2)},"
-        f"{center_y + (grid_map_size * nrows / 2)} [EPSG:3857]"
+        f"{grid_center_x - (grid_map_size * ncolumns / 2)},"
+        f" {grid_center_x + (grid_map_size * ncolumns / 2)},"
+        f"{grid_center_y - (grid_map_size * nrows / 2)},"
+        f"{grid_center_y + (grid_map_size * nrows / 2)} [EPSG:3857]"
     )
 
     mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
     # A1の紙のサイズに合わせてワクを作成
-    _generate_waku_rectangle(center_x, center_y, a1_width, a1_height, scale)
+    _generate_waku_rectangle(grid_center_x, grid_center_y, a1_width, a1_height, scale)
 
     return mesh_lyr
 
