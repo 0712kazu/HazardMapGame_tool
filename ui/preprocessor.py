@@ -1,12 +1,11 @@
 import glob
 import os
 import shutil
-import processing
+import subprocess
 
 from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
-from qgis.core import QgsCoordinateReferenceSystem
 
 from constants import (
     INPUT_DIR_KOZUI,
@@ -150,6 +149,7 @@ class Preprocessor:
 
     def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
+
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(root_directory)
@@ -160,53 +160,40 @@ class Preprocessor:
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
 
-        # reproject to 3857
-        cities_reprojected = processing.run(
-            "native:reprojectlayer",
-            {
-                "INPUT": shapefiles[0],
-                "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-
-        # make each cities unique
-        cities_dissolved = processing.run(
-            "native:dissolve",
-            {
-                "INPUT": cities_reprojected,
-                "FIELD": ["GCODE", "NAME", "KANA"],
-                "SEPARATE_DISJOINT": False,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-
-        # calculate bbox
-        cities_bbox = cities_dissolved
-        for bound in ["x_min", "x_max", "y_min", "y_max"]:
-            cities_bbox = processing.run(
-                "native:fieldcalculator",
-                {
-                    "INPUT": cities_bbox,
-                    "FIELD_NAME": f"{bound}",
-                    "FIELD_TYPE": 0,
-                    "FIELD_LENGTH": 0,
-                    "FIELD_PRECISION": 0,
-                    "FORMULA": f" {bound}( $geometry)",
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-
-        # order by GCODE and save as CSV
-        processing.run(
-            "native:orderbyexpression",
-            {
-                "INPUT": cities_bbox,
-                "EXPRESSION": '"GCODE"',
-                "ASCENDING": True,
-                "NULLS_FIRST": False,
-                "OUTPUT": os.path.join(output_directory, "shikuchoson.csv"),
-            },
+        layer_name = os.path.splitext(os.path.basename(shapefiles[0]))[0]
+        tmp_cities_file = os.path.join(output_directory, "tmp_cities.gpkg")
+        # reproject to EPSG:3857 and order by GCODE
+        sql = f"SELECT ST_Union(geometry) AS geometry,* FROM {layer_name} GROUP BY GCODE ORDER BY GCODE"
+        cmd = (
+            f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln tmp_cities -t_srs EPSG:3857 -f GPKG "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"{tmp_cities_file}"
+            f" {shapefiles[0]}"
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
         )
 
+        # calculate bounding box and save to CSV
+        sql = "SELECT GCODE,NAME,KANA,"
+        sql += "ST_MinX(geometry) AS x_min,ST_MaxX(geometry) AS x_max ,"
+        sql += "ST_MinY(geometry) AS y_min,ST_MinY(geometry) AS y_max "
+        sql += "FROM tmp_cities"
+
+        cmd = (
+            f"ogr2ogr {os.path.join(output_directory,'shikuchoson.csv')} "
+            f"{tmp_cities_file} "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"-f CSV "
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+
+        # remove tmp files
+        os.remove(tmp_cities_file)
         shutil.rmtree(extracted_dir)
