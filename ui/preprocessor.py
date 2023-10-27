@@ -165,7 +165,7 @@ class Preprocessor:
         # reproject to EPSG:3857 and order by GCODE
         sql = f"SELECT ST_Union(geometry) AS geometry,* FROM {layer_name} GROUP BY GCODE ORDER BY GCODE"
         cmd = (
-            f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln tmp_cities -t_srs EPSG:3857 -f GPKG "
+            f"ogr2ogr -lco ENCODING=UTF-8 -nln tmp_cities -t_srs EPSG:3857 -f GPKG "
             f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
             f"{tmp_cities_file}"
             f" {shapefiles[0]}"
@@ -177,7 +177,7 @@ class Preprocessor:
         )
 
         # calculate bounding box and save to CSV
-        sql = "SELECT GCODE,NAME,KANA,"
+        sql = "SELECT GCODE,KNAME,NAME,KANA,"
         sql += "ST_MinX(geometry) AS x_min,ST_MaxX(geometry) AS x_max ,"
         sql += "ST_MinY(geometry) AS y_min,ST_MinY(geometry) AS y_max "
         sql += "FROM tmp_cities"
