@@ -1,15 +1,19 @@
 import glob
 import os
 import shutil
+import processing
 
 from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
+from qgis.core import QgsCoordinateReferenceSystem
+
 from constants import (
     INPUT_DIR_KOZUI,
-    INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_JISUBERI,
     INPUT_DIR_SAIGAI,
+    INPUT_DIR_TOCHIRIYOU,
+    INPUT_DIR_SHIKUCHOSON,
     OUTPUT_DIR,
 )
 from utils import (
@@ -39,9 +43,10 @@ class Preprocessor:
 
         for folder_name, filewidget in (
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
-            (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
+            (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
+            (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_cities),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
         ):
             folders = glob.glob(
@@ -57,11 +62,6 @@ class Preprocessor:
             error_message = "シームレスフォルダーが設定していません。"
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
-        if self.main.QgsFileWidget_tochiriyou.filePath():
-            self.preprocess_tochiriyou(
-                self.main.QgsFileWidget_tochiriyou.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
@@ -75,6 +75,16 @@ class Preprocessor:
         if self.main.QgsFileWidget_saigai.filePath():
             self.preprocess_saigai(
                 self.main.QgsFileWidget_saigai.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+        if self.main.QgsFileWidget_tochiriyou.filePath():
+            self.preprocess_tochiriyou(
+                self.main.QgsFileWidget_tochiriyou.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+        if self.main.QgsFileWidget_shikuchoson.filePath():
+            self.preprocess_shikuchoson(
+                self.main.QgsFileWidget_shikuchoson.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
@@ -137,3 +147,64 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
+
+    def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(root_directory)
+
+        if len(shapefiles) != 1:
+            error_message = "1 shapefile is required for shikuchoson\n"
+            error_message += len(shapefiles) + "shapefiles found."
+            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            return
+
+        # reproject to 3857
+        cities_reprojected = processing.run(
+            "native:reprojectlayer",
+            {
+                "INPUT": shapefiles[0],
+                "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # make each cities unique
+        cities_dissolved = processing.run(
+            "native:dissolve",
+            {
+                "INPUT": cities_reprojected,
+                "FIELD": ["GCODE", "NAME", "KANA"],
+                "SEPARATE_DISJOINT": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # calculate bbox
+        cities_bbox = cities_dissolved
+        for bound in ["x_min", "x_max", "y_min", "y_max"]:
+            cities_bbox = processing.run(
+                "native:fieldcalculator",
+                {
+                    "INPUT": cities_bbox,
+                    "FIELD_NAME": f"{bound}",
+                    "FIELD_TYPE": 0,
+                    "FIELD_LENGTH": 0,
+                    "FIELD_PRECISION": 0,
+                    "FORMULA": f" {bound}( $geometry)",
+                    "OUTPUT": "TEMPORARY_OUTPUT",
+                },
+            )["OUTPUT"]
+
+        # order by GCODE and save as CSV
+        processing.run(
+            "native:orderbyexpression",
+            {
+                "INPUT": cities_bbox,
+                "EXPRESSION": '"GCODE"',
+                "ASCENDING": True,
+                "NULLS_FIRST": False,
+                "OUTPUT": os.path.join(output_directory, "shikuchoson.csv"),
+            },
+        )
