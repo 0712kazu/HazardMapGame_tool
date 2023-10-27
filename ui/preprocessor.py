@@ -156,7 +156,7 @@ class Preprocessor:
 
         if len(shapefiles) != 1:
             error_message = "1 shapefile is required for shikuchoson\n"
-            error_message += len(shapefiles) + "shapefiles found."
+            error_message += str(len(shapefiles)) + " shapefiles found."
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
 
@@ -208,3 +208,5 @@ class Preprocessor:
                 "OUTPUT": os.path.join(output_directory, "shikuchoson.csv"),
             },
         )
+
+        shutil.rmtree(extracted_dir)
