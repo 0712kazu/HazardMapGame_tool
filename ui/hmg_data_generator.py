@@ -58,6 +58,7 @@ class HGMDataGenerator:
 
         # Filter pref cities by text
         self.main.filter_pref.textChanged.connect(self._on_pref_filter_changed)
+        self.main.filter_city.textChanged.connect(self._on_city_filter_changed)
 
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
@@ -68,7 +69,7 @@ class HGMDataGenerator:
     def _on_pref_filter_changed(self):
         text = self.main.filter_pref.text()
         self.main.comboBox_pref.clear()
-        print("text", text)
+
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             names = list(
@@ -83,7 +84,26 @@ class HGMDataGenerator:
             )
             for name in names:
                 self.main.comboBox_pref.addItem(name)
-        print(names)
+        self.main.filter_city.clear()
+
+    def _on_city_filter_changed(self):
+        text = self.main.filter_city.text()
+        self.main.comboBox_city.clear()
+
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            names = list(
+                dict.fromkeys(
+                    [
+                        row["NAME"]
+                        for row in reader
+                        if row["KNAME"] == self.main.comboBox_pref.currentText()
+                        if row["NAME"].startswith(text) or row["KANA"].startswith(text)
+                    ]
+                )
+            )
+            for name in names:
+                self.main.comboBox_city.addItem(name)
 
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
