@@ -46,7 +46,7 @@ class HGMDataGenerator:
         # 都道府県リストを読み込む
         self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
         self.pref_city_csv = os.path.join(
-            os.path.dirname(__file__), constants.data_dir, "bnd_a_wm.csv"
+            os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
         )
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
@@ -61,6 +61,22 @@ class HGMDataGenerator:
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+    def _on_pref_filter_changed(self):
+        text = self.filter_pref.text()
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            names = list(
+                dict.fromkeys(
+                    [
+                        row["KNAME"]
+                        for row in reader
+                        if row["KNAME"] == text or row["KKANA"] == text
+                    ]
+                )
+            )
+            for name in names:
+                self.main.comboBox_pref.addItem(name)
 
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
