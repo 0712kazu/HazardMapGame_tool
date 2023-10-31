@@ -178,9 +178,11 @@ class Preprocessor:
         )
 
         # calculate bounding box and save to CSV
-        sql = "SELECT GCODE,KNAME,NAME,KANA,"
-        sql += "ST_MinX(geometry) AS x_min,ST_MaxX(geometry) AS x_max ,"
-        sql += "ST_MinY(geometry) AS y_min,ST_MinY(geometry) AS y_max "
+        sql = "SELECT GCODE,KNAME,NAME,KKANA,KANA,"
+        sql += "ST_MinX(geometry) AS x_min,ST_MaxX(geometry) AS x_max, "
+        sql += "ST_MinY(geometry) AS y_min,ST_MinY(geometry) AS y_max, "
+        sql += "ST_X(ST_PointOnSurface(geometry)) as center_x, "
+        sql += "ST_Y(ST_PointOnSurface(geometry)) as center_y "
         sql += "FROM tmp_cities"
 
         cmd = (
