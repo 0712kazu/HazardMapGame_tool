@@ -164,7 +164,7 @@ class Preprocessor:
         tmp_cities_file = os.path.join(output_directory, "tmp_cities.gpkg")
         # reproject to EPSG:3857 and order by GCODE
         sql = "SELECT ST_Union(geometry) AS geometry,* "
-        sql += f"FROM {layer_name} GROUP BY GCODE ORDER BY GCODE"
+        sql += f"FROM {layer_name} WHERE KNAME != '' GROUP BY GCODE ORDER BY GCODE"
         cmd = (
             f"ogr2ogr -lco ENCODING=UTF-8 -nln tmp_cities -t_srs EPSG:3857 -f GPKG "
             f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
