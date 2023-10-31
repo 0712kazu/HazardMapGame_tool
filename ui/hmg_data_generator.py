@@ -45,9 +45,13 @@ class HGMDataGenerator:
 
         # 都道府県リストを読み込む
         self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
-        self.pref_city_csv = os.path.join(
-            os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
+
+        # Take csv file in data folder as default, and seamless data if provided
+        self._set_shikuchoson_csv_data()
+        self.main.FileWidgetSeamlessDir.fileChanged.connect(
+            self._set_shikuchoson_csv_data
         )
+
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
@@ -65,6 +69,28 @@ class HGMDataGenerator:
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+    def _set_shikuchoson_csv_data(self):
+        # Take csv file in data folder as default, and seamless data if provided
+        seamless_shikuchoson = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "shikuchoson.csv"
+        )
+        if os.path.exists(seamless_shikuchoson):
+            self.pref_city_csv = seamless_shikuchoson
+        else:
+            self.pref_city_csv = os.path.join(
+                os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
+            )
+
+        # re-initialize pref-city list
+        self.main.comboBox_pref.clear()
+        self.main.filter_pref.clear()
+        self.main.filter_city.clear()
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
+            for kname in knames:
+                self.main.comboBox_pref.addItem(kname)
 
     def _on_pref_filter_changed(self):
         text = self.main.filter_pref.text()
