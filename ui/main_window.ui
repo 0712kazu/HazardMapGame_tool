@@ -381,7 +381,11 @@
               </property>
              </widget>
             </item>
+            
             <item row="0" column="1">
+             <widget class="QComboBox" name="comboBox_pref"/>
+            </item> 
+            <item row="0" column="2">
              <widget class="QLineEdit" name="filter_pref">
             <property name="geometry">
                 <rect>
@@ -393,9 +397,6 @@
             </property>
             </widget>
             </item>
-            <item row="0" column="2">
-             <widget class="QComboBox" name="comboBox_pref"/>
-            </item> 
             <item row="0" column="3">
              <spacer name="horizontalSpacer">
               <property name="orientation">
@@ -417,6 +418,9 @@
              </widget>
             </item>
             <item row="1" column="1">
+             <widget class="QComboBox" name="comboBox_city"/>
+            </item>
+            <item row="1" column="2">
              <widget class="QLineEdit" name="filter_city">
             <property name="geometry">
                 <rect>
@@ -427,9 +431,6 @@
                 </rect>
             </property>
             </widget>
-            </item>
-            <item row="1" column="2">
-             <widget class="QComboBox" name="comboBox_city"/>
             </item>
            </layout>
           </item>
