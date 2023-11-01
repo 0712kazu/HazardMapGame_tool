@@ -149,12 +149,14 @@ class Preprocessor:
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
-        shapefiles = get_shapefiles_from_dir(extracted_dir)
 
-        # get only polygon shapefiles
-        for shapefile in shapefiles:
-            if geom_type_from_shp(shapefile) != "POLYGON":
-                shapefiles.remove(shapefile)
+        extracted_shapefiles = get_shapefiles_from_dir(extracted_dir)
+
+        # get only point shapefiles
+        shapefiles = []
+        for shapefile in extracted_shapefiles:
+            if geom_type_from_shp(shapefile) == "POINT":
+                shapefiles.append(shapefile)
 
         # merge all shp to gpkg
         merge_shapefiles(
