@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 
 from constants import (
+    INPUT_DIR_TATUMAKI,
     INPUT_DIR_KOZUI,
     INPUT_DIR_JISUBERI,
     INPUT_DIR_SAIGAI,
@@ -41,6 +42,7 @@ class Preprocessor:
         selected_dir = QFileDialog.getExistingDirectory(self.main, "フォルダを選択")
 
         for folder_name, filewidget in (
+            (INPUT_DIR_TATUMAKI, self.main.QgsFileWidget_tatumaki),
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
@@ -61,6 +63,11 @@ class Preprocessor:
             error_message = "シームレスフォルダーが設定していません。"
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
+        if self.main.QgsFileWidget_tatumaki.filePath():
+            self.preprocess_tatumaki(
+                self.main.QgsFileWidget_tatumaki.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
@@ -199,4 +206,23 @@ class Preprocessor:
 
         # remove tmp files
         os.remove(tmp_cities_file)
+
+    def preprocess_tatumaki(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+
+        extracted_shapefiles = get_shapefiles_from_dir(extracted_dir)
+
+        # get only point shapefiles
+        shapefiles = []
+        for shapefile in extracted_shapefiles:
+            if geom_type_from_shp(shapefile) == "POINT":
+                shapefiles.append(shapefile)
+
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, "tatumaki_merged.gpkg")
+        )
+
         shutil.rmtree(extracted_dir)
