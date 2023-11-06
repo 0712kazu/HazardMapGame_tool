@@ -108,7 +108,9 @@ def generate_mesh_point(
     return mesh_lyr
 
 
-def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLayer:
+def generate_mesh_city(
+    pref: str, city: str, pref_city_csv: str, fix_scale_threshold: bool
+) -> QgsVectorLayer:
     space = 200  # 余白
     mesh_size = 0.06  # メッシュのサイズ=6cm
 
@@ -145,8 +147,8 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
 
     scale = long_side / (mesh_size * long_size_n)
     grid_map_size = long_side / long_size_n
-
-    if scale < scale_threshold:
+    print(scale)
+    if scale < scale_threshold or fix_scale_threshold is True:
         # 縮尺が25000以下の場合,強制的に25000にする
         scale = scale_threshold
         grid_map_size = mesh_size * scale_threshold

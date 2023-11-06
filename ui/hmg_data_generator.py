@@ -184,6 +184,7 @@ class HGMDataGenerator:
                 self.main.comboBox_pref.currentText(),
                 self.main.comboBox_city.currentText(),
                 self.pref_city_csv,
+                self.main.fix_city_scale_checkbox.isChecked(),
             )
 
         elif self.main.radioButton_point.isChecked():
