@@ -154,6 +154,18 @@ def generate_mesh_city(
         scale = scale_threshold
         grid_map_size = mesh_size * scale_threshold
 
+        # use city centroid if force checkbox is checked
+        if fix_scale_threshold is True:
+            with open(pref_city_csv, "r") as f:
+                reader = csv.DictReader(f)
+                center = [
+                    [row["center_x"], row["center_y"]]
+                    for row in reader
+                    if row["KNAME"] == pref and row["NAME"] == city
+                ][0]
+                center_x = float(center[0])
+                center_y = float(center[1])
+
         if size_x >= size_y:
             grid_x_min = center_x - mesh_size * scale_threshold * (long_size_n / 2)
             grid_x_max = center_x + mesh_size * scale_threshold * (long_size_n / 2)
