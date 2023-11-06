@@ -437,7 +437,7 @@
           <item>
                 <widget class="QCheckBox" name="fix_city_scale_checkbox">
                 <property name="text">
-                <string>市区町村の領域で計算したスケールが1:25000以下(例: 1:35000)の場合、1:25000のスケールにする</string>
+                <string>計算したスケールが1:25000以下場合(例: 1:35000)、1:25000に指定する</string>
                 </property>
                 <property name="checked">
                 <bool>true</bool>
