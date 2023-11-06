@@ -435,15 +435,15 @@
            </layout>
           </item>
           <item>
-                <widget class="QCheckBox" name="fix_city_scale_checkbox">
+            <widget class="QCheckBox" name="fix_city_scale_checkbox">
                 <property name="text">
-                <string>計算したスケールが1:25000以下場合(例: 1:35000)、1:25000に指定する</string>
+                    <string>計算したスケールが1:25000以下場合(例: 1:35000)、強制的に1:25000に指定する</string>
                 </property>
                 <property name="checked">
-                <bool>true</bool>
+                    <bool>true</bool>
                 </property>
-                </widget>
-            </item>
+            </widget>
+          </item>
           <item>
            <widget class="QRadioButton" name="radioButton_point">
             <property name="text">

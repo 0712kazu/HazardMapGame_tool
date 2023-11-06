@@ -147,9 +147,10 @@ def generate_mesh_city(
 
     scale = long_side / (mesh_size * long_size_n)
     grid_map_size = long_side / long_size_n
-    print(scale)
+
     if scale < scale_threshold or fix_scale_threshold is True:
         # 縮尺が25000以下の場合,強制的に25000にする
+        # 25000以上の場合,強制的に25000にするチェックボックスがTrueの場合
         scale = scale_threshold
         grid_map_size = mesh_size * scale_threshold
 
