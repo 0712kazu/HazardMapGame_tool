@@ -15,6 +15,8 @@ class POIMapTool(QgsMapTool):
         QgsMapTool.__init__(self, iface.mapCanvas())
         self.vmarker = QgsVertexMarker(iface.mapCanvas())
         self.vmarker.setIconType(QgsVertexMarker.ICON_CROSS)
+        self.vmarker.setIconSize(30)
+        self.vmarker.setPenWidth(3)
 
     # クリック時の動作
     def canvasPressEvent(self, e):
