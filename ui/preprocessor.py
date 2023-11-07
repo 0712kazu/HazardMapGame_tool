@@ -1,16 +1,19 @@
 import glob
 import os
 import shutil
+import subprocess
 
 from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
+
 from constants import (
+    INPUT_DIR_TATUMAKI,
     INPUT_DIR_KOZUI,
-    INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_JISUBERI,
     INPUT_DIR_SAIGAI,
-    INPUT_DIR_TATUMAKI,
+    INPUT_DIR_TOCHIRIYOU,
+    INPUT_DIR_SHIKUCHOSON,
     OUTPUT_DIR,
 )
 from utils import (
@@ -39,11 +42,12 @@ class Preprocessor:
         selected_dir = QFileDialog.getExistingDirectory(self.main, "フォルダを選択")
 
         for folder_name, filewidget in (
+            (INPUT_DIR_TATUMAKI, self.main.QgsFileWidget_tatumaki),
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
-            (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
-            (INPUT_DIR_TATUMAKI, self.main.QgsFileWidget_tatumaki),
+            (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
+            (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_cities),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
         ):
             folders = glob.glob(
@@ -59,9 +63,9 @@ class Preprocessor:
             error_message = "シームレスフォルダーが設定していません。"
             QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
             return
-        if self.main.QgsFileWidget_tochiriyou.filePath():
-            self.preprocess_tochiriyou(
-                self.main.QgsFileWidget_tochiriyou.filePath(),
+        if self.main.QgsFileWidget_tatumaki.filePath():
+            self.preprocess_tatumaki(
+                self.main.QgsFileWidget_tatumaki.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
         if self.main.QgsFileWidget_kozui.filePath():
@@ -79,9 +83,14 @@ class Preprocessor:
                 self.main.QgsFileWidget_saigai.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-        if self.main.QgsFileWidget_tatumaki.filePath():
-            self.preprocess_tatumaki(
-                self.main.QgsFileWidget_tatumaki.filePath(),
+        if self.main.QgsFileWidget_tochiriyou.filePath():
+            self.preprocess_tochiriyou(
+                self.main.QgsFileWidget_tochiriyou.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+        if self.main.QgsFileWidget_shikuchoson.filePath():
+            self.preprocess_shikuchoson(
+                self.main.QgsFileWidget_shikuchoson.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
@@ -144,6 +153,59 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
+
+    def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(root_directory)
+
+        if len(shapefiles) != 1:
+            error_message = "1 shapefile is required for shikuchoson\n"
+            error_message += str(len(shapefiles)) + " shapefiles found."
+            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            return
+
+        layer_name = os.path.splitext(os.path.basename(shapefiles[0]))[0]
+        tmp_cities_file = os.path.join(output_directory, "tmp_cities.gpkg")
+        # reproject to EPSG:3857 and order by GCODE
+        sql = "SELECT ST_Union(geometry) AS geometry,* "
+        sql += f"FROM {layer_name} WHERE KNAME != '' GROUP BY GCODE ORDER BY GCODE"
+        cmd = (
+            f"ogr2ogr -lco ENCODING=UTF-8 -nln tmp_cities -t_srs EPSG:3857 -f GPKG "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"{tmp_cities_file}"
+            f" {shapefiles[0]}"
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+
+        # calculate bounding box and save to CSV
+        sql = "SELECT GCODE,KNAME,NAME,KKANA,KANA,"
+        sql += "ST_MinX(geometry) AS x_min, ST_MaxX(geometry) AS x_max, "
+        sql += "ST_MinY(geometry) AS y_min, ST_MaxY(geometry) AS y_max, "
+        sql += "ST_X(ST_PointOnSurface(geometry)) as center_x, "
+        sql += "ST_Y(ST_PointOnSurface(geometry)) as center_y "
+        sql += "FROM tmp_cities"
+
+        cmd = (
+            f"ogr2ogr {os.path.join(output_directory,'shikuchoson.csv')} "
+            f"{tmp_cities_file} "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"-f CSV "
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+
+        # remove tmp files
+        os.remove(tmp_cities_file)
 
     def preprocess_tatumaki(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")

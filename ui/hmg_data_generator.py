@@ -45,9 +45,13 @@ class HGMDataGenerator:
 
         # 都道府県リストを読み込む
         self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
-        self.pref_city_csv = os.path.join(
-            os.path.dirname(__file__), constants.data_dir, "bnd_a_wm.csv"
+
+        # Take csv file in data folder as default, and seamless data if provided
+        self._set_shikuchoson_csv_data()
+        self.main.FileWidgetSeamlessDir.fileChanged.connect(
+            self._set_shikuchoson_csv_data
         )
+
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
@@ -56,11 +60,76 @@ class HGMDataGenerator:
 
         self.main.comboBox_city.currentTextChanged.connect(self._on_city_changed)
 
+        # Filter pref cities by text
+        self.main.filter_pref.textChanged.connect(self._on_pref_filter_changed)
+        self.main.filter_city.textChanged.connect(self._on_city_filter_changed)
+
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+    def _set_shikuchoson_csv_data(self):
+        # Take csv file in data folder as default, and seamless data if provided
+        seamless_shikuchoson = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), "shikuchoson.csv"
+        )
+        if os.path.exists(seamless_shikuchoson):
+            self.pref_city_csv = seamless_shikuchoson
+        else:
+            self.pref_city_csv = os.path.join(
+                os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
+            )
+
+        # re-initialize pref-city list
+        self.main.comboBox_pref.clear()
+        self.main.filter_pref.clear()
+        self.main.filter_city.clear()
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
+            for kname in knames:
+                self.main.comboBox_pref.addItem(kname)
+
+    def _on_pref_filter_changed(self):
+        text = self.main.filter_pref.text()
+        self.main.comboBox_pref.clear()
+
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            names = list(
+                dict.fromkeys(
+                    [
+                        row["KNAME"]
+                        for row in reader
+                        if row["KNAME"].startswith(text)
+                        or row["KKANA"].startswith(text)
+                    ]
+                )
+            )
+            for name in names:
+                self.main.comboBox_pref.addItem(name)
+        self.main.filter_city.clear()
+
+    def _on_city_filter_changed(self):
+        text = self.main.filter_city.text()
+        self.main.comboBox_city.clear()
+
+        with open(self.pref_city_csv, "r") as f:
+            reader = csv.DictReader(f)
+            names = list(
+                dict.fromkeys(
+                    [
+                        row["NAME"]
+                        for row in reader
+                        if row["KNAME"] == self.main.comboBox_pref.currentText()
+                        if row["NAME"].startswith(text) or row["KANA"].startswith(text)
+                    ]
+                )
+            )
+            for name in names:
+                self.main.comboBox_city.addItem(name)
 
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
@@ -115,6 +184,7 @@ class HGMDataGenerator:
                 self.main.comboBox_pref.currentText(),
                 self.main.comboBox_city.currentText(),
                 self.pref_city_csv,
+                self.main.fix_city_scale_checkbox.isChecked(),
             )
 
         elif self.main.radioButton_point.isChecked():
