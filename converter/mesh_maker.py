@@ -108,9 +108,7 @@ def generate_mesh_point(
     return mesh_lyr
 
 
-def generate_mesh_city(
-    pref: str, city: str, pref_city_csv: str
-) -> QgsVectorLayer:
+def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLayer:
     space = 200  # 余白
     mesh_size = 0.06  # メッシュのサイズ=6cm
 

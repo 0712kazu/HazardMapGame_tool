@@ -223,7 +223,7 @@ class HGMDataGenerator:
             mesh_lyr = generate_mesh_city(
                 self.main.comboBox_pref.currentText(),
                 self.main.comboBox_city.currentText(),
-                self.pref_city_csv
+                self.pref_city_csv,
             )
 
         elif self.main.radioButton_point.isChecked():
