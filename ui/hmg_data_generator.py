@@ -64,7 +64,7 @@ class HGMDataGenerator:
         self.main.filter_pref.textChanged.connect(self._on_pref_filter_changed)
         self.main.filter_city.textChanged.connect(self._on_city_filter_changed)
 
-        # initialize a1 scale 
+        # initialize a1 scale
         self._on_city_changed()
 
         # mesh size
