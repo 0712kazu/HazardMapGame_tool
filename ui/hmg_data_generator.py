@@ -40,8 +40,8 @@ class HGMDataGenerator:
 
         # 縮尺コントローラー
         # self.scale_list = [10000, 25000, 50000, 100000, 250000]
-        self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
-        self.canvas.scaleChanged.connect(self._on_map_scale_changed)
+        # self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
+        # self.canvas.scaleChanged.connect(self._on_map_scale_changed)
 
         # 都道府県リストを読み込む
         self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
@@ -63,6 +63,9 @@ class HGMDataGenerator:
         # Filter pref cities by text
         self.main.filter_pref.textChanged.connect(self._on_pref_filter_changed)
         self.main.filter_city.textChanged.connect(self._on_city_filter_changed)
+
+        # initialize a1 scale 
+        self._on_city_changed()
 
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
@@ -143,6 +146,7 @@ class HGMDataGenerator:
 
     def _on_city_changed(self):
         try:
+            # get city bbox
             with open(self.pref_city_csv, "r") as f:
                 reader = csv.DictReader(f)
                 bbox = [
@@ -152,21 +156,57 @@ class HGMDataGenerator:
                     and row["NAME"] == self.main.comboBox_city.currentText()
                 ][0]
 
+            # set map canvas to city extent
             self.canvas.setExtent(
                 QgsRectangle(
                     float(bbox[0]), float(bbox[2]), float(bbox[1]), float(bbox[3])
                 )
             )
             self.canvas.refresh()
+
+            # calculate A1 scale
+            scale = self._get_a1_scale_from_city_bbox(bbox)
+
+            # スケールの閾値
+            scale_threshold = 25000
+
+            display_scale = f"1:{round(scale)}"
+            if scale < scale_threshold:
+                # 縮尺分母が25000以下の場合（例：22000）,強制的に25000にする
+                display_scale = f"1:{round(scale)} → 1:25000"
+
+            self.main.a1_scale_label.setText(display_scale)
+
         except IndexError:
             pass
 
-    def _on_scale_widget_changed(self):
-        scale = self.main.scale_widget.scale()
-        self.canvas.zoomScale(scale)
+    def _get_a1_scale_from_city_bbox(self, bbox: list) -> float:
+        space = 200  # 余白
+        mesh_size = 0.06  # メッシュのサイズin A1 paper=6cm
 
-    def _on_map_scale_changed(self, scale):
-        self.main.scale_widget.setScale(scale)
+        # メッシュ数
+        long_size_n = 12
+
+        grid_x_min = float(bbox[0]) - space
+        grid_x_max = float(bbox[1]) + space
+        grid_y_min = float(bbox[2]) - space
+        grid_y_max = float(bbox[3]) + space
+
+        size_x = grid_x_max - grid_x_min
+        size_y = grid_y_max - grid_y_min
+
+        long_side = max([size_x, size_y])
+
+        scale = long_side / (mesh_size * long_size_n)
+
+        return scale
+
+    # def _on_scale_widget_changed(self):
+    #     scale = self.main.scale_widget.scale()
+    #     self.canvas.zoomScale(scale)
+
+    # def _on_map_scale_changed(self, scale):
+    #     self.main.scale_widget.setScale(scale)
 
     def activate_maptool_point(self):
         def show_xy(point):
@@ -183,8 +223,7 @@ class HGMDataGenerator:
             mesh_lyr = generate_mesh_city(
                 self.main.comboBox_pref.currentText(),
                 self.main.comboBox_city.currentText(),
-                self.pref_city_csv,
-                self.main.fix_city_scale_checkbox.isChecked(),
+                self.pref_city_csv
             )
 
         elif self.main.radioButton_point.isChecked():

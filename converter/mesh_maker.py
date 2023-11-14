@@ -109,7 +109,7 @@ def generate_mesh_point(
 
 
 def generate_mesh_city(
-    pref: str, city: str, pref_city_csv: str, fix_scale_threshold: bool
+    pref: str, city: str, pref_city_csv: str
 ) -> QgsVectorLayer:
     space = 200  # 余白
     mesh_size = 0.06  # メッシュのサイズ=6cm
@@ -137,9 +137,6 @@ def generate_mesh_city(
     grid_y_min = float(bbox[2]) - space
     grid_y_max = float(bbox[3]) + space
 
-    center_x = (grid_x_max - grid_x_min) / 2 + grid_x_min
-    center_y = (grid_y_max - grid_y_min) / 2 + grid_y_min
-
     size_x = grid_x_max - grid_x_min
     size_y = grid_y_max - grid_y_min
 
@@ -148,23 +145,13 @@ def generate_mesh_city(
     scale = long_side / (mesh_size * long_size_n)
     grid_map_size = long_side / long_size_n
 
-    if scale < scale_threshold or fix_scale_threshold is True:
-        # 縮尺が25000以下の場合,強制的に25000にする
-        # 25000以上の場合,強制的に25000にするチェックボックスがTrueの場合
+    center_x = (grid_x_max - grid_x_min) / 2 + grid_x_min
+    center_y = (grid_y_max - grid_y_min) / 2 + grid_y_min
+
+    if scale < scale_threshold:
+        # 縮尺分母が25000以下の場合（例：22000）,強制的に25000にする
         scale = scale_threshold
         grid_map_size = mesh_size * scale_threshold
-
-        # use city centroid if force checkbox is checked
-        if fix_scale_threshold is True:
-            with open(pref_city_csv, "r") as f:
-                reader = csv.DictReader(f)
-                center = [
-                    [row["center_x"], row["center_y"]]
-                    for row in reader
-                    if row["KNAME"] == pref and row["NAME"] == city
-                ][0]
-                center_x = float(center[0])
-                center_y = float(center[1])
 
         if size_x >= size_y:
             grid_x_min = center_x - mesh_size * scale_threshold * (long_size_n / 2)
@@ -176,6 +163,7 @@ def generate_mesh_city(
             grid_x_max = center_x + mesh_size * scale_threshold * (short_size_n / 2)
             grid_y_min = center_y - mesh_size * scale_threshold * (long_size_n / 2)
             grid_y_max = center_y + mesh_size * scale_threshold * (long_size_n / 2)
+
 
     if size_x >= size_y:
         # 向き：横
