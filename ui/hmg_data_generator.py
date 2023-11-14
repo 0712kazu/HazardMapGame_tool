@@ -38,11 +38,6 @@ class HGMDataGenerator:
         self.main.pushButton_cancel_2.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
-        # 縮尺コントローラー
-        # self.scale_list = [10000, 25000, 50000, 100000, 250000]
-        # self.main.scale_widget.scaleChanged.connect(self._on_scale_widget_changed)
-        # self.canvas.scaleChanged.connect(self._on_map_scale_changed)
-
         # 都道府県リストを読み込む
         self.main.comboBox_pref.currentTextChanged.connect(self._on_pref_changed)
 
@@ -200,13 +195,6 @@ class HGMDataGenerator:
         scale = long_side / (mesh_size * long_size_n)
 
         return scale
-
-    # def _on_scale_widget_changed(self):
-    #     scale = self.main.scale_widget.scale()
-    #     self.canvas.zoomScale(scale)
-
-    # def _on_map_scale_changed(self, scale):
-    #     self.main.scale_widget.setScale(scale)
 
     def activate_maptool_point(self):
         def show_xy(point):
