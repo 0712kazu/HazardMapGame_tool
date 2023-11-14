@@ -164,7 +164,6 @@ def generate_mesh_city(
             grid_y_min = center_y - mesh_size * scale_threshold * (long_size_n / 2)
             grid_y_max = center_y + mesh_size * scale_threshold * (long_size_n / 2)
 
-
     if size_x >= size_y:
         # 向き：横
         # 中心点からの距離をピッタリにすると、グリッドが一個多くできることがあるので、0.01mを引いている
