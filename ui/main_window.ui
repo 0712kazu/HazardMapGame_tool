@@ -327,7 +327,7 @@
           <item>
            <layout class="QGridLayout" name="gridLayout_4">
             <item row="0" column="1">
-             <widget class="QgsFileWidget" name="mQgsFileWidget_2"/>
+             <widget class="QgsFileWidget" name="FileWidget_log"/>
             </item>
             <item row="0" column="0">
              <widget class="QLabel" name="label_9">

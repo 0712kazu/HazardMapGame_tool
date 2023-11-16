@@ -62,11 +62,32 @@ class HGMDataGenerator:
         # initialize a1 scale
         self._on_city_changed()
 
+        # set log file
+        self._set_log_csv_data()
+        self.main.FileWidget_log.fileChanged.connect(self._set_log_csv_data)
+
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+    def _set_log_csv_data(self):
+        # Take csv file in data folder as default, and CSV log data if provided
+        if self.main.FileWidget_log.filePath():
+            self.log_csv = self.main.FileWidget_log.filePath()
+        else:
+            self.log_csv = os.path.join(
+                os.path.dirname(__file__), constants.data_dir, "mesh_production_log.csv"
+            )
+
+        self.main.comboBox_meshprodlog.clear()
+        self.main.comboBox_meshprodlog.addItem("Select...")
+        with open(self.log_csv, "r") as f:
+            reader = csv.DictReader(f)
+            lognames = list(dict.fromkeys([row["title"] for row in reader]))
+            for logname in lognames:
+                self.main.comboBox_meshprodlog.addItem(logname)
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
