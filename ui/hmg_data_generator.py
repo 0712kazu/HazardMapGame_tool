@@ -65,6 +65,7 @@ class HGMDataGenerator:
         # set log file
         self._set_log_csv_data()
         self.main.FileWidget_log.fileChanged.connect(self._set_log_csv_data)
+        self.main.comboBox_meshprodlog.currentTextChanged.connect(self._on_log_changed)
 
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
@@ -88,6 +89,28 @@ class HGMDataGenerator:
             lognames = list(dict.fromkeys([row["title"] for row in reader]))
             for logname in lognames:
                 self.main.comboBox_meshprodlog.addItem(logname)
+
+    def _on_log_changed(self):
+        with open(self.log_csv, "r") as f:
+            reader = csv.DictReader(f)
+            logs = [
+                row
+                for row in reader
+                if row["title"] == self.main.comboBox_meshprodlog.currentText()
+            ]
+
+            for log in logs:
+                if log["type"] == "city":
+                    self.main.radioButton_city.setChecked(True)
+                    self.main.comboBox_pref.setCurrentText(log["pref"])
+                    self.main.comboBox_city.setCurrentText(log["city"])
+                if log["type"] == "point":
+                    self.main.radioButton_point.setChecked(True)
+                    self.main.comboBox_orientation.setCurrentText(log["orientation"])
+                    self.main.lineEdit_x.setText(log["center_x"])
+                    self.main.lineEdit_y.setText(log["center_y"])
+                    self.main.nb_mesh1.setValue(int(log["mesh_size_long"]))
+                    self.main.nb_mesh2.setValue(int(log["mesh_size_short"]))
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
