@@ -1,7 +1,7 @@
 import csv
 import os
 
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 from qgis.core import (
     QgsProject,
     QgsRectangle,
@@ -28,8 +28,6 @@ class HGMDataGenerator:
     def __init__(self, main: QDialog):
         self.main = main
         self.canvas = iface.mapCanvas()
-
-        self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
@@ -66,6 +64,7 @@ class HGMDataGenerator:
         self._set_log_csv_data()
         self.main.FileWidget_log.fileChanged.connect(self._set_log_csv_data)
         self.main.comboBox_meshprodlog.currentTextChanged.connect(self._on_log_changed)
+        self.main.pushButton_savelog.clicked.connect(self.save_log)
 
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
@@ -111,6 +110,16 @@ class HGMDataGenerator:
                     self.main.lineEdit_y.setText(log["center_y"])
                     self.main.nb_mesh1.setValue(int(log["mesh_size_long"]))
                     self.main.nb_mesh2.setValue(int(log["mesh_size_short"]))
+
+    def save_log(self):
+        # checkpoint 1: title should not be empty
+        if self.main.lineEdit_title.text() == "":
+            QMessageBox.information(None, "エラー", "ログ名を記入してください。")
+            return
+        # if self.main.lineEdit_title.text() == "":
+        #     error_message = "シームレスフォルダーが設定していません。"
+        #     QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+        #     return
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
@@ -241,9 +250,13 @@ class HGMDataGenerator:
         return scale
 
     def activate_maptool_point(self):
+        self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
         def show_xy(point):
             self.main.lineEdit_x.setText(str(point.x()))
             self.main.lineEdit_y.setText(str(point.y()))
+            self.main.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+            self.main.show()
 
         maptool = POIMapTool()
         maptool.clicked.connect(show_xy)

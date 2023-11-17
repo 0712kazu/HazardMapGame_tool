@@ -547,25 +547,21 @@
           <item>
           <layout class="QGridLayout" name="gridLayout_produce">
            <item row="0" column="0">
-           <widget class="QCheckBox" name="checkBox_savelog">
-            <!-- <property name="geometry">
-                <rect>
-                <x>280</x>
-                <y>110</y>
-                <width>101</width>
-                <height>16</height>
-                </rect>
-            </property> -->
-            <property name="text">
-                <string>履歴に保存する</string>
-            </property>
-            <property name="checked">
-                <bool>false</bool>
-            </property>
-            </widget>
-           </item>
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>ログ名</string>
+              </property>
+             </widget>
+            </item>
             <item row="0" column="1">
              <widget class="QLineEdit" name="lineEdit_title"/>
+            </item>
+            <item row="0" column="2">
+             <widget class="QPushButton" name="pushButton_savelog">
+              <property name="text">
+               <string>履歴に保存する</string>
+              </property>
+             </widget>
             </item>
             </layout>
             </item>
