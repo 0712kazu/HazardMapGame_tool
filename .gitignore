@@ -7,3 +7,4 @@ __pycache__/
 coverage.xml
 .coverage
 requirements.txt
+data/mesh_production_log.csv
