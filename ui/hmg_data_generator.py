@@ -96,6 +96,8 @@ class HGMDataGenerator:
 
             for log in logs:
                 if log["type"] == "city":
+                    self.main.filter_pref.setText("")
+                    self.main.filter_city.setText("")
                     self.main.radioButton_city.setChecked(True)
                     self.main.comboBox_pref.setCurrentText(log["pref"])
                     self.main.comboBox_city.setCurrentText(log["city"])
