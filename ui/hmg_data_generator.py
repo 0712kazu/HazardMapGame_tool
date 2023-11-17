@@ -2,11 +2,7 @@ import csv
 import os
 
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from qgis.core import (
-    QgsProject,
-    QgsRectangle,
-    QgsVectorLayer,
-)
+from qgis.core import QgsProject, QgsRectangle, QgsVectorLayer, QgsPointXY
 from qgis.gui import QtCore
 from qgis.utils import iface
 
@@ -103,6 +99,8 @@ class HGMDataGenerator:
                     self.main.radioButton_city.setChecked(True)
                     self.main.comboBox_pref.setCurrentText(log["pref"])
                     self.main.comboBox_city.setCurrentText(log["city"])
+                    # center map canvas to city
+                    self._on_city_changed()
                 if log["type"] == "point":
                     self.main.radioButton_point.setChecked(True)
                     self.main.comboBox_orientation.setCurrentText(log["orientation"])
@@ -110,6 +108,11 @@ class HGMDataGenerator:
                     self.main.lineEdit_y.setText(log["center_y"])
                     self.main.nb_mesh1.setValue(int(log["mesh_size_long"]))
                     self.main.nb_mesh2.setValue(int(log["mesh_size_short"]))
+                    # center map canvas  to centroid
+                    iface.mapCanvas().zoomScale(120000)
+                    iface.mapCanvas().setCenter(
+                        QgsPointXY(float(log["center_x"]), float(log["center_y"]))
+                    )
 
     def save_log(self):
         # checkpoint 1: title should not be empty
