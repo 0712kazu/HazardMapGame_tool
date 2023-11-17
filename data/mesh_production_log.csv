@@ -1,4 +1,1 @@
 title,paper_size,type,pref,city,scale,orientation,center_x,center_y,mesh_size_long,mesh_size_short
-sometown,A1,city,栃木県,益子町,25000,横,1,1,12,8
-landscape,A1,point,,,25000,横,1,1,12,8
-portrait,A1,point,,,25000,縦,3,2,8,6
