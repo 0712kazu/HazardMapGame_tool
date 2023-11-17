@@ -117,8 +117,8 @@ class HGMDataGenerator:
             QMessageBox.information(None, "エラー", "ログ名を記入してください。")
             return
 
-        # checkpoint 2 : title should not already exists
         with open(self.log_csv, "r") as f:
+            # checkpoint 2 : title should not already exists
             reader = csv.DictReader(f)
             titles = list(dict.fromkeys([row["title"] for row in reader]))
             if self.main.lineEdit_title.text() in titles:
@@ -128,6 +128,58 @@ class HGMDataGenerator:
                     f"「{self.main.lineEdit_title.text()}」のログ名が既に保存されています。",
                 )
                 return
+
+        # 2 checkpoints passed, save log
+        if self.main.radioButton_city.isChecked():
+            log = {
+                "title": self.main.lineEdit_title.text(),
+                "paper_size": "A1",
+                "type": "city",
+                "pref": self.main.comboBox_pref.currentText(),
+                "city": self.main.comboBox_city.currentText(),
+                "scale": self.main.a1_scale_label.text(),
+                "orientation": "",
+                "center_x": "",
+                "center_y": "",
+                "mesh_size_long": 12,
+                "mesh_size_short": 8,
+            }
+
+        if self.main.radioButton_point.isChecked():
+            # checkpoint 3 : center point should be set
+            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "中心点が指定していません。",
+                )
+                return
+            log = {
+                "title": self.main.lineEdit_title.text(),
+                "paper_size": "A1",
+                "type": "point",
+                "pref": "",
+                "city": "",
+                "scale": "1:25000",
+                "orientation": self.main.comboBox_orientation.currentText(),
+                "center_x": self.main.lineEdit_x.text(),
+                "center_y": self.main.lineEdit_y.text(),
+                "mesh_size_long": self.main.nb_mesh1.value(),
+                "mesh_size_short": self.main.nb_mesh2.value(),
+            }
+        # save in csv file
+        with open(self.log_csv, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=log.keys())
+            writer.writerow(log)
+
+        # update log list
+        self._set_log_csv_data()
+
+        QMessageBox.information(
+            None,
+            "Information",
+            f"「{self.main.lineEdit_title.text()}」ログが保存しました。",
+        )
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
