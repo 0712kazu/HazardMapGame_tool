@@ -116,10 +116,18 @@ class HGMDataGenerator:
         if self.main.lineEdit_title.text() == "":
             QMessageBox.information(None, "エラー", "ログ名を記入してください。")
             return
-        # if self.main.lineEdit_title.text() == "":
-        #     error_message = "シームレスフォルダーが設定していません。"
-        #     QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
-        #     return
+
+        # checkpoint 2 : title should not already exists
+        with open(self.log_csv, "r") as f:
+            reader = csv.DictReader(f)
+            titles = list(dict.fromkeys([row["title"] for row in reader]))
+            if self.main.lineEdit_title.text() in titles:
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    f"「{self.main.lineEdit_title.text()}」のログ名が既に保存されています。",
+                )
+                return
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
