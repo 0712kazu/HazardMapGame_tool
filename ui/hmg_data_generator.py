@@ -1,12 +1,8 @@
 import csv
 import os
 
-from PyQt5.QtWidgets import QDialog
-from qgis.core import (
-    QgsProject,
-    QgsRectangle,
-    QgsVectorLayer,
-)
+from PyQt5.QtWidgets import QDialog, QMessageBox
+from qgis.core import QgsProject, QgsRectangle, QgsVectorLayer, QgsPointXY
 from qgis.gui import QtCore
 from qgis.utils import iface
 
@@ -28,8 +24,6 @@ class HGMDataGenerator:
     def __init__(self, main: QDialog):
         self.main = main
         self.canvas = iface.mapCanvas()
-
-        self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
@@ -62,11 +56,135 @@ class HGMDataGenerator:
         # initialize a1 scale
         self._on_city_changed()
 
+        # set log file
+        self._set_log_csv_data()
+        self.main.FileWidget_log.fileChanged.connect(self._set_log_csv_data)
+        self.main.comboBox_meshprodlog.currentTextChanged.connect(self._on_log_changed)
+        self.main.pushButton_savelog.clicked.connect(self.save_log)
+
         # mesh size
         self.main.nb_mesh1.setRange(1, 12)
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+    def _set_log_csv_data(self):
+        # Take csv file in data folder as default, and CSV log data if provided
+        if self.main.FileWidget_log.filePath():
+            self.log_csv = self.main.FileWidget_log.filePath()
+        else:
+            self.log_csv = os.path.join(
+                os.path.dirname(__file__), constants.data_dir, "mesh_production_log.csv"
+            )
+
+        self.main.comboBox_meshprodlog.clear()
+        self.main.comboBox_meshprodlog.addItem("Select...")
+        with open(self.log_csv, "r") as f:
+            reader = csv.DictReader(f)
+            lognames = list(dict.fromkeys([row["title"] for row in reader]))
+            for logname in lognames:
+                self.main.comboBox_meshprodlog.addItem(logname)
+
+    def _on_log_changed(self):
+        with open(self.log_csv, "r") as f:
+            reader = csv.DictReader(f)
+            logs = [
+                row
+                for row in reader
+                if row["title"] == self.main.comboBox_meshprodlog.currentText()
+            ]
+
+            for log in logs:
+                if log["type"] == "city":
+                    self.main.filter_pref.setText("")
+                    self.main.filter_city.setText("")
+                    self.main.radioButton_city.setChecked(True)
+                    self.main.comboBox_pref.setCurrentText(log["pref"])
+                    self.main.comboBox_city.setCurrentText(log["city"])
+                    # center map canvas to city
+                    self._on_city_changed()
+                if log["type"] == "point":
+                    self.main.radioButton_point.setChecked(True)
+                    self.main.comboBox_orientation.setCurrentText(log["orientation"])
+                    self.main.lineEdit_x.setText(log["center_x"])
+                    self.main.lineEdit_y.setText(log["center_y"])
+                    self.main.nb_mesh1.setValue(int(log["mesh_size_long"]))
+                    self.main.nb_mesh2.setValue(int(log["mesh_size_short"]))
+                    # center map canvas  to centroid
+                    iface.mapCanvas().zoomScale(120000)
+                    iface.mapCanvas().setCenter(
+                        QgsPointXY(float(log["center_x"]), float(log["center_y"]))
+                    )
+
+    def save_log(self):
+        # checkpoint 1: title should not be empty
+        if self.main.lineEdit_title.text() == "":
+            QMessageBox.information(None, "エラー", "ログ名を記入してください。")
+            return
+
+        with open(self.log_csv, "r") as f:
+            # checkpoint 2 : title should not already exists
+            reader = csv.DictReader(f)
+            titles = list(dict.fromkeys([row["title"] for row in reader]))
+            if self.main.lineEdit_title.text() in titles:
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    f"「{self.main.lineEdit_title.text()}」のログ名が既に保存されています。",
+                )
+                return
+
+        # 2 checkpoints passed, save log
+        if self.main.radioButton_city.isChecked():
+            log = {
+                "title": self.main.lineEdit_title.text(),
+                "paper_size": "A1",
+                "type": "city",
+                "pref": self.main.comboBox_pref.currentText(),
+                "city": self.main.comboBox_city.currentText(),
+                "scale": self.main.a1_scale_label.text(),
+                "orientation": "",
+                "center_x": "",
+                "center_y": "",
+                "mesh_size_long": 12,
+                "mesh_size_short": 8,
+            }
+
+        if self.main.radioButton_point.isChecked():
+            # checkpoint 3 : center point should be set
+            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "中心点が指定していません。",
+                )
+                return
+            log = {
+                "title": self.main.lineEdit_title.text(),
+                "paper_size": "A1",
+                "type": "point",
+                "pref": "",
+                "city": "",
+                "scale": "1:25000",
+                "orientation": self.main.comboBox_orientation.currentText(),
+                "center_x": self.main.lineEdit_x.text(),
+                "center_y": self.main.lineEdit_y.text(),
+                "mesh_size_long": self.main.nb_mesh1.value(),
+                "mesh_size_short": self.main.nb_mesh2.value(),
+            }
+        # save in csv file
+        with open(self.log_csv, "a", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=log.keys())
+            writer.writerow(log)
+
+        # update log list
+        self._set_log_csv_data()
+
+        QMessageBox.information(
+            None,
+            "Information",
+            f"「{self.main.lineEdit_title.text()}」ログが保存しました。",
+        )
 
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
@@ -197,9 +315,13 @@ class HGMDataGenerator:
         return scale
 
     def activate_maptool_point(self):
+        self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
+
         def show_xy(point):
             self.main.lineEdit_x.setText(str(point.x()))
             self.main.lineEdit_y.setText(str(point.y()))
+            self.main.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint, False)
+            self.main.show()
 
         maptool = POIMapTool()
         maptool.clicked.connect(show_xy)
