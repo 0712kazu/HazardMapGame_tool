@@ -69,9 +69,13 @@ def _generate_waku_rectangle(
 
 
 def generate_mesh_point(
-    center_x: float, center_y: float, nb_mesh1: int, nb_mesh2: int, orientation: str
+    center_x: float,
+    center_y: float,
+    nb_mesh1: int,
+    nb_mesh2: int,
+    orientation: str,
+    scale: float,
 ) -> QgsVectorLayer:
-    scale = 25000
     grid_map_size = 6 * scale / 100
 
     # move center point coordinates from 1/4 mesh size

@@ -55,6 +55,7 @@ class HGMDataGenerator:
 
         # initialize a1 scale
         self._on_city_changed()
+        self.main.a1_scale_widget.setScale(25000)
 
         # set log file
         self._set_log_csv_data()
@@ -344,6 +345,7 @@ class HGMDataGenerator:
                 self.main.nb_mesh1.value(),
                 self.main.nb_mesh2.value(),
                 self.main.comboBox_orientation.currentText(),
+                self.main.a1_scale_widget.scale(),
             )
 
         # exclude offshore mesh (more than 90% of water)
