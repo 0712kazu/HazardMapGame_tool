@@ -12,6 +12,8 @@ from qgis.gui import QgisInterface
 
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
+from converter import field_names
+
 
 def _sum_surfaces_intersect_meshes(
     seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
@@ -297,7 +299,7 @@ def seamless2hmg_kosui(
     QgsProject.instance().addMapLayer(max_dep_pnt)
 
     print("メッシュごとの最大浸水深合計を計算...")
-    kosui_sum_mesh = processing.run(
+    kozui_max_sum = processing.run(
         "qgis:joinbylocationsummary",
         {
             "INPUT": mesh_lyr,
@@ -312,18 +314,34 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
     qgis_iface.messageBar().clearWidgets()
 
-    return kosui_sum_mesh
+    print("属性名を変更...")
+    kozui_mesh = processing.run(
+        "native:renametablefield",
+        {
+            "INPUT": kozui_max_sum,
+            "FIELD": "depth_max_sum",
+            "NEW_NAME": field_names.field_kozui,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+        feedback=f,
+    )["OUTPUT"]
+
+    return kozui_mesh
 
 
 def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
 ):
-    return _sum_surfaces_intersect_meshes(jisuberi_lyr, mesh_lyr, "landslide_area")
+    return _sum_surfaces_intersect_meshes(
+        jisuberi_lyr, mesh_lyr, field_names.field_jisuberi
+    )
 
 
 def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
 ):
-    return _sum_surfaces_intersect_meshes(saigai_lyr, mesh_lyr, "disaster_risk_area")
+    return _sum_surfaces_intersect_meshes(
+        saigai_lyr, mesh_lyr, field_names.field_saigai
+    )

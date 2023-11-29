@@ -637,7 +637,7 @@
              </widget>
             </item>
          <item>
-          <widget class="QPushButton" name="pushButton_cancel">
+          <widget class="QPushButton" name="pushButton_cancel_3">
            <property name="text">
             <string>閉じる</string>
            </property>
