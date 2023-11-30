@@ -28,9 +28,7 @@ class HMGDataGenerator:
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
         self.main.pushButton_mesh.clicked.connect(self.generate_mesh)
-        self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
         self.main.pushButton_cancel_2.clicked.connect(lambda: self.main.close())
-        self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 
         # 都道府県リストを読み込む
