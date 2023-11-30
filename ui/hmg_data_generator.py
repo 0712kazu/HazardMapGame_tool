@@ -20,7 +20,7 @@ from converter.mesh_maker import (
 from maptool import POIMapTool
 
 
-class HGMDataGenerator:
+class HMGDataGenerator:
     def __init__(self, main: QDialog):
         self.main = main
         self.canvas = iface.mapCanvas()
