@@ -13,16 +13,16 @@
   <property name="windowTitle">
    <string>Chart</string>
   </property>
-  <widget class="QGraphicsView" name="graphicsView">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>40</y>
-     <width>256</width>
-     <height>192</height>
-    </rect>
-   </property>
-  </widget>
+  <widget class="QWidget" name="chart_container" native="true">
+    <property name="geometry">
+     <rect>
+      <x>29</x>
+      <y>29</y>
+      <width>291</width>
+      <height>231</height>
+     </rect>
+    </property>
+   </widget>
   <widget class="QPushButton" name="pushButton_close">
    <property name="geometry">
     <rect>
