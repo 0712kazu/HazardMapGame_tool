@@ -10,24 +10,41 @@ from .Exporter import Exporter
 
 translate = QtCore.QCoreApplication.translate
 
-__all__ = ['CSVExporter']
-    
-    
+__all__ = ["CSVExporter"]
+
+
 class CSVExporter(Exporter):
     Name = "CSV of original plot data"
     windows = []
+
     def __init__(self, item):
         Exporter.__init__(self, item)
-        self.params = Parameter(name='params', type='group', children=[
-            {'name': 'separator', 'title': translate("Exporter", 'separator'), 'type': 'list', 'value': 'comma', 'limits': ['comma', 'tab']},
-            {'name': 'precision', 'title': translate("Exporter", 'precision'), 'type': 'int', 'value': 10, 'limits': [0, None]},
-            {
-                'name': 'columnMode',
-                'title': translate("Exporter", 'columnMode'),
-                'type': 'list',
-                'limits': ['(x,y) per plot', '(x,y,y,y) for all plots']
-            }
-        ])
+        self.params = Parameter(
+            name="params",
+            type="group",
+            children=[
+                {
+                    "name": "separator",
+                    "title": translate("Exporter", "separator"),
+                    "type": "list",
+                    "value": "comma",
+                    "limits": ["comma", "tab"],
+                },
+                {
+                    "name": "precision",
+                    "title": translate("Exporter", "precision"),
+                    "type": "int",
+                    "value": 10,
+                    "limits": [0, None],
+                },
+                {
+                    "name": "columnMode",
+                    "title": translate("Exporter", "columnMode"),
+                    "type": "list",
+                    "limits": ["(x,y) per plot", "(x,y,y,y) for all plots"],
+                },
+            ],
+        )
 
         self.index_counter = itertools.count(start=0)
         self.header = []
@@ -41,35 +58,35 @@ class CSVExporter(Exporter):
         index = next(self.index_counter)
 
         # make sure the plot actually has data:
-        if errorBarItem.opts['x'] is None or errorBarItem.opts['y'] is None:
+        if errorBarItem.opts["x"] is None or errorBarItem.opts["y"] is None:
             return None
 
         header_naming_map = {
             "left": "x_min_error",
             "right": "x_max_error",
             "bottom": "y_min_error",
-            "top": "y_max_error"
+            "top": "y_max_error",
         }
 
         # grab the base-points
-        self.header.extend([f'x{index:04}_error', f'y{index:04}_error'])
-        error_data.extend([errorBarItem.opts['x'], errorBarItem.opts['y']])
+        self.header.extend([f"x{index:04}_error", f"y{index:04}_error"])
+        error_data.extend([errorBarItem.opts["x"], errorBarItem.opts["y"]])
 
         # grab the error bars
         for error_direction, header_label in header_naming_map.items():
             if (error := errorBarItem.opts[error_direction]) is not None:
-                self.header.extend([f'{header_label}_{index:04}'])
+                self.header.extend([f"{header_label}_{index:04}"])
                 error_data.append(error)
 
         self.data.append(tuple(error_data))
         return None
 
     def _exportPlotDataItem(self, plotDataItem) -> None:
-        if hasattr(plotDataItem, 'getOriginalDataset'):
+        if hasattr(plotDataItem, "getOriginalDataset"):
             # try to access unmapped, unprocessed data
             cd = plotDataItem.getOriginalDataset()
         else:
-             # fall back to earlier access method
+            # fall back to earlier access method
             cd = plotDataItem.getData()
         if cd[0] is None:
             # no data found, break out...
@@ -78,13 +95,13 @@ class CSVExporter(Exporter):
 
         index = next(self.index_counter)
         if plotDataItem.name() is not None:
-            name = plotDataItem.name().replace('"', '""') + '_'
+            name = plotDataItem.name().replace('"', '""') + "_"
             xName = f"{name}x"
             yName = f"{name}y"
         else:
-            xName = f'x{index:04}'
-            yName = f'y{index:04}'
-        appendAllX = self.params['columnMode'] == '(x,y) per plot'
+            xName = f"x{index:04}"
+            yName = f"y{index:04}"
+        appendAllX = self.params["columnMode"] == "(x,y) per plot"
         if appendAllX or index == 0:
             self.header.extend([xName, yName])
         else:
@@ -102,20 +119,21 @@ class CSVExporter(Exporter):
         for item in self.item.items:
             if isinstance(item, ErrorBarItem):
                 self._exportErrorBarItem(item)
-            elif hasattr(item, 'implements') and item.implements('plotData'):
+            elif hasattr(item, "implements") and item.implements("plotData"):
                 self._exportPlotDataItem(item)
 
-        sep = "," if self.params['separator'] == 'comma' else "\t"
+        sep = "," if self.params["separator"] == "comma" else "\t"
         # we want to flatten the nested arrays of data into columns
         columns = [column for dataset in self.data for column in dataset]
-        with open(fileName, 'w', newline='') as csvfile:
+        with open(fileName, "w", newline="") as csvfile:
             writer = csv.writer(csvfile, delimiter=sep, quoting=csv.QUOTE_MINIMAL)
             writer.writerow(self.header)
             for row in itertools.zip_longest(*columns, fillvalue=""):
                 row_to_write = [
-                    item if isinstance(item, str) 
+                    item
+                    if isinstance(item, str)
                     else np.format_float_positional(
-                        item, precision=self.params['precision']
+                        item, precision=self.params["precision"]
                     )
                     for item in row
                 ]
@@ -123,5 +141,6 @@ class CSVExporter(Exporter):
 
         self.header.clear()
         self.data.clear()
+
 
 CSVExporter.register()

@@ -7,7 +7,7 @@ class StrParameterItem(WidgetParameterItem):
 
     def makeWidget(self):
         w = QtWidgets.QLineEdit()
-        w.setStyleSheet('border: 0px')
+        w.setStyleSheet("border: 0px")
         w.sigChanged = w.editingFinished
         w.value = w.text
         w.setValue = w.setText

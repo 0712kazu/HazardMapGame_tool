@@ -12,15 +12,19 @@ win = QtWidgets.QMainWindow()
 btn = pg.ColorButton()
 win.setCentralWidget(btn)
 win.show()
-win.setWindowTitle('pyqtgraph example: ColorButton')
+win.setWindowTitle("pyqtgraph example: ColorButton")
+
 
 def change(btn):
     print("change", btn.color())
+
+
 def done(btn):
     print("done", btn.color())
+
 
 btn.sigColorChanging.connect(change)
 btn.sigColorChanged.connect(done)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()

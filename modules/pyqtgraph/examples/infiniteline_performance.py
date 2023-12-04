@@ -9,9 +9,9 @@ from utils import FrameCounter
 app = pg.mkQApp("Infinite Line Performance")
 
 p = pg.plot()
-p.setWindowTitle('pyqtgraph performance: InfiniteLine')
+p.setWindowTitle("pyqtgraph performance: InfiniteLine")
 p.setRange(QtCore.QRectF(0, -10, 5000, 20))
-p.setLabel('bottom', 'Index', units='B')
+p.setLabel("bottom", "Index", units="B")
 curve = p.plot()
 
 # Add a large number of horizontal InfiniteLine to plot
@@ -21,6 +21,7 @@ for i in range(100):
 
 data = np.random.normal(size=(50, 5000))
 ptr = 0
+
 
 def update():
     global ptr
@@ -34,7 +35,7 @@ timer.timeout.connect(update)
 timer.start(0)
 
 framecnt = FrameCounter()
-framecnt.sigFpsUpdate.connect(lambda fps: p.setTitle(f'{fps:.1f} fps'))
+framecnt.sigFpsUpdate.connect(lambda fps: p.setTitle(f"{fps:.1f} fps"))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()

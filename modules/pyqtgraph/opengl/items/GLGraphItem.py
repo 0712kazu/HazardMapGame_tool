@@ -6,7 +6,8 @@ from ...Qt import QtCore, QtGui
 from ..GLGraphicsItem import GLGraphicsItem
 from .GLScatterPlotItem import GLScatterPlotItem
 
-__all__ = ['GLGraphItem']
+__all__ = ["GLGraphItem"]
+
 
 class GLGraphItem(GLGraphicsItem):
     """A GLGraphItem displays graph information as
@@ -27,7 +28,7 @@ class GLGraphItem(GLGraphicsItem):
 
     def setData(self, **kwds):
         """
-        Change the data displayed by the graph. 
+        Change the data displayed by the graph.
 
         Parameters
         ----------
@@ -36,7 +37,7 @@ class GLGraphItem(GLGraphicsItem):
             indexes of two nodes that are connected.  Dtype must be integer
             or unsigned.
         edgeColor: color_like, optional
-            The color to draw edges. Accepts the same arguments as 
+            The color to draw edges. Accepts the same arguments as
             :func:`~pyqtgraph.mkColor()`.  If None, no edges will be drawn.
             Default is (1.0, 1.0, 1.0, 0.5).
         edgeWidth: float, optional
@@ -47,7 +48,7 @@ class GLGraphItem(GLGraphicsItem):
         nodeColor : np.ndarray or float or color_like, optional
             2D array of shape (N, 4) of dtype float32, where each row represents
             the R, G, B, A values in range of 0-1, or for the same color for all
-            nodes, provide either QColor type or input for 
+            nodes, provide either QColor type or input for
             :func:`~pyqtgraph.mkColor()`
         nodeSize : np.ndarray or float or int
             Either 2D numpy array of shape (N, 1) where each row represents the
@@ -56,28 +57,28 @@ class GLGraphItem(GLGraphicsItem):
             All other keyword arguments are given to
             :meth:`GLScatterPlotItem.setData() <pyqtgraph.opengl.GLScatterPlotItem.setData>`
             to affect the appearance of nodes (pos, color, size, pxMode, etc.)
-        
+
         Raises
         ------
         TypeError
             When dtype of edges dtype is not unisnged or integer dtype
         """
 
-        if 'edges' in kwds:
-            self.edges = kwds.pop('edges')
-            if self.edges.dtype.kind not in 'iu':
+        if "edges" in kwds:
+            self.edges = kwds.pop("edges")
+            if self.edges.dtype.kind not in "iu":
                 raise TypeError("edges array must have int or unsigned dtype.")
-        if 'edgeColor' in kwds:
-            edgeColor = kwds.pop('edgeColor')
+        if "edgeColor" in kwds:
+            edgeColor = kwds.pop("edgeColor")
             self.edgeColor = fn.mkColor(edgeColor) if edgeColor is not None else None
-        if 'edgeWidth' in kwds:
-            self.edgeWidth = kwds.pop('edgeWidth')
-        if 'nodePositions' in kwds:
-            kwds['pos'] = kwds.pop('nodePositions')
-        if 'nodeColor' in kwds:
-            kwds['color'] = kwds.pop('nodeColor')
-        if 'nodeSize' in kwds:
-            kwds['size'] = kwds.pop('nodeSize')
+        if "edgeWidth" in kwds:
+            self.edgeWidth = kwds.pop("edgeWidth")
+        if "nodePositions" in kwds:
+            kwds["pos"] = kwds.pop("nodePositions")
+        if "nodeColor" in kwds:
+            kwds["color"] = kwds.pop("nodeColor")
+        if "nodeSize" in kwds:
+            kwds["size"] = kwds.pop("nodeSize")
         self.scatter.setData(**kwds)
         self.update()
 
@@ -85,9 +86,7 @@ class GLGraphItem(GLGraphicsItem):
         self.scatter.initializeGL()
 
     def paint(self):
-        if self.scatter.pos is None \
-                or self.edges is None \
-                or self.edgeColor is None:
+        if self.scatter.pos is None or self.edges is None or self.edgeColor is None:
             return None
         verts = self.scatter.pos
         edges = self.edges.astype(np.uint32).flatten()

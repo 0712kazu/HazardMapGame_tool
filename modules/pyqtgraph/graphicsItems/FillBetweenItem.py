@@ -3,12 +3,14 @@ from ..Qt import QtGui, QtWidgets
 from .PlotCurveItem import PlotCurveItem
 from .PlotDataItem import PlotDataItem
 
-__all__ = ['FillBetweenItem']
+__all__ = ["FillBetweenItem"]
+
 
 class FillBetweenItem(QtWidgets.QGraphicsPathItem):
     """
     GraphicsItem filling the space between two PlotDataItems.
     """
+
     def __init__(self, curve1=None, curve2=None, brush=None, pen=None):
         QtWidgets.QGraphicsPathItem.__init__(self)
         self.curves = None
@@ -21,19 +23,19 @@ class FillBetweenItem(QtWidgets.QGraphicsPathItem):
             self.setBrush(brush)
         self.setPen(pen)
         self.updatePath()
-        
+
     def setBrush(self, *args, **kwds):
         """Change the fill brush. Acceps the same arguments as pg.mkBrush()"""
         QtWidgets.QGraphicsPathItem.setBrush(self, fn.mkBrush(*args, **kwds))
-        
+
     def setPen(self, *args, **kwds):
         QtWidgets.QGraphicsPathItem.setPen(self, fn.mkPen(*args, **kwds))
 
     def setCurves(self, curve1, curve2):
         """Set the curves to fill between.
-        
+
         Arguments must be instances of PlotDataItem or PlotCurveItem.
-        
+
         Added in version 0.9.9
         """
         if self.curves is not None:
@@ -50,7 +52,7 @@ class FillBetweenItem(QtWidgets.QGraphicsPathItem):
         self.curves = curves
         curve1.sigPlotChanged.connect(self.curveChanged)
         curve2.sigPlotChanged.connect(self.curveChanged)
-        self.setZValue(min(curve1.zValue(), curve2.zValue())-1)
+        self.setZValue(min(curve1.zValue(), curve2.zValue()) - 1)
         self.curveChanged()
 
     def curveChanged(self):
@@ -75,8 +77,7 @@ class FillBetweenItem(QtWidgets.QGraphicsPathItem):
         if len(ps1) == 0 or len(ps2) == 0:
             self.setPath(QtGui.QPainterPath())
             return
-        
-            
+
         for p1, p2 in zip(ps1, ps2):
             path.addPolygon(p1 + p2)
         self.setPath(path)

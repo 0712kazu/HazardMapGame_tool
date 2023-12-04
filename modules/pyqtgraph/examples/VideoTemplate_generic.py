@@ -53,7 +53,10 @@ class Ui_MainWindow(object):
         self.gridLayout_4 = QtWidgets.QGridLayout(self.page_2)
         self.gridLayout_4.setObjectName("gridLayout_4")
         self.rawImg = RawImageWidget(self.page_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.rawImg.sizePolicy().hasHeightForWidth())
@@ -128,14 +131,22 @@ class Ui_MainWindow(object):
         self.alphaCheck.setObjectName("alphaCheck")
         self.gridLayout_2.addWidget(self.alphaCheck, 7, 1, 1, 1)
         self.gradient = GradientWidget(self.centralwidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.gradient.sizePolicy().hasHeightForWidth())
         self.gradient.setSizePolicy(sizePolicy)
         self.gradient.setObjectName("gradient")
         self.gridLayout_2.addWidget(self.gradient, 7, 2, 1, 2)
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Minimum,
+        )
         self.gridLayout_2.addItem(spacerItem, 3, 3, 1, 1)
         self.fpsLabel = QtWidgets.QLabel(self.centralwidget)
         font = QtGui.QFont()
@@ -153,18 +164,24 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.framesSpin = QtWidgets.QSpinBox(self.centralwidget)
-        self.framesSpin.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.framesSpin.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
         self.framesSpin.setProperty("value", 10)
         self.framesSpin.setObjectName("framesSpin")
         self.horizontalLayout_4.addWidget(self.framesSpin)
         self.widthSpin = QtWidgets.QSpinBox(self.centralwidget)
-        self.widthSpin.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.PlusMinus)
+        self.widthSpin.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.PlusMinus
+        )
         self.widthSpin.setMaximum(10000)
         self.widthSpin.setProperty("value", 512)
         self.widthSpin.setObjectName("widthSpin")
         self.horizontalLayout_4.addWidget(self.widthSpin)
         self.heightSpin = QtWidgets.QSpinBox(self.centralwidget)
-        self.heightSpin.setButtonSymbols(QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.heightSpin.setButtonSymbols(
+            QtWidgets.QAbstractSpinBox.ButtonSymbols.NoButtons
+        )
         self.heightSpin.setMaximum(10000)
         self.heightSpin.setProperty("value", 512)
         self.heightSpin.setObjectName("heightSpin")
@@ -203,5 +220,7 @@ class Ui_MainWindow(object):
         self.fpsLabel.setText(_translate("MainWindow", "FPS"))
         self.rgbCheck.setText(_translate("MainWindow", "RGB"))
         self.label_5.setText(_translate("MainWindow", "Image size"))
+
+
 from pyqtgraph import GradientWidget, GraphicsView, SpinBox
 from pyqtgraph.widgets.RawImageWidget import RawImageWidget

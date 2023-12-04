@@ -3,7 +3,7 @@ import warnings
 
 from ..Qt import QtGui, QtWidgets
 
-__all__ = ['getGraphIcon', 'getGraphPixmap']
+__all__ = ["getGraphIcon", "getGraphPixmap"]
 
 _ICON_REGISTRY = {}
 
@@ -24,13 +24,13 @@ class GraphIcon:
 
     def __init__(self, path):
         self._path = path
-        name = path.split('.')[0]
+        name = path.split(".")[0]
         _ICON_REGISTRY[name] = self
         self._icon = None
 
     def _build_qicon(self):
         icon = QtGui.QIcon(op.join(op.dirname(__file__), self._path))
-        name = self._path.split('.')[0]
+        name = self._path.split(".")[0]
         _ICON_REGISTRY[name] = icon
         self._icon = icon
 

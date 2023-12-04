@@ -12,7 +12,7 @@ class CalendarParameterItem(WidgetParameterItem):
         w.value = w.selectedDate
         w.setValue = w.setSelectedDate
         self.hideWidget = False
-        self.param.opts.setdefault('default', QtCore.QDate.currentDate())
+        self.param.opts.setdefault("default", QtCore.QDate.currentDate())
         return w
 
 
@@ -31,11 +31,11 @@ class CalendarParameter(Parameter):
     itemClass = CalendarParameterItem
 
     def __init__(self, **opts):
-        opts.setdefault('format', 'TextDate')
+        opts.setdefault("format", "TextDate")
         super().__init__(**opts)
 
     def _interpretFormat(self, fmt=None):
-        fmt = fmt or self.opts.get('format')
+        fmt = fmt or self.opts.get("format")
         if hasattr(QtCore.Qt.DateFormat, fmt):
             fmt = getattr(QtCore.Qt.DateFormat, fmt)
         return fmt
@@ -44,13 +44,13 @@ class CalendarParameter(Parameter):
         if isinstance(v, str):
             fmt = self._interpretFormat()
             if fmt is None:
-                raise ValueError('Cannot parse date string without a set format')
+                raise ValueError("Cannot parse date string without a set format")
             v = QtCore.QDate.fromString(v, fmt)
         return v
 
     def saveState(self, filter=None):
         state = super().saveState(filter)
         fmt = self._interpretFormat()
-        if state['value'] is not None:
-            state['value'] = state['value'].toString(fmt)
+        if state["value"] is not None:
+            state["value"] = state["value"].toString(fmt)
         return state

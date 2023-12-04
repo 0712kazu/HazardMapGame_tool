@@ -60,4 +60,6 @@ class Ui_Form(object):
         self.closeBtn.setText(_translate("Form", "Close"))
         self.label_3.setText(_translate("Form", "Export options"))
         self.copyBtn.setText(_translate("Form", "Copy"))
+
+
 from ..parametertree import ParameterTree

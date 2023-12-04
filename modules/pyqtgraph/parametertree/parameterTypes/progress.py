@@ -16,4 +16,5 @@ class ProgressBarParameter(Parameter):
     """
     Displays a progress bar whose value can be set between 0 and 100
     """
+
     itemClass = ProgressBarParameterItem

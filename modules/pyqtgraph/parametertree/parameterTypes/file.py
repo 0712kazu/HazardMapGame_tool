@@ -7,36 +7,45 @@ from .str import StrParameterItem
 
 
 def _set_filepicker_kwargs(fileDlg, **kwargs):
-  """Applies a dict of enum/flag kwarg opts to a file dialog"""
-  NO_MATCH = object()
+    """Applies a dict of enum/flag kwarg opts to a file dialog"""
+    NO_MATCH = object()
 
-  for kk, vv in kwargs.items():
-    # Convert string or list representations into true flags
-    # 'fileMode' -> 'FileMode'
-    formattedName = kk[0].upper() + kk[1:]
-    # Edge case: "Options" has enum "Option"
-    if formattedName == 'Options':
-      enumCls = fileDlg.Option
-    else:
-      enumCls = getattr(fileDlg, formattedName, NO_MATCH)
-    setFunc = getattr(fileDlg, f'set{formattedName}', NO_MATCH)
-    if enumCls is NO_MATCH or setFunc is NO_MATCH:
-      continue
-    if enumCls is fileDlg.Option:
-      builder = fileDlg.Option(0)
-      # This is the only flag enum, all others can only take one value
-      if isinstance(vv, str): vv = [vv]
-      for flag in vv:
-        curVal = getattr(enumCls, flag)
-        builder |= curVal
-      # Some Qt implementations turn into ints by this point
-      outEnum = enumCls(builder)
-    else:
-      outEnum = getattr(enumCls, vv)
-    setFunc(outEnum)
+    for kk, vv in kwargs.items():
+        # Convert string or list representations into true flags
+        # 'fileMode' -> 'FileMode'
+        formattedName = kk[0].upper() + kk[1:]
+        # Edge case: "Options" has enum "Option"
+        if formattedName == "Options":
+            enumCls = fileDlg.Option
+        else:
+            enumCls = getattr(fileDlg, formattedName, NO_MATCH)
+        setFunc = getattr(fileDlg, f"set{formattedName}", NO_MATCH)
+        if enumCls is NO_MATCH or setFunc is NO_MATCH:
+            continue
+        if enumCls is fileDlg.Option:
+            builder = fileDlg.Option(0)
+            # This is the only flag enum, all others can only take one value
+            if isinstance(vv, str):
+                vv = [vv]
+            for flag in vv:
+                curVal = getattr(enumCls, flag)
+                builder |= curVal
+            # Some Qt implementations turn into ints by this point
+            outEnum = enumCls(builder)
+        else:
+            outEnum = getattr(enumCls, vv)
+        setFunc(outEnum)
 
 
-def popupFilePicker(parent=None, windowTitle='', nameFilter='', directory=None, selectFile=None, relativeTo=None, **kwargs):
+def popupFilePicker(
+    parent=None,
+    windowTitle="",
+    nameFilter="",
+    directory=None,
+    selectFile=None,
+    relativeTo=None,
+    **kwargs,
+):
     """
     Thin wrapper around Qt file picker dialog. Used internally so all options are consistent
     among all requests for external file information
@@ -70,13 +79,13 @@ def popupFilePicker(parent=None, windowTitle='', nameFilter='', directory=None, 
 
     if fileDlg.exec():
         # Append filter type
-        singleExtReg = r'(\.\w+)'
+        singleExtReg = r"(\.\w+)"
         # Extensions of type 'myfile.ext.is.multi.part' need to capture repeating pattern of singleExt
-        suffMatch = re.search(rf'({singleExtReg}+)', fileDlg.selectedNameFilter())
+        suffMatch = re.search(rf"({singleExtReg}+)", fileDlg.selectedNameFilter())
         if suffMatch:
             # Strip leading '.' if it exists
             ext = suffMatch.group(1)
-            if ext.startswith('.'):
+            if ext.startswith("."):
                 ext = ext[1:]
             fileDlg.setDefaultSuffix(ext)
         fList = fileDlg.selectedFiles()
@@ -99,7 +108,7 @@ class FileParameterItem(StrParameterItem):
         self._value = None
         super().__init__(param, depth)
 
-        button = QtWidgets.QPushButton('...')
+        button = QtWidgets.QPushButton("...")
         button.setFixedWidth(25)
         button.setContentsMargins(0, 0, 0, 0)
         button.clicked.connect(self._retrieveFileSelection_gui)
@@ -113,7 +122,7 @@ class FileParameterItem(StrParameterItem):
         w.value = self.value
         # Doesn't make much sense to have a 'changing' signal since filepaths should be complete before value
         # is emitted
-        delattr(w, 'sigChanging')
+        delattr(w, "sigChanging")
         return w
 
     def _newResizeEvent(self, ev):
@@ -138,15 +147,15 @@ class FileParameterItem(StrParameterItem):
             if os.path.isfile(curVal):
                 curVal = os.path.dirname(curVal)
         opts = self.param.opts.copy()
-        useDir = curVal or opts.get('directory') or os.getcwd()
+        useDir = curVal or opts.get("directory") or os.getcwd()
         startDir = os.path.abspath(useDir)
         if os.path.isfile(startDir):
-            opts['selectFile'] = os.path.basename(startDir)
+            opts["selectFile"] = os.path.basename(startDir)
             startDir = os.path.dirname(startDir)
         if os.path.exists(startDir):
-            opts['directory'] = startDir
-        if opts.get('windowTitle') is None:
-            opts['windowTitle'] = self.param.title()
+            opts["directory"] = startDir
+        if opts.get("windowTitle") is None:
+            opts["windowTitle"] = self.param.title()
 
         fname = popupFilePicker(None, **opts)
         if not fname:
@@ -157,7 +166,8 @@ class FileParameterItem(StrParameterItem):
         # Override since a readonly label should still allow reverting to default
         ## enable/disable default btn
         self.defaultBtn.setEnabled(
-            not self.param.valueIsDefault() and self.param.opts['enabled'])
+            not self.param.valueIsDefault() and self.param.opts["enabled"]
+        )
 
         # hide / show
         self.defaultBtn.setVisible(self.param.hasDefault())
@@ -169,7 +179,9 @@ class FileParameterItem(StrParameterItem):
         value = str(value)
         font = lbl.font()
         metrics = QtGui.QFontMetricsF(font)
-        value = metrics.elidedText(value, QtCore.Qt.TextElideMode.ElideLeft, lbl.width()-5)
+        value = metrics.elidedText(
+            value, QtCore.Qt.TextElideMode.ElideLeft, lbl.width() - 5
+        )
         return super().updateDisplayLabel(value)
 
 
@@ -197,8 +209,9 @@ class FileParameter(Parameter):
                    i.e. fileMode='AnyFile', options=['ShowDirsOnly', 'DontResolveSymlinks']
     ============== ========================================================
     """
+
     itemClass = FileParameterItem
 
     def __init__(self, **opts):
-        opts.setdefault('readonly', True)
+        opts.setdefault("readonly", True)
         super().__init__(**opts)

@@ -23,24 +23,23 @@ class SliderParameterItem(WidgetParameterItem):
         self.sliderLabel.setText(self.prettyTextValue(self.slider.value()))
         value = str(value)
         if self._suffix is None:
-            suffixTxt = ''
+            suffixTxt = ""
         else:
-            suffixTxt = f' {self._suffix}'
+            suffixTxt = f" {self._suffix}"
         self.displayLabel.setText(value + suffixTxt)
-
 
     def setSuffix(self, suffix):
         self._suffix = suffix
         # This may be called during widget construction in which case there is no
         # displayLabel yet
-        if hasattr(self, 'displayLabel'):
+        if hasattr(self, "displayLabel"):
             self.updateDisplayLabel(self.slider.value())
 
     def makeWidget(self):
         param = self.param
         opts = param.opts
-        opts.setdefault('limits', [0, 0])
-        self._suffix = opts.get('suffix')
+        opts.setdefault("limits", [0, 0])
+        self._suffix = opts.get("suffix")
 
         self.slider = QtWidgets.QSlider()
         self.slider.setOrientation(QtCore.Qt.Orientation.Horizontal)
@@ -78,13 +77,13 @@ class SliderParameterItem(WidgetParameterItem):
 
     def prettyTextValue(self, v):
         if self._suffix is None:
-            suffixTxt = ''
+            suffixTxt = ""
         else:
-            suffixTxt = f' {self._suffix}'
-        format_ = self.param.opts.get('format', None)
+            suffixTxt = f" {self._suffix}"
+        format_ = self.param.opts.get("format", None)
         cspan = self.charSpan
         if format_ is None:
-            format_ = f'{{0:>{cspan.dtype.itemsize}}}{suffixTxt}'
+            format_ = f"{{0:>{cspan.dtype.itemsize}}}{suffixTxt}"
         return format_.format(cspan[v].decode())
 
     def optsChanged(self, param, opts):
@@ -95,13 +94,13 @@ class SliderParameterItem(WidgetParameterItem):
             # This is fine, since errors are from the parent scope which will stabilize after the widget is
             # constructed anyway
             pass
-        span = opts.get('span', None)
+        span = opts.get("span", None)
         if span is None:
-            step = opts.get('step', 1)
-            start, stop = opts.get('limits', param.opts['limits'])
+            step = opts.get("step", 1)
+            start, stop = opts.get("limits", param.opts["limits"])
             # Add a bit to 'stop' since python slicing excludes the last value
             span = np.arange(start, stop + step, step)
-        precision = opts.get('precision', 2)
+        precision = opts.get("precision", 2)
         if precision is not None:
             span = span.round(precision)
         self.span = span
@@ -109,8 +108,8 @@ class SliderParameterItem(WidgetParameterItem):
         w = self.slider
         w.setMinimum(0)
         w.setMaximum(len(span) - 1)
-        if 'suffix' in opts:
-            self.setSuffix(opts['suffix'])
+        if "suffix" in opts:
+            self.setSuffix(opts["suffix"])
 
     def limitsChanged(self, param, limits):
         self.optsChanged(param, dict(limits=limits))
@@ -129,4 +128,5 @@ class SliderParameter(Parameter):
     precision:     int number of decimals to keep for float tick spaces
     ============== ========================================================
     """
+
     itemClass = SliderParameterItem

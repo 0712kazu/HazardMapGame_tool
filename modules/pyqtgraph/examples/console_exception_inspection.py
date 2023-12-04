@@ -24,15 +24,13 @@ from pyqtgraph.debug import threadName
 
 
 def raiseException():
-    """Raise an exception
-    """
+    """Raise an exception"""
     x = "inside raiseException()"
     raise Exception(f"Raised an exception {x} in {threadName()}")
 
 
 def raiseNested():
-    """Raise an exception while handling another
-    """
+    """Raise an exception while handling another"""
     x = "inside raiseNested()"
     try:
         raiseException()
@@ -41,28 +39,29 @@ def raiseNested():
 
 
 def raiseFrom():
-    """Raise an exception from another
-    """
+    """Raise an exception from another"""
     x = "inside raiseFrom()"
     try:
         raiseException()
     except Exception as exc:
-        raise Exception(f"Raised-from during exception handling {x} in {threadName()}") from exc
+        raise Exception(
+            f"Raised-from during exception handling {x} in {threadName()}"
+        ) from exc
 
 
 def raiseCaughtException():
-    """Raise and catch an exception
-    """
+    """Raise and catch an exception"""
     x = "inside raiseCaughtException()"
     try:
         raise Exception(f"Raised an exception {x} in {threadName()}")
     except Exception:
-        print(f"Raised and caught exception {x} in {threadName()}  trace: {sys._getframe().f_trace}")
+        print(
+            f"Raised and caught exception {x} in {threadName()}  trace: {sys._getframe().f_trace}"
+        )
 
 
 def captureStack():
-    """Inspect the curent call stack
-    """
+    """Inspect the curent call stack"""
     x = "inside captureStack()"
     global console
     console.setStack()
@@ -71,6 +70,8 @@ def captureStack():
 
 # Background thread for running functions
 threadRunQueue = queue.Queue()
+
+
 def threadRunner():
     global threadRunQueue
     # This is necessary to allow installing trace functions in the thread later on
@@ -82,6 +83,8 @@ def threadRunner():
             func(*args)
         except Exception:
             sys.excepthook(*sys.exc_info())
+
+
 thread = threading.Thread(target=threadRunner, name="background_thread", daemon=True)
 thread.start()
 
@@ -92,15 +95,18 @@ def runInStack(func):
     runInStack2(func)
     return x
 
+
 def runInStack2(func):
     x = "inside runInStack2(func)"
     runInStack3(func)
     return x
 
+
 def runInStack3(func):
     x = "inside runInStack3(func)"
     runInStack4(func)
     return x
+
 
 def runInStack4(func):
     x = "inside runInStack4(func)"
@@ -110,31 +116,35 @@ def runInStack4(func):
 
 class SignalEmitter(pg.QtCore.QObject):
     signal = pg.QtCore.Signal(object, object)
+
     def __init__(self, queued):
         pg.QtCore.QObject.__init__(self)
         if queued:
             self.signal.connect(self.run, pg.QtCore.Qt.ConnectionType.QueuedConnection)
         else:
             self.signal.connect(self.run)
+
     def run(self, func, args):
         func(*args)
+
+
 signalEmitter = SignalEmitter(queued=False)
 queuedSignalEmitter = SignalEmitter(queued=True)
-
 
 
 def runFunc(func):
     if signalCheck.isChecked():
         if queuedSignalCheck.isChecked():
-            func = functools.partial(queuedSignalEmitter.signal.emit, runInStack, (func,))
+            func = functools.partial(
+                queuedSignalEmitter.signal.emit, runInStack, (func,)
+            )
         else:
             func = functools.partial(signalEmitter.signal.emit, runInStack, (func,))
-    
+
     if threadCheck.isChecked():
         threadRunQueue.put((runInStack, (func,)))
     else:
         runInStack(func)
-
 
 
 funcs = [
@@ -161,18 +171,19 @@ for func in funcs:
     btns.append(btn)
     ctrlLayout.addWidget(btn)
 
-threadCheck = QtWidgets.QCheckBox('Run in thread')
+threadCheck = QtWidgets.QCheckBox("Run in thread")
 ctrlLayout.addWidget(threadCheck)
 
-signalCheck = QtWidgets.QCheckBox('Run from Qt signal')
+signalCheck = QtWidgets.QCheckBox("Run from Qt signal")
 ctrlLayout.addWidget(signalCheck)
 
-queuedSignalCheck = QtWidgets.QCheckBox('Use queued Qt signal')
+queuedSignalCheck = QtWidgets.QCheckBox("Use queued Qt signal")
 ctrlLayout.addWidget(queuedSignalCheck)
 
 ctrlLayout.addStretch()
 
-console = pyqtgraph.console.ConsoleWidget(text="""
+console = pyqtgraph.console.ConsoleWidget(
+    text="""
 Use ConsoleWidget to interactively inspect exception tracebacks and call stacks!
 
 - Enable "Show next exception" and the next unhandled exception will be displayed below.
@@ -187,7 +198,8 @@ Use ConsoleWidget to interactively inspect exception tracebacks and call stacks!
   penalty and will interfere with other debuggers.
 
 
-""")
+"""
+)
 console.catchNextException()
 win.addWidget(console)
 
@@ -195,5 +207,5 @@ win.resize(1400, 800)
 win.setSizes([300, 1100])
 win.show()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()

@@ -5,7 +5,7 @@ from matplotlib.figure import Figure
 from ..Qt import QtWidgets
 import typing
 
-__all__ = ['MatplotlibWidget']
+__all__ = ["MatplotlibWidget"]
 
 
 class MatplotlibWidget(QtWidgets.QWidget):
@@ -34,20 +34,38 @@ class MatplotlibWidget(QtWidgets.QWidget):
         pass
 
     def __init__(self, *args, **kwargs):
-        if (args and not isinstance(args[0], QtWidgets.QWidget)):
-            figsize = args[0] if len(args) > 0 \
+        if args and not isinstance(args[0], QtWidgets.QWidget):
+            figsize = (
+                args[0]
+                if len(args) > 0
                 else kwargs.get("figsize", MatplotlibWidget.figsize_default)
-            dpi = args[1] if len(args) > 1 \
+            )
+            dpi = (
+                args[1]
+                if len(args) > 1
                 else kwargs.get("dpi", MatplotlibWidget.dpi_default)
-            parent = args[2] if len(args) > 2 \
+            )
+            parent = (
+                args[2]
+                if len(args) > 2
                 else kwargs.get("parent", MatplotlibWidget.parent_default)
+            )
         else:
-            parent = args[0] if len(args) > 0 \
+            parent = (
+                args[0]
+                if len(args) > 0
                 else kwargs.get("parent", MatplotlibWidget.parent_default)
-            figsize = args[1] if len(args) > 1 \
+            )
+            figsize = (
+                args[1]
+                if len(args) > 1
                 else kwargs.get("figsize", MatplotlibWidget.figsize_default)
-            dpi = args[2] if len(args) > 2 \
+            )
+            dpi = (
+                args[2]
+                if len(args) > 2
                 else kwargs.get("dpi", MatplotlibWidget.dpi_default)
+            )
         super().__init__(parent)
 
         self.fig = Figure(figsize, dpi=dpi)
@@ -63,6 +81,6 @@ class MatplotlibWidget(QtWidgets.QWidget):
 
     def getFigure(self):
         return self.fig
- 
+
     def draw(self):
         self.canvas.draw()

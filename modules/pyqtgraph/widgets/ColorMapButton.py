@@ -8,7 +8,7 @@ from .. import functions as fn
 from ..graphicsItems.GradientPresets import Gradients
 from ..Qt import QtCore, QtGui, QtWidgets
 
-__all__ = ['ColorMapButton']
+__all__ = ["ColorMapButton"]
 
 
 def buildMenuEntryWidget(cmap, text):
@@ -18,7 +18,7 @@ def buildMenuEntryWidget(cmap, text):
 
     widget = QtWidgets.QWidget()
     layout = QtWidgets.QHBoxLayout(widget)
-    layout.setContentsMargins(1,1,1,1)
+    layout.setContentsMargins(1, 1, 1, 1)
     label1 = QtWidgets.QLabel()
     label1.setScaledContents(True)
     label1.setPixmap(pixmap)
@@ -31,11 +31,11 @@ def buildMenuEntryWidget(cmap, text):
 
 def preset_gradient_to_colormap(name):
     # generate the hsv two gradients using makeHslCycle
-    if name == 'spectrum':
+    if name == "spectrum":
         # steps=30 for 300 degrees gives the same density as
         # the default steps=36 for 360 degrees
-        cmap = colormap.makeHslCycle((0, 300/360), steps=30)
-    elif name == 'cyclic':
+        cmap = colormap.makeHslCycle((0, 300 / 360), steps=30)
+    elif name == "cyclic":
         cmap = colormap.makeHslCycle((1, 0))
     else:
         cmap = colormap.ColorMap(*zip(*Gradients[name]["ticks"]), name=name)
@@ -47,74 +47,75 @@ class ColorMapMenu(QtWidgets.QMenu):
         super().__init__()
 
         topmenu = self
-        act = topmenu.addAction('None')
+        act = topmenu.addAction("None")
         act.setData((None, None))
         topmenu.addSeparator()
 
         if showGradientSubMenu:
-            submenu = topmenu.addMenu('preset gradient')
+            submenu = topmenu.addMenu("preset gradient")
             submenu.aboutToShow.connect(self.buildGradientSubMenu)
 
-        submenu = topmenu.addMenu('local')
+        submenu = topmenu.addMenu("local")
         submenu.aboutToShow.connect(self.buildLocalSubMenu)
 
         # render the submenus only if the user actually clicks on it
 
-        have_colorcet = importlib.util.find_spec('colorcet') is not None
+        have_colorcet = importlib.util.find_spec("colorcet") is not None
 
         # the local cet files are a subset of the colorcet module.
         # expose just one of them.
         if not have_colorcet:
-            submenu = topmenu.addMenu('cet (local)')
+            submenu = topmenu.addMenu("cet (local)")
             submenu.aboutToShow.connect(self.buildCetLocalSubMenu)
         else:
-            submenu = topmenu.addMenu('cet (external)')
+            submenu = topmenu.addMenu("cet (external)")
             submenu.aboutToShow.connect(self.buildCetExternalSubMenu)
 
-        if importlib.util.find_spec('matplotlib') is not None:
-            submenu = topmenu.addMenu('matplotlib')
+        if importlib.util.find_spec("matplotlib") is not None:
+            submenu = topmenu.addMenu("matplotlib")
             submenu.aboutToShow.connect(self.buildMatplotlibSubMenu)
 
         if have_colorcet:
-            submenu = topmenu.addMenu('colorcet')
+            submenu = topmenu.addMenu("colorcet")
             submenu.aboutToShow.connect(self.buildColorcetSubMenu)
 
     def buildGradientSubMenu(self):
-        source = 'preset-gradient'
+        source = "preset-gradient"
         names = list(Gradients.keys())
         self.buildSubMenu(names, source, sort=False)
 
     def buildLocalSubMenu(self):
         source = None
         names = colormap.listMaps(source=source)
-        names = [x for x in names if not x.startswith('CET')]
+        names = [x for x in names if not x.startswith("CET")]
         self.buildSubMenu(names, source)
 
     def buildCetLocalSubMenu(self):
         source = None
         names = colormap.listMaps(source=source)
-        names = [x for x in names if x.startswith('CET')]
+        names = [x for x in names if x.startswith("CET")]
         self.buildSubMenu(names, source)
 
     def buildCetExternalSubMenu(self):
-        source = 'colorcet'
+        source = "colorcet"
         names = colormap.listMaps(source=source)
-        names = [x for x in names if x.startswith('CET')]
+        names = [x for x in names if x.startswith("CET")]
         self.buildSubMenu(names, source)
 
     def buildMatplotlibSubMenu(self):
-        source = 'matplotlib'
+        source = "matplotlib"
         names = colormap.listMaps(source=source)
         # remove entries registered by colorcet
-        names = [x for x in names if not x.startswith('cet_')]
+        names = [x for x in names if not x.startswith("cet_")]
         # remove the reversed colormaps
-        names = [x for x in names if not x.endswith('_r')]
+        names = [x for x in names if not x.endswith("_r")]
         self.buildSubMenu(names, source)
 
     def buildColorcetSubMenu(self):
         # colorcet colormaps with shorter/simpler aliases
-        source = 'colorcet'
+        source = "colorcet"
         import colorcet
+
         names = list(colorcet.palette_n.keys())
         self.buildSubMenu(names, source)
 
@@ -124,12 +125,12 @@ class ColorMapMenu(QtWidgets.QMenu):
         menu.aboutToShow.disconnect()
 
         if sort:
-            pattern = re.compile(r'(\d+)')
+            pattern = re.compile(r"(\d+)")
             key = lambda x: [int(c) if c.isdigit() else c for c in pattern.split(x)]
             names = sorted(names, key=key)
 
         for name in names:
-            if source == 'preset-gradient':
+            if source == "preset-gradient":
                 cmap = preset_gradient_to_colormap(name)
             else:
                 cmap = colormap.get(name, source=source)
@@ -146,14 +147,14 @@ class ColorMapDisplayMixin:
     # 2) it does not override any main class virtual methods
 
     def __init__(self, *, orientation):
-        self.horizontal = orientation == 'horizontal'
+        self.horizontal = orientation == "horizontal"
         self._menu = None
         self._setColorMap(None)
 
     def setMaximumThickness(self, val):
         # calls main class methods
-        Thickness = 'Height' if self.horizontal else 'Width'
-        getattr(self, f'setMaximum{Thickness}')(val)
+        Thickness = "Height" if self.horizontal else "Width"
+        getattr(self, f"setMaximum{Thickness}")(val)
 
     def _setColorMap(self, cmap):
         if isinstance(cmap, str):
@@ -193,7 +194,7 @@ class ColorMapDisplayMixin:
         name, source = action.data()
         if name is None:
             cmap = None
-        elif source == 'preset-gradient':
+        elif source == "preset-gradient":
             cmap = preset_gradient_to_colormap(name)
         else:
             # colormap module maintains a cache keyed by name only.
@@ -232,7 +233,7 @@ class ColorMapDisplayMixin:
         painter.drawText(trect, 0, text)
         # draw the foreground text
         painter.setPen(pens[1])
-        painter.drawText(trect.adjusted(1,0,1,0), 0, text)
+        painter.drawText(trect.adjusted(1, 0, 1, 0), 0, text)
 
         painter.restore()
 
@@ -242,7 +243,7 @@ class ColorMapButton(ColorMapDisplayMixin, QtWidgets.QWidget):
 
     def __init__(self):
         QtWidgets.QWidget.__init__(self)
-        ColorMapDisplayMixin.__init__(self, orientation='horizontal')
+        ColorMapDisplayMixin.__init__(self, orientation="horizontal")
 
     def colorMapChanged(self):
         cmap = self.colorMap()

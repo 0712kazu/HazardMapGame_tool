@@ -6,32 +6,33 @@ from .. import Qt
 from ..Qt import QtCore, QtGui
 from .GraphicsObject import GraphicsObject
 
-__all__ = ['BarGraphItem']
+__all__ = ["BarGraphItem"]
+
 
 class BarGraphItem(GraphicsObject):
     def __init__(self, **opts):
         """
         Valid keyword options are:
         x, x0, x1, y, y0, y1, width, height, pen, brush
-        
+
         x specifies the x-position of the center of the bar.
         x0, x1 specify left and right edges of the bar, respectively.
         width specifies distance from x0 to x1.
         You may specify any combination:
-            
+
             x, width
             x0, width
             x1, width
             x0, x1
-            
-        Likewise y, y0, y1, and height. 
+
+        Likewise y, y0, y1, and height.
         If only height is specified, then y0 will be set to 0
-        
+
         Example uses:
-        
+
             BarGraphItem(x=range(5), height=[1,5,2,4,3], width=0.5)
-            
-        
+
+
         """
         GraphicsObject.__init__(self)
         self.opts = dict(
@@ -50,17 +51,17 @@ class BarGraphItem(GraphicsObject):
             brushes=None,
         )
 
-        if 'pen' not in opts:
-            opts['pen'] = getConfigOption('foreground')
-        if 'brush' not in opts:
-            opts['brush'] = (128, 128, 128)
+        if "pen" not in opts:
+            opts["pen"] = getConfigOption("foreground")
+        if "brush" not in opts:
+            opts["brush"] = (128, 128, 128)
         # the first call to _updateColors() will thus always be an update
 
         self._rectarray = Qt.internals.PrimitiveArray(QtCore.QRectF, 4)
         self._shape = None
         self.picture = None
         self.setOpts(**opts)
-        
+
     def setOpts(self, **opts):
         self.opts.update(opts)
         self.picture = None
@@ -84,12 +85,12 @@ class BarGraphItem(GraphicsObject):
         # without updating pens/brushes
 
         # update only if fresh pen/pens supplied
-        if 'pen' in opts or 'pens' in opts:
+        if "pen" in opts or "pens" in opts:
             self._penWidth = [0, 0]
 
-            if self.opts['pens'] is None:
+            if self.opts["pens"] is None:
                 # pens not configured, use single pen
-                pen = self.opts['pen']
+                pen = self.opts["pen"]
                 pen = fn.mkPen(pen)
                 self._updatePenWidth(pen)
                 self._sharedPen = pen
@@ -97,7 +98,7 @@ class BarGraphItem(GraphicsObject):
             else:
                 # pens configured, ignore single pen (if any)
                 pens = []
-                for pen in self.opts['pens']:
+                for pen in self.opts["pens"]:
                     if not isinstance(pen, QtGui.QPen):
                         pen = fn.mkPen(pen)
                     pens.append(pen)
@@ -106,16 +107,16 @@ class BarGraphItem(GraphicsObject):
                 self._pens = pens
 
         # update only if fresh brush/brushes supplied
-        if 'brush' in opts or 'brushes' in opts:
-            if self.opts['brushes'] is None:
+        if "brush" in opts or "brushes" in opts:
+            if self.opts["brushes"] is None:
                 # brushes not configured, use single brush
-                brush = self.opts['brush']
+                brush = self.opts["brush"]
                 self._sharedBrush = fn.mkBrush(brush)
                 self._brushes = None
             else:
                 # brushes configured, ignore single brush (if any)
                 brushes = []
-                for brush in self.opts['brushes']:
+                for brush in self.opts["brushes"]:
                     if not isinstance(brush, QtGui.QBrush):
                         brush = fn.mkBrush(brush)
                     brushes.append(brush)
@@ -123,8 +124,7 @@ class BarGraphItem(GraphicsObject):
                 self._brushes = brushes
 
         self._singleColor = (
-            self._sharedPen is not None and
-            self._sharedBrush is not None
+            self._sharedPen is not None and self._sharedBrush is not None
         )
 
     def _getNormalizedCoords(self):
@@ -133,29 +133,29 @@ class BarGraphItem(GraphicsObject):
                 return x
             return np.array(x)
 
-        x = asarray(self.opts.get('x'))
-        x0 = asarray(self.opts.get('x0'))
-        x1 = asarray(self.opts.get('x1'))
-        width = asarray(self.opts.get('width'))
-        
+        x = asarray(self.opts.get("x"))
+        x0 = asarray(self.opts.get("x0"))
+        x1 = asarray(self.opts.get("x1"))
+        width = asarray(self.opts.get("width"))
+
         if x0 is None:
             if width is None:
-                raise Exception('must specify either x0 or width')
+                raise Exception("must specify either x0 or width")
             if x1 is not None:
                 x0 = x1 - width
             elif x is not None:
-                x0 = x - width/2.
+                x0 = x - width / 2.0
             else:
-                raise Exception('must specify at least one of x, x0, or x1')
+                raise Exception("must specify at least one of x, x0, or x1")
         if width is None:
             if x1 is None:
-                raise Exception('must specify either x1 or width')
+                raise Exception("must specify either x1 or width")
             width = x1 - x0
-            
-        y = asarray(self.opts.get('y'))
-        y0 = asarray(self.opts.get('y0'))
-        y1 = asarray(self.opts.get('y1'))
-        height = asarray(self.opts.get('height'))
+
+        y = asarray(self.opts.get("y"))
+        y0 = asarray(self.opts.get("y0"))
+        y1 = asarray(self.opts.get("y1"))
+        height = asarray(self.opts.get("height"))
 
         if y0 is None:
             if height is None:
@@ -163,12 +163,12 @@ class BarGraphItem(GraphicsObject):
             elif y1 is not None:
                 y0 = y1 - height
             elif y is not None:
-                y0 = y - height/2.
+                y0 = y - height / 2.0
             else:
                 y0 = 0
         if height is None:
             if y1 is None:
-                raise Exception('must specify either y1 or height')
+                raise Exception("must specify either y1 or height")
             height = y1 - y0
 
         # ensure x0 < x1 and y0 < y1
@@ -204,10 +204,7 @@ class BarGraphItem(GraphicsObject):
     def _render(self, painter):
         multi_pen = self._pens is not None
         multi_brush = self._brushes is not None
-        no_pen = (
-            not multi_pen
-            and self._sharedPen.style() == QtCore.Qt.PenStyle.NoPen
-        )
+        no_pen = not multi_pen and self._sharedPen.style() == QtCore.Qt.PenStyle.NoPen
 
         rects = self._rectarray.instances()
 
@@ -244,7 +241,7 @@ class BarGraphItem(GraphicsObject):
             if self.picture is None:
                 self.drawPicture()
             self.picture.play(p)
-            
+
     def shape(self):
         if self._shape is None:
             shape = QtGui.QPainterPath()
@@ -255,16 +252,16 @@ class BarGraphItem(GraphicsObject):
         return self._shape
 
     def implements(self, interface=None):
-        ints = ['plotData']
+        ints = ["plotData"]
         if interface is None:
             return ints
         return interface in ints
 
     def name(self):
-        return self.opts.get('name', None)
+        return self.opts.get("name", None)
 
     def getData(self):
-        return self.opts.get('x'),  self.opts.get('height')
+        return self.opts.get("x"), self.opts.get("height")
 
     def dataBounds(self, ax, frac=1.0, orthoRange=None):
         # _penWidth is available after _updateColors()
@@ -300,4 +297,6 @@ class BarGraphItem(GraphicsObject):
             px *= pxPad
             py *= pxPad
 
-        return QtCore.QRectF(xmn-px, ymn-py, (2*px)+xmx-xmn, (2*py)+ymx-ymn)
+        return QtCore.QRectF(
+            xmn - px, ymn - py, (2 * px) + xmx - xmn, (2 * py) + ymx - ymn
+        )

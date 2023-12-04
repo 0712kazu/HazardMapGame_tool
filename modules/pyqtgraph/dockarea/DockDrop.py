@@ -5,9 +5,10 @@ from ..Qt import QtCore, QtGui, QtWidgets
 
 class DockDrop:
     """Provides dock-dropping methods"""
+
     def __init__(self, dndWidget):
         self.dndWidget = dndWidget
-        self.allowedAreas = {'center', 'right', 'left', 'top', 'bottom'}
+        self.allowedAreas = {"center", "right", "left", "top", "bottom"}
         self.dndWidget.setAcceptDrops(True)
         self.dropArea = None
         self.overlay = DropAreaOverlay(dndWidget)
@@ -21,38 +22,38 @@ class DockDrop:
 
     def resizeOverlay(self, size):
         self.overlay.resize(size)
-        
+
     def raiseOverlay(self):
         self.overlay.raise_()
-    
+
     def dragEnterEvent(self, ev):
         src = ev.source()
-        if hasattr(src, 'implements') and src.implements('dock'):
-            #print "drag enter accept"
+        if hasattr(src, "implements") and src.implements("dock"):
+            # print "drag enter accept"
             ev.accept()
         else:
-            #print "drag enter ignore"
+            # print "drag enter ignore"
             ev.ignore()
-        
+
     def dragMoveEvent(self, ev):
-        #print "drag move"
+        # print "drag move"
         # QDragMoveEvent inherits QDropEvent which provides posF()
         # PyQt6 provides only position()
         width, height = self.dndWidget.width(), self.dndWidget.height()
-        posF = ev.posF() if hasattr(ev, 'posF') else ev.position()
+        posF = ev.posF() if hasattr(ev, "posF") else ev.position()
         ld = posF.x()
         rd = width - ld
         td = posF.y()
         bd = height - td
-        
+
         mn = min(ld, rd, td, bd)
         if mn > 30:
             self.dropArea = "center"
-        elif (ld == mn or td == mn) and mn > height/3:
+        elif (ld == mn or td == mn) and mn > height / 3:
             self.dropArea = "center"
-        elif (rd == mn or ld == mn) and mn > width/3:
+        elif (rd == mn or ld == mn) and mn > width / 3:
             self.dropArea = "center"
-            
+
         elif rd == mn:
             self.dropArea = "right"
         elif ld == mn:
@@ -61,45 +62,44 @@ class DockDrop:
             self.dropArea = "top"
         elif bd == mn:
             self.dropArea = "bottom"
-            
-        if ev.source() is self.dndWidget and self.dropArea == 'center':
-            #print "  no self-center"
+
+        if ev.source() is self.dndWidget and self.dropArea == "center":
+            # print "  no self-center"
             self.dropArea = None
             ev.ignore()
         elif self.dropArea not in self.allowedAreas:
-            #print "  not allowed"
+            # print "  not allowed"
             self.dropArea = None
             ev.ignore()
         else:
-            #print "  ok"
+            # print "  ok"
             ev.accept()
         self.overlay.setDropArea(self.dropArea)
-            
+
     def dragLeaveEvent(self, ev):
         self.dropArea = None
         self.overlay.setDropArea(self.dropArea)
-    
+
     def dropEvent(self, ev):
         area = self.dropArea
         if area is None:
             return
-        if area == 'center':
-            area = 'above'
+        if area == "center":
+            area = "above"
         self.dndWidget.area.moveDock(ev.source(), area, self.dndWidget)
         self.dropArea = None
         self.overlay.setDropArea(self.dropArea)
 
-        
 
 class DropAreaOverlay(QtWidgets.QWidget):
     """Overlay widget that draws drop areas during a drag-drop operation"""
-    
+
     def __init__(self, parent):
         QtWidgets.QWidget.__init__(self, parent)
         self.dropArea = None
         self.hide()
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        
+
     def setDropArea(self, area):
         self.dropArea = area
         if area is None:
@@ -111,22 +111,22 @@ class DropAreaOverlay(QtWidgets.QWidget):
             rgn = QtCore.QRect(prgn)
             w = min(30, int(prgn.width() / 3))
             h = min(30, int(prgn.height() / 3))
-            
-            if self.dropArea == 'left':
+
+            if self.dropArea == "left":
                 rgn.setWidth(w)
-            elif self.dropArea == 'right':
+            elif self.dropArea == "right":
                 rgn.setLeft(rgn.left() + prgn.width() - w)
-            elif self.dropArea == 'top':
+            elif self.dropArea == "top":
                 rgn.setHeight(h)
-            elif self.dropArea == 'bottom':
+            elif self.dropArea == "bottom":
                 rgn.setTop(rgn.top() + prgn.height() - h)
-            elif self.dropArea == 'center':
+            elif self.dropArea == "center":
                 rgn.adjust(w, h, -w, -h)
             self.setGeometry(rgn)
             self.show()
 
         self.update()
-    
+
     def paintEvent(self, ev):
         if self.dropArea is None:
             return

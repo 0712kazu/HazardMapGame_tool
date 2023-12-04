@@ -12,12 +12,14 @@ import weakref
 
 from .Qt import QtCore, QtWidgets
 
-__all__ = ['WidgetGroup']
+__all__ = ["WidgetGroup"]
+
 
 def splitterState(w):
     s = w.saveState().toPercentEncoding().data().decode()
     return s
-    
+
+
 def restoreSplitter(w, s):
     if type(s) is list:
         w.setSizes(s)
@@ -25,12 +27,13 @@ def restoreSplitter(w, s):
         w.restoreState(QtCore.QByteArray.fromPercentEncoding(s.encode()))
     else:
         print("Can't configure QSplitter using object of type", type(s))
-    if w.count() > 0:   # make sure at least one item is not collapsed
+    if w.count() > 0:  # make sure at least one item is not collapsed
         for i in w.sizes():
             if i > 0:
                 return
         w.setSizes([50] * w.count())
-        
+
+
 def comboState(w):
     ind = w.currentIndex()
     data = w.itemData(ind)
@@ -46,7 +49,8 @@ def comboState(w):
         return str(w.itemText(ind))
     else:
         return data
-    
+
+
 def setComboState(w, v):
     if type(v) is int:
         ind = w.findData(v)
@@ -54,7 +58,7 @@ def setComboState(w, v):
             w.setCurrentIndex(ind)
             return
     w.setCurrentIndex(w.findText(str(v)))
-        
+
 
 class WidgetGroup(QtCore.QObject):
     """State manager for groups of widgets.
@@ -64,7 +68,7 @@ class WidgetGroup(QtCore.QObject):
     - Provide a single place for saving / restoring the state of all widgets in the group
     - Provide a single signal for detecting when any of the widgets have changed
     """
-    
+
     # List of widget types that can be handled by WidgetGroup.
     # The value for each type is a tuple (change signal function, get function, set function, [auto-add children])
     # The change signal function that takes an object and returns a signal that is emitted any time the state of the widget changes, not just
@@ -75,68 +79,64 @@ class WidgetGroup(QtCore.QObject):
     classes = {
         QtWidgets.QSpinBox: (
             lambda w: w.valueChanged,
-            QtWidgets.QSpinBox.value, 
-            QtWidgets.QSpinBox.setValue
+            QtWidgets.QSpinBox.value,
+            QtWidgets.QSpinBox.setValue,
         ),
         QtWidgets.QDoubleSpinBox: (
             lambda w: w.valueChanged,
-            QtWidgets.QDoubleSpinBox.value, 
-            QtWidgets.QDoubleSpinBox.setValue
+            QtWidgets.QDoubleSpinBox.value,
+            QtWidgets.QDoubleSpinBox.setValue,
         ),
-        QtWidgets.QSplitter: (
-            None,
-            splitterState,
-            restoreSplitter,
-            True
-        ),
+        QtWidgets.QSplitter: (None, splitterState, restoreSplitter, True),
         QtWidgets.QCheckBox: (
             lambda w: w.stateChanged,
             QtWidgets.QCheckBox.isChecked,
-            QtWidgets.QCheckBox.setChecked
+            QtWidgets.QCheckBox.setChecked,
         ),
         QtWidgets.QComboBox: (
             lambda w: w.currentIndexChanged,
             comboState,
-            setComboState
+            setComboState,
         ),
         QtWidgets.QGroupBox: (
             lambda w: w.toggled,
             QtWidgets.QGroupBox.isChecked,
             QtWidgets.QGroupBox.setChecked,
-            True
+            True,
         ),
         QtWidgets.QLineEdit: (
             lambda w: w.editingFinished,
             lambda w: str(w.text()),
-            QtWidgets.QLineEdit.setText
+            QtWidgets.QLineEdit.setText,
         ),
         QtWidgets.QRadioButton: (
             lambda w: w.toggled,
             QtWidgets.QRadioButton.isChecked,
-            QtWidgets.QRadioButton.setChecked
+            QtWidgets.QRadioButton.setChecked,
         ),
         QtWidgets.QSlider: (
             lambda w: w.valueChanged,
             QtWidgets.QSlider.value,
-            QtWidgets.QSlider.setValue
+            QtWidgets.QSlider.setValue,
         ),
     }
-    
+
     sigChanged = QtCore.Signal(str, object)
-    
-    
+
     def __init__(self, widgetList=None):
         """Initialize WidgetGroup, adding specified widgets into this group.
-        widgetList can be: 
+        widgetList can be:
          - a list of widget specifications (widget, [name], [scale])
          - a dict of name: widget pairs
          - any QObject, and all compatible child widgets will be added recursively.
-        
+
         The 'scale' parameter for each widget allows QSpinBox to display a different value than the value recorded
         in the group state (for example, the program may set a spin box value to 100e-6 and have it displayed as 100 to the user)
         """
         QtCore.QObject.__init__(self)
-        self.widgetList = weakref.WeakKeyDictionary()  # Make sure widgets don't stick around just because they are listed here
+        self.widgetList = (
+            weakref.WeakKeyDictionary()
+        )  # Make sure widgets don't stick around just because they are listed here
         self.scales = weakref.WeakKeyDictionary()
         self.cache = {}  # name:value pairs
         self.uncachedWidgets = weakref.WeakKeyDictionary()
@@ -152,36 +152,36 @@ class WidgetGroup(QtCore.QObject):
             return
         else:
             raise Exception("Wrong argument type %s" % type(widgetList))
-        
+
     def addWidget(self, w, name=None, scale=None):
         if not self.acceptsType(w):
             raise Exception("Widget type %s not supported by WidgetGroup" % type(w))
         if name is None:
             name = str(w.objectName())
-        if name == '':
+        if name == "":
             raise Exception("Cannot add widget '%s' without a name." % str(w))
         self.widgetList[w] = name
         self.scales[w] = scale
         self.readWidget(w)
-            
+
         if type(w) in WidgetGroup.classes:
             signal = WidgetGroup.classes[type(w)][0]
         else:
             signal = w.widgetGroupInterface()[0]
-            
+
         if signal is not None:
             if inspect.isfunction(signal) or inspect.ismethod(signal):
                 signal = signal(w)
             signal.connect(self.widgetChanged)
         else:
             self.uncachedWidgets[w] = None
-       
+
     def findWidget(self, name):
         for w in self.widgetList:
             if self.widgetList[w] == name:
                 return w
         return None
-       
+
     def interface(self, obj):
         t = type(obj)
         if t in WidgetGroup.classes:
@@ -192,14 +192,14 @@ class WidgetGroup(QtCore.QObject):
     def checkForChildren(self, obj):
         """Return true if we should automatically search the children of this object for more."""
         iface = self.interface(obj)
-        return (len(iface) > 3 and iface[3])
-       
+        return len(iface) > 3 and iface[3]
+
     def autoAdd(self, obj):
         # Find all children of this object and add them if possible.
         accepted = self.acceptsType(obj)
         if accepted:
             self.addWidget(obj)
-            
+
         if not accepted or self.checkForChildren(obj):
             for c in obj.children():
                 self.autoAdd(c)
@@ -208,7 +208,7 @@ class WidgetGroup(QtCore.QObject):
         for c in WidgetGroup.classes:
             if isinstance(obj, c):
                 return True
-        if hasattr(obj, 'widgetGroupInterface'):
+        if hasattr(obj, "widgetGroupInterface"):
             return True
         return False
 
@@ -224,7 +224,7 @@ class WidgetGroup(QtCore.QObject):
         v2 = self.readWidget(w)
         if v1 != v2:
             self.sigChanged.emit(self.widgetList[w], v2)
-        
+
     def state(self):
         for w in self.uncachedWidgets:
             self.readWidget(w)
@@ -242,18 +242,18 @@ class WidgetGroup(QtCore.QObject):
             getFunc = WidgetGroup.classes[type(w)][1]
         else:
             getFunc = w.widgetGroupInterface()[1]
-        
+
         if getFunc is None:
             return None
-            
+
         # if the getter function provided in the interface is a bound method,
         # then just call the method directly. Otherwise, pass in the widget as the first arg
         # to the function.
-        if inspect.ismethod(getFunc) and getFunc.__self__ is not None:  
+        if inspect.ismethod(getFunc) and getFunc.__self__ is not None:
             val = getFunc()
         else:
             val = getFunc(w)
-            
+
         if self.scales[w] is not None:
             val /= self.scales[w]
         n = self.widgetList[w]
@@ -263,12 +263,12 @@ class WidgetGroup(QtCore.QObject):
     def setWidget(self, w, v):
         if self.scales[w] is not None:
             v *= self.scales[w]
-        
+
         if type(w) in WidgetGroup.classes:
             setFunc = WidgetGroup.classes[type(w)][2]
         else:
             setFunc = w.widgetGroupInterface()[2]
-            
+
         # if the setter function provided in the interface is a bound method,
         # then just call the method directly. Otherwise, pass in the widget as the first arg
         # to the function.

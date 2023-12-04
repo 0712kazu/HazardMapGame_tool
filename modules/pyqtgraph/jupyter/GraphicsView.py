@@ -5,26 +5,24 @@ from .. import functions as fn
 from .. import graphicsItems, widgets
 from ..Qt import QtCore, QtGui
 
-__all__ = ['GraphicsLayoutWidget', 'PlotWidget']
+__all__ = ["GraphicsLayoutWidget", "PlotWidget"]
 
 KMLUT = {
-    x : getattr(QtCore.Qt.KeyboardModifier, x + "Modifier")
+    x: getattr(QtCore.Qt.KeyboardModifier, x + "Modifier")
     for x in ["Shift", "Control", "Alt", "Meta"]
 }
 
 MBLUT = {
-    k : getattr(QtCore.Qt.MouseButton, v + "Button")
-    for (k, v) in zip(
-        range(6),
-        ["No", "Left", "Right", "Middle", "Back", "Forward"]
-    )
+    k: getattr(QtCore.Qt.MouseButton, v + "Button")
+    for (k, v) in zip(range(6), ["No", "Left", "Right", "Middle", "Back", "Forward"])
 }
 
 TYPLUT = {
-    "pointer_down" : QtCore.QEvent.Type.MouseButtonPress,
-    "pointer_up" : QtCore.QEvent.Type.MouseButtonRelease,
-    "pointer_move" : QtCore.QEvent.Type.MouseMove,
+    "pointer_down": QtCore.QEvent.Type.MouseButtonPress,
+    "pointer_up": QtCore.QEvent.Type.MouseButtonRelease,
+    "pointer_move": QtCore.QEvent.Type.MouseMove,
 }
+
 
 def get_buttons(evt_buttons):
     NoButton = QtCore.Qt.MouseButton.NoButton
@@ -32,6 +30,7 @@ def get_buttons(evt_buttons):
     for x in evt_buttons:
         btns |= MBLUT.get(x, NoButton)
     return btns
+
 
 def get_modifiers(evt_modifiers):
     NoModifier = QtCore.Qt.KeyboardModifier.NoModifier
@@ -74,7 +73,7 @@ class GraphicsView(jupyter_rfb.RemoteFrameBuffer):
         self.gfxView.render(painter, self.gfxView.viewRect(), self.gfxView.rect())
         painter.end()
         return buf
-    
+
     def handle_event(self, event):
         event_type = event["event_type"]
 
@@ -87,7 +86,7 @@ class GraphicsView(jupyter_rfb.RemoteFrameBuffer):
             self.gfxView.resizeEvent(QtGui.QResizeEvent(newSize, oldSize))
         elif event_type in ["pointer_down", "pointer_up", "pointer_move"]:
             btn = MBLUT.get(event["button"], None)
-            if btn is None:    # ignore unsupported buttons
+            if btn is None:  # ignore unsupported buttons
                 return
             pos = QtCore.QPointF(event["x"], event["y"])
             btns = get_buttons(event["buttons"])
@@ -99,13 +98,15 @@ class GraphicsView(jupyter_rfb.RemoteFrameBuffer):
         elif event_type == "wheel":
             pos = QtCore.QPointF(event["x"], event["y"])
             pixdel = QtCore.QPoint()
-            scale = -1.0    # map JavaScript wheel to Qt wheel
+            scale = -1.0  # map JavaScript wheel to Qt wheel
             angdel = QtCore.QPoint(int(event["dx"] * scale), int(event["dy"] * scale))
             btns = get_buttons([])
             mods = get_modifiers(event["modifiers"])
             phase = QtCore.Qt.ScrollPhase.NoScrollPhase
             inverted = False
-            evt = QtGui.QWheelEvent(pos, pos, pixdel, angdel, btns, mods, phase, inverted)
+            evt = QtGui.QWheelEvent(
+                pos, pos, pixdel, angdel, btns, mods, phase, inverted
+            )
             QtCore.QCoreApplication.sendEvent(self.gfxView.viewport(), evt)
 
 
@@ -133,8 +134,16 @@ class GraphicsLayoutWidget(GraphicsView):
 
         self.gfxLayout = graphicsItems.GraphicsLayout.GraphicsLayout()
         for n in [
-            'nextRow', 'nextCol', 'nextColumn', 'addItem', 'getItem',
-            'addLayout', 'addLabel', 'removeItem', 'itemIndex', 'clear'
+            "nextRow",
+            "nextCol",
+            "nextColumn",
+            "addItem",
+            "getItem",
+            "addLayout",
+            "addLabel",
+            "removeItem",
+            "itemIndex",
+            "clear",
         ]:
             setattr(self, n, getattr(self.gfxLayout, n))
         self.gfxView.setCentralItem(self.gfxLayout)
@@ -168,12 +177,12 @@ class PlotWidget(GraphicsView):
 
     def __getattr__(self, attr):
         # kernel crashes if we don't skip attributes starting with '_'
-        if attr.startswith('_'):
+        if attr.startswith("_"):
             return super().__getattr__(attr)
 
         # implicitly wrap methods from plotItem
         if hasattr(self.plotItem, attr):
             m = getattr(self.plotItem, attr)
-            if hasattr(m, '__call__'):
+            if hasattr(m, "__call__"):
                 return m
         raise AttributeError(attr)

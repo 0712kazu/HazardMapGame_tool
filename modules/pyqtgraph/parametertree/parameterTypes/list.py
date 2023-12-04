@@ -12,6 +12,7 @@ class ListParameterItem(WidgetParameterItem):
     WidgetParameterItem subclass providing comboBox that lets the user select from a list of options.
 
     """
+
     def __init__(self, param, depth):
         self.targetValue = None
         WidgetParameterItem.__init__(self, param, depth)
@@ -23,7 +24,7 @@ class ListParameterItem(WidgetParameterItem):
         w.value = self.value
         w.setValue = self.setValue
         self.widget = w  ## needs to be set before limits are changed
-        self.limitsChanged(self.param, self.param.opts['limits'])
+        self.limitsChanged(self.param, self.param.opts["limits"])
         if len(self.forward) > 0:
             self.setValue(self.param.value())
         return w
@@ -48,7 +49,9 @@ class ListParameterItem(WidgetParameterItem):
         # set up forward / reverse mappings for name:value
 
         if len(limits) == 0:
-            limits = ['']  ## Can never have an empty list--there is always at least a singhe blank item.
+            limits = [
+                ""
+            ]  ## Can never have an empty list--there is always at least a singhe blank item.
 
         self.forward, self.reverse = ListParameter.mapping(limits)
         try:
@@ -59,7 +62,7 @@ class ListParameterItem(WidgetParameterItem):
             for k in self.forward:
                 self.widget.addItem(k)
                 if k == val:
-                    self.widget.setCurrentIndex(self.widget.count()-1)
+                    self.widget.setCurrentIndex(self.widget.count() - 1)
                     self.updateDisplayLabel()
         finally:
             self.widget.blockSignals(False)
@@ -90,17 +93,20 @@ class ListParameter(Parameter):
 
     def __init__(self, **opts):
         self.forward = OrderedDict()  ## {name: value, ...}
-        self.reverse = ([], [])       ## ([value, ...], [name, ...])
+        self.reverse = ([], [])  ## ([value, ...], [name, ...])
 
         # Parameter uses 'limits' option to define the set of allowed values
-        if 'values' in opts:
-            warnings.warn('Using "values" to set limits is deprecated. Use "limits" instead.',
-                          DeprecationWarning, stacklevel=2)
-            opts['limits'] = opts['values']
-        if opts.get('limits', None) is None:
-            opts['limits'] = []
+        if "values" in opts:
+            warnings.warn(
+                'Using "values" to set limits is deprecated. Use "limits" instead.',
+                DeprecationWarning,
+                stacklevel=2,
+            )
+            opts["limits"] = opts["values"]
+        if opts.get("limits", None) is None:
+            opts["limits"] = []
         Parameter.__init__(self, **opts)
-        self.setLimits(opts['limits'])
+        self.setLimits(opts["limits"])
 
     def setLimits(self, limits):
         """Change the list of allowed values."""
@@ -109,14 +115,16 @@ class ListParameter(Parameter):
         Parameter.setLimits(self, limits)
         # 'value in limits' expression will break when reverse contains numpy array
         curVal = self.value()
-        if len(self.reverse[0]) > 0 and not any(fn.eq(curVal, limVal) for limVal in self.reverse[0]):
+        if len(self.reverse[0]) > 0 and not any(
+            fn.eq(curVal, limVal) for limVal in self.reverse[0]
+        ):
             self.setValue(self.reverse[0][0])
 
     @staticmethod
     def mapping(limits):
         # Return forward and reverse mapping objects given a limit specification
         forward = OrderedDict()  ## {name: value, ...}
-        reverse = ([], [])       ## ([value, ...], [name, ...])
+        reverse = ([], [])  ## ([value, ...], [name, ...])
         if not isinstance(limits, dict):
             limits = {str(l): l for l in limits}
         for k, v in limits.items():

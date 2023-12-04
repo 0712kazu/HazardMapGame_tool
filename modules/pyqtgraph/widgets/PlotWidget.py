@@ -8,13 +8,14 @@ from ..graphicsItems.PlotItem import PlotItem
 from ..Qt import QtCore, QtWidgets
 from .GraphicsView import GraphicsView
 
-__all__ = ['PlotWidget']
+__all__ = ["PlotWidget"]
+
+
 class PlotWidget(GraphicsView):
-    
     # signals wrapped from PlotItem / ViewBox
     sigRangeChanged = QtCore.Signal(object, object)
     sigTransformChanged = QtCore.Signal(object)
-    
+
     """
     :class:`GraphicsView <pyqtgraph.GraphicsView>` widget with a single 
     :class:`PlotItem <pyqtgraph.PlotItem>` inside.
@@ -43,8 +44,9 @@ class PlotWidget(GraphicsView):
     For all 
     other methods, use :func:`getPlotItem <pyqtgraph.PlotWidget.getPlotItem>`.
     """
-    def __init__(self, parent=None, background='default', plotItem=None, **kargs):
-        ## start by instantiating the plotItem attribute in order to avoid recursive 
+
+    def __init__(self, parent=None, background="default", plotItem=None, **kargs):
+        ## start by instantiating the plotItem attribute in order to avoid recursive
         ## calls of PlotWidget.__getattr__ - which access self.plotItem!
         self.plotItem = None
         """When initializing PlotWidget, *parent* and *background* are passed to 
@@ -52,7 +54,10 @@ class PlotWidget(GraphicsView):
         and all others are passed
         to :func:`PlotItem.__init__() <pyqtgraph.PlotItem.__init__>`."""
         GraphicsView.__init__(self, parent, background=background)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
         self.enableMouse(False)
         if plotItem is None:
             self.plotItem = PlotItem(**kargs)
@@ -61,31 +66,47 @@ class PlotWidget(GraphicsView):
         self.setCentralItem(self.plotItem)
         ## Explicitly wrap methods from plotItem
         ## NOTE: If you change this list, update the documentation above as well.
-        for m in ['addItem', 'removeItem', 'autoRange', 'clear', 'setAxisItems', 'setXRange', 
-                  'setYRange', 'setRange', 'setAspectLocked', 'setMouseEnabled', 
-                  'setXLink', 'setYLink', 'enableAutoRange', 'disableAutoRange', 
-                  'setLimits', 'register', 'unregister', 'viewRect']:
+        for m in [
+            "addItem",
+            "removeItem",
+            "autoRange",
+            "clear",
+            "setAxisItems",
+            "setXRange",
+            "setYRange",
+            "setRange",
+            "setAspectLocked",
+            "setMouseEnabled",
+            "setXLink",
+            "setYLink",
+            "enableAutoRange",
+            "disableAutoRange",
+            "setLimits",
+            "register",
+            "unregister",
+            "viewRect",
+        ]:
             setattr(self, m, getattr(self.plotItem, m))
-        #QtCore.QObject.connect(self.plotItem, QtCore.SIGNAL('viewChanged'), self.viewChanged)
+        # QtCore.QObject.connect(self.plotItem, QtCore.SIGNAL('viewChanged'), self.viewChanged)
         self.plotItem.sigRangeChanged.connect(self.viewRangeChanged)
-    
+
     def close(self):
         self.plotItem.close()
         self.plotItem = None
-        #self.scene().clear()
-        #self.mPlotItem.close()
+        # self.scene().clear()
+        # self.mPlotItem.close()
         self.setParent(None)
         super(PlotWidget, self).close()
 
     def __getattr__(self, attr):  ## implicitly wrap methods from plotItem
         if hasattr(self.plotItem, attr):
             m = getattr(self.plotItem, attr)
-            if hasattr(m, '__call__'):
+            if hasattr(m, "__call__"):
                 return m
         raise AttributeError(attr)
-    
+
     def viewRangeChanged(self, view, range):
-        #self.emit(QtCore.SIGNAL('viewChanged'), *args)
+        # self.emit(QtCore.SIGNAL('viewChanged'), *args)
         self.sigRangeChanged.emit(self, range)
 
     def widgetGroupInterface(self):
@@ -93,10 +114,10 @@ class PlotWidget(GraphicsView):
 
     def saveState(self):
         return self.plotItem.saveState()
-        
+
     def restoreState(self, state):
         return self.plotItem.restoreState(state)
-        
+
     def getPlotItem(self):
         """Return the PlotItem contained within."""
         return self.plotItem

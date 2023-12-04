@@ -16,9 +16,9 @@ from .items.GLVolumeItem import *
 from .MeshData import MeshData
 
 ## dynamic imports cause too many problems.
-#from .. import importAll
-#importAll('items', globals(), locals())
+# from .. import importAll
+# importAll('items', globals(), locals())
 
 
 ## for backward compatibility:
-#MeshData.MeshData = MeshData  ## breaks autodoc.
+# MeshData.MeshData = MeshData  ## breaks autodoc.

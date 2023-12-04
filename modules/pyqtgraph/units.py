@@ -11,8 +11,10 @@
 import unicodedata
 
 # All unicode identifiers get normalized automatically
-SI_PREFIXES = unicodedata.normalize("NFKC", u"yzafpnµm kMGTPEZY")
-UNITS = unicodedata.normalize("NFKC", u"m,s,g,W,J,V,A,F,T,Hz,Ohm,Ω,S,N,C,px,b,B,Pa").split(",")
+SI_PREFIXES = unicodedata.normalize("NFKC", "yzafpnµm kMGTPEZY")
+UNITS = unicodedata.normalize(
+    "NFKC", "m,s,g,W,J,V,A,F,T,Hz,Ohm,Ω,S,N,C,px,b,B,Pa"
+).split(",")
 allUnits = {}
 
 
@@ -27,7 +29,7 @@ for pre in SI_PREFIXES:
     v = SI_PREFIXES.index(pre) - 8
     if pre == " ":
         pre = ""
-    addUnit(pre, 1000 ** v)
+    addUnit(pre, 1000**v)
 
 addUnit("c", 0.01)
 addUnit("d", 0.1)
@@ -57,7 +59,7 @@ def formatUnits(units):
 
 def simplify(units):
     """
-    Cancel units that appear in both numerator and denominator, then attempt to replace 
+    Cancel units that appear in both numerator and denominator, then attempt to replace
     groups of units with single units where possible (ie, J/s => W)
     """
     pass

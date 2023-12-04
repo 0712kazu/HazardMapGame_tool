@@ -12,6 +12,7 @@ def getNumbaFunctions():
             return None
 
         from .. import functions_numba
+
         return functions_numba
     else:
         return None

@@ -24,6 +24,7 @@ class FontParameter(Parameter):
     Creates and controls a QFont value. Be careful when selecting options from the font dropdown. since not all
     fonts are available on all systems
     """
+
     itemClass = FontParameterItem
 
     def _interpretValue(self, v):
@@ -36,5 +37,5 @@ class FontParameter(Parameter):
 
     def saveState(self, filter=None):
         state = super().saveState(filter)
-        state['value'] = state['value'].toString()
+        state["value"] = state["value"].toString()
         return state

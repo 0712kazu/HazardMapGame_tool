@@ -12,20 +12,22 @@ import sys
 import time
 import warnings
 
-PYSIDE = 'PySide'
-PYSIDE2 = 'PySide2'
-PYSIDE6 = 'PySide6'
-PYQT4 = 'PyQt4'
-PYQT5 = 'PyQt5'
-PYQT6 = 'PyQt6'
+PYSIDE = "PySide"
+PYSIDE2 = "PySide2"
+PYSIDE6 = "PySide6"
+PYQT4 = "PyQt4"
+PYQT5 = "PyQt5"
+PYQT6 = "PyQt6"
 
-QT_LIB = os.getenv('PYQTGRAPH_QT_LIB')
+QT_LIB = os.getenv("PYQTGRAPH_QT_LIB")
 
 if QT_LIB is not None:
     try:
         __import__(QT_LIB)
     except ModuleNotFoundError:
-        raise ModuleNotFoundError(f"Environment variable PYQTGRAPH_QT_LIB is set to '{os.getenv('PYQTGRAPH_QT_LIB')}', but no module with this name was found.")
+        raise ModuleNotFoundError(
+            f"Environment variable PYQTGRAPH_QT_LIB is set to '{os.getenv('PYQTGRAPH_QT_LIB')}', but no module with this name was found."
+        )
 
 ## Automatically determine which Qt package to use (unless specified by
 ## environment variable).
@@ -42,7 +44,7 @@ if QT_LIB is None:
 
 if QT_LIB is None:
     for lib in libOrder:
-        qt = lib + '.QtCore'
+        qt = lib + ".QtCore"
         try:
             __import__(qt)
             QT_LIB = lib
@@ -51,15 +53,17 @@ if QT_LIB is None:
             pass
 
 if QT_LIB is None:
-    raise Exception("PyQtGraph requires one of PyQt5, PyQt6, PySide2 or PySide6; none of these packages could be imported.")
+    raise Exception(
+        "PyQtGraph requires one of PyQt5, PyQt6, PySide2 or PySide6; none of these packages could be imported."
+    )
 
 
 class FailedImport(object):
-    """Used to defer ImportErrors until we are sure the module is needed.
-    """
+    """Used to defer ImportErrors until we are sure the module is needed."""
+
     def __init__(self, err):
         self.err = err
-        
+
     def __getattr__(self, attr):
         raise self.err
 
@@ -69,18 +73,20 @@ class FailedImport(object):
 # Credit:
 # http://stackoverflow.com/questions/4442286/python-code-genration-with-pyside-uic/14195313#14195313
 
+
 class _StringIO(object):
     """Alternative to built-in StringIO needed to circumvent unicode/ascii issues"""
+
     def __init__(self):
         self.data = []
-    
+
     def write(self, data):
         self.data.append(data)
-        
-    def getvalue(self):
-        return ''.join(map(str, self.data)).encode('utf8')
 
-    
+    def getvalue(self):
+        return "".join(map(str, self.data)).encode("utf8")
+
+
 def _loadUiType(uiFile):
     """
     PySide lacks a "loadUiType" command like PyQt4's, so we have to convert
@@ -105,32 +111,37 @@ def _loadUiType(uiFile):
         if pyside2uic is None:
             pyside2version = tuple(map(int, PySide2.__version__.split(".")))
             if (5, 14) <= pyside2version < (5, 14, 2, 2):
-                warnings.warn('For UI compilation, it is recommended to upgrade to PySide >= 5.15', RuntimeWarning, stacklevel=2)
+                warnings.warn(
+                    "For UI compilation, it is recommended to upgrade to PySide >= 5.15",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
 
     # get class names from ui file
     import xml.etree.ElementTree as xml
+
     parsed = xml.parse(uiFile)
-    widget_class = parsed.find('widget').get('class')
-    form_class = parsed.find('class').text
+    widget_class = parsed.find("widget").get("class")
+    form_class = parsed.find("class").text
 
     # convert ui file to python code
     if pyside2uic is None:
-        uic_executable = QT_LIB.lower() + '-uic'
+        uic_executable = QT_LIB.lower() + "-uic"
         uipy = subprocess.check_output([uic_executable, uiFile])
     else:
         o = _StringIO()
-        with open(uiFile, 'r') as f:
+        with open(uiFile, "r") as f:
             pyside2uic.compileUi(f, o, indent=0)
         uipy = o.getvalue()
 
     # execute python code
-    pyc = compile(uipy, '<string>', 'exec')
+    pyc = compile(uipy, "<string>", "exec")
     frame = {}
     exec(pyc, frame)
 
     # fetch the base_class and form class based on their type in the xml from designer
-    form_class = frame['Ui_%s'%form_class]
-    base_class = eval('QtWidgets.%s'%widget_class)
+    form_class = frame["Ui_%s" % form_class]
+    base_class = eval("QtWidgets.%s" % widget_class)
 
     return form_class, base_class
 
@@ -147,6 +158,7 @@ def _copy_attrs(src, dst):
         if not hasattr(dst, o):
             setattr(dst, o, getattr(src, o))
 
+
 from . import QtCore, QtGui, QtWidgets, compat
 
 if QT_LIB == PYQT5:
@@ -155,6 +167,7 @@ if QT_LIB == PYQT5:
     import PyQt5.QtCore
     import PyQt5.QtGui
     import PyQt5.QtWidgets
+
     _copy_attrs(PyQt5.QtCore, QtCore)
     _copy_attrs(PyQt5.QtGui, QtGui)
     _copy_attrs(PyQt5.QtWidgets, QtWidgets)
@@ -175,12 +188,13 @@ if QT_LIB == PYQT5:
     except ImportError as err:
         QtTest = FailedImport(err)
 
-    VERSION_INFO = 'PyQt5 ' + QtCore.PYQT_VERSION_STR + ' Qt ' + QtCore.QT_VERSION_STR
+    VERSION_INFO = "PyQt5 " + QtCore.PYQT_VERSION_STR + " Qt " + QtCore.QT_VERSION_STR
 
 elif QT_LIB == PYQT6:
     import PyQt6.QtCore
     import PyQt6.QtGui
     import PyQt6.QtWidgets
+
     _copy_attrs(PyQt6.QtCore, QtCore)
     _copy_attrs(PyQt6.QtGui, QtGui)
     _copy_attrs(PyQt6.QtWidgets, QtWidgets)
@@ -200,16 +214,17 @@ elif QT_LIB == PYQT6:
     except ImportError as err:
         QtTest = FailedImport(err)
 
-    VERSION_INFO = 'PyQt6 ' + QtCore.PYQT_VERSION_STR + ' Qt ' + QtCore.QT_VERSION_STR
+    VERSION_INFO = "PyQt6 " + QtCore.PYQT_VERSION_STR + " Qt " + QtCore.QT_VERSION_STR
 
 elif QT_LIB == PYSIDE2:
     import PySide2.QtCore
     import PySide2.QtGui
     import PySide2.QtWidgets
+
     _copy_attrs(PySide2.QtCore, QtCore)
     _copy_attrs(PySide2.QtGui, QtGui)
     _copy_attrs(PySide2.QtWidgets, QtWidgets)
-    
+
     try:
         from PySide2 import QtSvg
     except ImportError as err:
@@ -221,11 +236,13 @@ elif QT_LIB == PYSIDE2:
 
     import PySide2
     import shiboken2 as shiboken
-    VERSION_INFO = 'PySide2 ' + PySide2.__version__ + ' Qt ' + QtCore.__version__
+
+    VERSION_INFO = "PySide2 " + PySide2.__version__ + " Qt " + QtCore.__version__
 elif QT_LIB == PYSIDE6:
     import PySide6.QtCore
     import PySide6.QtGui
     import PySide6.QtWidgets
+
     _copy_attrs(PySide6.QtCore, QtCore)
     _copy_attrs(PySide6.QtGui, QtGui)
     _copy_attrs(PySide6.QtWidgets, QtWidgets)
@@ -245,11 +262,11 @@ elif QT_LIB == PYSIDE6:
 
     import PySide6
     import shiboken6 as shiboken
-    VERSION_INFO = 'PySide6 ' + PySide6.__version__ + ' Qt ' + QtCore.__version__
+
+    VERSION_INFO = "PySide6 " + PySide6.__version__ + " Qt " + QtCore.__version__
 
 else:
     raise ValueError("Invalid Qt lib '%s'" % QT_LIB)
-
 
 
 if QT_LIB in [PYQT6, PYSIDE6]:
@@ -260,7 +277,7 @@ if QT_LIB in [PYQT6, PYSIDE6]:
         QtWidgets.QOpenGLWidget = QtOpenGLWidgets.QOpenGLWidget
 
     # PySide6 incorrectly placed QFileSystemModel inside QtWidgets
-    if QT_LIB == PYSIDE6 and hasattr(QtWidgets, 'QFileSystemModel'):
+    if QT_LIB == PYSIDE6 and hasattr(QtWidgets, "QFileSystemModel"):
         module = getattr(QtWidgets, "QFileSystemModel")
         setattr(QtGui, "QFileSystemModel", module)
 
@@ -288,17 +305,19 @@ if QT_LIB in [PYSIDE2, PYSIDE6]:
 
     # PySide does not implement qWait
     if not isinstance(QtTest, FailedImport):
-        if not hasattr(QtTest.QTest, 'qWait'):
+        if not hasattr(QtTest.QTest, "qWait"):
+
             @staticmethod
             def qWait(msec):
                 start = time.time()
                 QtWidgets.QApplication.processEvents()
                 while time.time() < start + msec * 0.001:
                     QtWidgets.QApplication.processEvents()
+
             QtTest.QTest.qWait = qWait
 
     compat.wrapinstance = shiboken.wrapInstance
-    compat.unwrapinstance = lambda x : shiboken.getCppPointer(x)[0]
+    compat.unwrapinstance = lambda x: shiboken.getCppPointer(x)[0]
     compat.voidptr = shiboken.VoidPtr
 
 # Common to PyQt5 and PyQt6
@@ -310,13 +329,15 @@ if QT_LIB in [PYQT5, PYQT6]:
     # users), we install a global exception hook to override this behavior.
     if sys.excepthook == sys.__excepthook__:
         sys_excepthook = sys.excepthook
+
         def pyqt_qabort_override(*args, **kwds):
             return sys_excepthook(*args, **kwds)
+
         sys.excepthook = pyqt_qabort_override
-    
+
     def isQObjectAlive(obj):
         return not sip.isdeleted(obj)
-    
+
     loadUiType = uic.loadUiType
 
     QtCore.Signal = QtCore.pyqtSignal
@@ -329,23 +350,25 @@ from . import internals
 
 # Alert user if using Qt < 5.15, but do not raise exception
 versionReq = [5, 15]
-m = re.match(r'(\d+)\.(\d+).*', QtVersion)
+m = re.match(r"(\d+)\.(\d+).*", QtVersion)
 if m is not None and list(map(int, m.groups())) < versionReq:
     warnings.warn(
         f"PyQtGraph supports Qt version >= {versionReq[0]}.{versionReq[1]},"
         f" but {QtVersion} detected.",
         RuntimeWarning,
-        stacklevel=2
+        stacklevel=2,
     )
 
 App = QtWidgets.QApplication
 # subclassing QApplication causes segfaults on PySide{2, 6} / Python 3.8.7+
 
 QAPP = None
+
+
 def mkQApp(name=None):
     """
     Creates new QApplication or returns current instance if existing.
-    
+
     ============== ========================================================
     **Arguments:**
     name           (str) Application name, passed to Qt
@@ -357,7 +380,7 @@ def mkQApp(name=None):
         color = palette.base().color()
         app = QtWidgets.QApplication.instance()
         darkMode = color.lightnessF() < 0.5
-        app.setProperty('darkMode', darkMode)
+        app.setProperty("darkMode", darkMode)
 
     QAPP = QtWidgets.QApplication.instance()
     if QAPP is None:
@@ -368,7 +391,9 @@ def mkQApp(name=None):
             pass
         elif qtVersionCompare > (5, 14):
             os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
-            QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+            QtWidgets.QApplication.setHighDpiScaleFactorRoundingPolicy(
+                QtCore.Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+            )
         else:  # qt 5.12 and 5.13
             QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
             QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
@@ -385,4 +410,4 @@ def mkQApp(name=None):
 # exec() is used within _loadUiType, so we define as exec_() here and rename in pg namespace
 def exec_():
     app = mkQApp()
-    return app.exec() if hasattr(app, 'exec') else app.exec_()
+    return app.exec() if hasattr(app, "exec") else app.exec_()

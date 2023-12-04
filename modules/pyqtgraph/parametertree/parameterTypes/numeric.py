@@ -13,22 +13,28 @@ class NumericParameterItem(WidgetParameterItem):
     float                       Displays a :class:`SpinBox <pyqtgraph.SpinBox>`.
     ==========================  =============================================================
     """
+
     def makeWidget(self):
         opts = self.param.opts
-        t = opts['type']
+        t = opts["type"]
         defs = {
-            'value': 0, 'min': None, 'max': None,
-            'step': 1.0, 'dec': False,
-            'siPrefix': False, 'suffix': '', 'decimals': 3,
+            "value": 0,
+            "min": None,
+            "max": None,
+            "step": 1.0,
+            "dec": False,
+            "siPrefix": False,
+            "suffix": "",
+            "decimals": 3,
         }
-        if t == 'int':
-            defs['int'] = True
-            defs['minStep'] = 1.0
+        if t == "int":
+            defs["int"] = True
+            defs["minStep"] = 1.0
         for k in defs:
             if k in opts:
                 defs[k] = opts[k]
-        if 'limits' in opts:
-            defs['min'], defs['max'] = opts['limits']
+        if "limits" in opts:
+            defs["min"], defs["max"] = opts["limits"]
         w = SpinBox()
         w.setOpts(**defs)
         w.sigChanged = w.sigValueChanged
@@ -50,8 +56,8 @@ class NumericParameterItem(WidgetParameterItem):
     def optsChanged(self, param, opts):
         super().optsChanged(param, opts)
         sbOpts = {}
-        if 'units' in opts and 'suffix' not in opts:
-            sbOpts['suffix'] = opts['units']
+        if "units" in opts and "suffix" not in opts:
+            sbOpts["suffix"] = opts["units"]
         for k, v in opts.items():
             if k in self.widget.opts:
                 sbOpts[k] = v

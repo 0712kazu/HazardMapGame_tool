@@ -9,41 +9,40 @@ def isNodeClass(cls):
             return False
     except:
         return False
-    return hasattr(cls, 'nodeName')
-
+    return hasattr(cls, "nodeName")
 
 
 class NodeLibrary:
     """
-    A library of flowchart Node types. Custom libraries may be built to provide 
+    A library of flowchart Node types. Custom libraries may be built to provide
     each flowchart with a specific set of allowed Node types.
     """
 
     def __init__(self):
         self.nodeList = OrderedDict()
         self.nodeTree = OrderedDict()
-        
+
     def addNodeType(self, nodeClass, paths, override=False):
         """
         Register a new node type. If the type's name is already in use,
         an exception will be raised (unless override=True).
-        
+
         ============== =========================================================
         **Arguments:**
-        
+
         nodeClass      a subclass of Node (must have typ.nodeName)
-        paths          list of tuples specifying the location(s) this 
+        paths          list of tuples specifying the location(s) this
                        type will appear in the library tree.
         override       if True, overwrite any class having the same name
         ============== =========================================================
         """
         if not isNodeClass(nodeClass):
             raise Exception("Object %s is not a Node subclass" % str(nodeClass))
-        
+
         name = nodeClass.nodeName
         if not override and name in self.nodeList:
             raise Exception("Node type name '%s' is already registered." % name)
-        
+
         self.nodeList[name] = nodeClass
         for path in paths:
             root = self.nodeTree
@@ -74,7 +73,7 @@ class NodeLibrary:
     @staticmethod
     def treeCopy(tree):
         copy = OrderedDict()
-        for k,v in tree.items():
+        for k, v in tree.items():
             if isNodeClass(v):
                 copy[k] = v
             else:

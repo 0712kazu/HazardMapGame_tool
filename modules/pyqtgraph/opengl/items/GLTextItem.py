@@ -5,7 +5,8 @@ from ... import functions as fn
 from ...Qt import QtCore, QtGui
 from ..GLGraphicsItem import GLGraphicsItem
 
-__all__ = ['GLTextItem']
+__all__ = ["GLTextItem"]
+
 
 class GLTextItem(GLGraphicsItem):
     """Draws text in 3D."""
@@ -13,13 +14,13 @@ class GLTextItem(GLGraphicsItem):
     def __init__(self, parentItem=None, **kwds):
         """All keyword arguments are passed to setData()"""
         super().__init__(parentItem=parentItem)
-        glopts = kwds.pop('glOptions', 'additive')
+        glopts = kwds.pop("glOptions", "additive")
         self.setGLOptions(glopts)
 
         self.pos = np.array([0.0, 0.0, 0.0])
         self.color = QtCore.Qt.GlobalColor.white
-        self.text = ''
-        self.font = QtGui.QFont('Helvetica', 16)
+        self.text = ""
+        self.font = QtGui.QFont("Helvetica", 16)
 
         self.setData(**kwds)
 
@@ -37,23 +38,26 @@ class GLTextItem(GLGraphicsItem):
         font                  QFont (Default: QFont('Helvetica', 16))
         ====================  ==================================================
         """
-        args = ['pos', 'color', 'text', 'font']
+        args = ["pos", "color", "text", "font"]
         for k in kwds.keys():
             if k not in args:
-                raise ValueError('Invalid keyword argument: %s (allowed arguments are %s)' % (k, str(args)))
+                raise ValueError(
+                    "Invalid keyword argument: %s (allowed arguments are %s)"
+                    % (k, str(args))
+                )
         for arg in args:
             if arg in kwds:
                 value = kwds[arg]
-                if arg == 'pos':
+                if arg == "pos":
                     if isinstance(value, np.ndarray):
                         if value.shape != (3,):
                             raise ValueError('"pos.shape" must be (3,).')
                     elif isinstance(value, (tuple, list)):
                         if len(value) != 3:
                             raise ValueError('"len(pos)" must be 3.')
-                elif arg == 'color':
+                elif arg == "color":
                     value = fn.mkColor(value)
-                elif arg == 'font':
+                elif arg == "font":
                     if isinstance(value, QtGui.QFont) is False:
                         raise TypeError('"font" must be QFont.')
                 setattr(self, arg, value)
@@ -75,7 +79,10 @@ class GLTextItem(GLGraphicsItem):
         painter = QtGui.QPainter(self.view())
         painter.setPen(self.color)
         painter.setFont(self.font)
-        painter.setRenderHints(QtGui.QPainter.RenderHint.Antialiasing | QtGui.QPainter.RenderHint.TextAntialiasing)
+        painter.setRenderHints(
+            QtGui.QPainter.RenderHint.Antialiasing
+            | QtGui.QPainter.RenderHint.TextAntialiasing
+        )
         painter.drawText(text_pos, self.text)
         painter.end()
 
@@ -92,5 +99,5 @@ class GLTextItem(GLGraphicsItem):
 
         return QtCore.QPointF(
             viewport[0] + (1.0 + proj_vec[0]) * viewport[2] / 2,
-            viewport[1] + (1.0 + proj_vec[1]) * viewport[3] / 2
+            viewport[1] + (1.0 + proj_vec[1]) * viewport[3] / 2,
         )

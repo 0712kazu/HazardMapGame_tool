@@ -17,10 +17,14 @@ def BusyCursor():
     May be nested. If called from a non-gui thread, then the cursor will not be affected.
     """
     app = QtCore.QCoreApplication.instance()
-    in_gui_thread = (app is not None) and (QtCore.QThread.currentThread() == app.thread())
+    in_gui_thread = (app is not None) and (
+        QtCore.QThread.currentThread() == app.thread()
+    )
     try:
         if in_gui_thread:
-            guard = QtWidgets.QApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.CursorShape.WaitCursor))
+            guard = QtWidgets.QApplication.setOverrideCursor(
+                QtGui.QCursor(QtCore.Qt.CursorShape.WaitCursor)
+            )
             # on PySide6 6.3.0, setOverrideCursor() returns a QOverrideCursorGuard object
             # that, on its destruction, calls restoreOverrideCursor() if the user had not
             # already done so.
@@ -30,7 +34,7 @@ def BusyCursor():
         yield
     finally:
         if in_gui_thread:
-            if hasattr(guard, 'restoreOverrideCursor'):
+            if hasattr(guard, "restoreOverrideCursor"):
                 guard.restoreOverrideCursor()
             else:
                 QtWidgets.QApplication.restoreOverrideCursor()

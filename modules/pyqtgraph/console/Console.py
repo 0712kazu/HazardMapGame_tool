@@ -13,13 +13,13 @@ class ConsoleWidget(QtWidgets.QWidget):
     """
     Widget displaying console output and accepting command input.
     Implements:
-        
+
       - eval python expressions / exec python statements
       - storable history of commands
       - exception handling allowing commands to be interpreted in the context of any level in the exception stack frame
-    
+
     Why not just use python in an interactive shell (or ipython) ? There are a few reasons:
-       
+
       - pyside does not yet allow Qt event processing and interactive shell at the same time
       - on some systems, typing in the console _blocks_ the qt event loop until the user presses enter. This can
         be baffling and frustrating to users since it would appear the program has frozen.
@@ -27,16 +27,19 @@ class ConsoleWidget(QtWidgets.QWidget):
       - ability to add extra features like exception stack introspection
       - ability to have multiple interactive prompts, including for spawned sub-processes
     """
-    def __init__(self, parent=None, namespace=None, historyFile=None, text=None, editor=None):
+
+    def __init__(
+        self, parent=None, namespace=None, historyFile=None, text=None, editor=None
+    ):
         """
         ==============  =============================================================================
         **Arguments:**
         namespace       dictionary containing the initial variables present in the default namespace
         historyFile     optional file for storing command history
         text            initial text to display in the console window
-        editor          optional string for invoking code editor (called when stack trace entries are 
-                        double-clicked). May contain {fileName} and {lineNum} format keys. Example:: 
-                      
+        editor          optional string for invoking code editor (called when stack trace entries are
+                        double-clicked). May contain {fileName} and {lineNum} format keys. Example::
+
                             editorCommand --loadfile {fileName} --gotoline {lineNum}
         ==============  =============================================================================
         """
@@ -46,20 +49,20 @@ class ConsoleWidget(QtWidgets.QWidget):
 
         if namespace is None:
             namespace = {}
-        namespace['__console__'] = self
+        namespace["__console__"] = self
 
         self.localNamespace = namespace
         self.editor = editor
-        
+
         self.output = self.repl.output
         self.input = self.repl.input
         self.input.setFocus()
-        
+
         if text is not None:
             self.output.setPlainText(text)
 
         self.historyFile = historyFile
-        
+
         try:
             history = self.loadHistory()
         except Exception as exc:
@@ -87,7 +90,7 @@ class ConsoleWidget(QtWidgets.QWidget):
         self.historyList.hide()
         self.splitter.addWidget(self.historyList)
 
-        self.historyBtn = QtWidgets.QPushButton('History', self)
+        self.historyBtn = QtWidgets.QPushButton("History", self)
         self.historyBtn.setCheckable(True)
         self.repl.inputLayout.addWidget(self.historyBtn)
 
@@ -120,19 +123,19 @@ class ConsoleWidget(QtWidgets.QWidget):
 
     def setStack(self, frame=None):
         self.excHandler.setStack(frame)
- 
+
     def loadHistory(self):
         """Return the list of previously-invoked command strings (or None)."""
         if self.historyFile is not None and os.path.exists(self.historyFile):
-            with open(self.historyFile, 'rb') as pf:
+            with open(self.historyFile, "rb") as pf:
                 return pickle.load(pf)
-        
+
     def saveHistory(self, history):
         """Store the list of previously-invoked command strings."""
         if self.historyFile is not None:
-            with open(self.historyFile, 'wb') as pf:
+            with open(self.historyFile, "wb") as pf:
                 pickle.dump(history, pf)
-        
+
     def _commandEntered(self, repl, cmd):
         self.historyList.addItem(cmd)
         self.saveHistory(self.input.history[1:100])
@@ -148,7 +151,7 @@ class ConsoleWidget(QtWidgets.QWidget):
             return frame.f_globals
         else:
             return self.localNamespace
-        
+
     def locals(self):
         frame = self.excHandler.selectedFrame()
         if frame is not None and self.excHandler.runSelectedFrameCheck.isChecked():
@@ -157,22 +160,24 @@ class ConsoleWidget(QtWidgets.QWidget):
             return self.localNamespace
 
     def cmdSelected(self, item):
-        index = -(self.historyList.row(item)+1)
+        index = -(self.historyList.row(item) + 1)
         self.input.setHistory(index)
         self.input.setFocus()
-        
+
     def cmdDblClicked(self, item):
-        index = -(self.historyList.row(item)+1)
+        index = -(self.historyList.row(item) + 1)
         self.input.setHistory(index)
         self.input.execCmd()
-        
+
     def _stackItemDblClicked(self, handler, item):
         editor = self.editor
         if editor is None:
-            editor = getConfigOption('editorCommand')
+            editor = getConfigOption("editorCommand")
         if editor is None:
             return
         tb = self.excHandler.selectedFrame()
         lineNum = tb.f_lineno
         fileName = tb.f_code.co_filename
-        subprocess.Popen(self.editor.format(fileName=fileName, lineNum=lineNum), shell=True)
+        subprocess.Popen(
+            self.editor.format(fileName=fileName, lineNum=lineNum), shell=True
+        )

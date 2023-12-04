@@ -18,7 +18,8 @@ except (ImportError, AttributeError):
     # AttributeError upon import
     HAVE_OPENGL = False
 
-__all__ = ['RawImageWidget']
+__all__ = ["RawImageWidget"]
+
 
 class RawImageWidget(QtWidgets.QWidget):
     """
@@ -33,7 +34,12 @@ class RawImageWidget(QtWidgets.QWidget):
         This also greatly reduces the speed at which it will draw frames.
         """
         QtWidgets.QWidget.__init__(self, parent)
-        self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding))
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy(
+                QtWidgets.QSizePolicy.Policy.Expanding,
+                QtWidgets.QSizePolicy.Policy.Expanding,
+            )
+        )
         self.scaled = scaled
         self.opts = None
         self.image = None
@@ -44,7 +50,7 @@ class RawImageWidget(QtWidgets.QWidget):
         img must be ndarray of shape (x,y), (x,y,3), or (x,y,4).
         Extra arguments are sent to functions.makeARGB
         """
-        if getConfigOption('imageAxisOrder') == 'col-major':
+        if getConfigOption("imageAxisOrder") == "col-major":
             img = img.swapaxes(0, 1)
         self.opts = (img, args, kargs)
         self.image = None
@@ -60,7 +66,7 @@ class RawImageWidget(QtWidgets.QWidget):
             self.image = fn.makeQImage(argb, alpha, copy=False, transpose=False)
             self.opts = ()
         # if self.pixmap is None:
-            # self.pixmap = QtGui.QPixmap.fromImage(self.image)
+        # self.pixmap = QtGui.QPixmap.fromImage(self.image)
         p = QtGui.QPainter(self)
         if self.scaled:
             rect = self.rect()
@@ -79,7 +85,8 @@ class RawImageWidget(QtWidgets.QWidget):
 
 
 if HAVE_OPENGL:
-    __all__.append('RawImageGLWidget')
+    __all__.append("RawImageGLWidget")
+
     class RawImageGLWidget(QOpenGLWidget):
         """
         Similar to RawImageWidget, but uses a GL widget to do all drawing.
@@ -101,7 +108,7 @@ if HAVE_OPENGL:
             img must be ndarray of shape (x,y), (x,y,3), or (x,y,4).
             Extra arguments are sent to functions.makeARGB
             """
-            if getConfigOption('imageAxisOrder') == 'col-major':
+            if getConfigOption("imageAxisOrder") == "col-major":
                 img = img.swapaxes(0, 1)
             self.opts = (img, args, kargs)
             self.image = None
@@ -128,10 +135,20 @@ if HAVE_OPENGL:
             # shape = self.image.shape
             # glTexImage2D(GL_PROXY_TEXTURE_2D, 0, GL_RGBA, shape[0], shape[1], 0, GL_RGBA, GL_UNSIGNED_BYTE, None)
             # if glGetTexLevelParameteriv(GL_PROXY_TEXTURE_2D, 0, GL_TEXTURE_WIDTH) == 0:
-                # raise Exception("OpenGL failed to create 2D texture (%dx%d); too large for this hardware." % shape[:2])
+            # raise Exception("OpenGL failed to create 2D texture (%dx%d); too large for this hardware." % shape[:2])
 
             h, w = self.image.shape[:2]
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, self.image)
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RGBA,
+                w,
+                h,
+                0,
+                GL_RGBA,
+                GL_UNSIGNED_BYTE,
+                self.image,
+            )
             glDisable(GL_TEXTURE_2D)
             self.uploaded = True
 
@@ -142,7 +159,7 @@ if HAVE_OPENGL:
                 if self.opts is None:
                     return
                 img, args, kwds = self.opts
-                kwds['useRGBA'] = True
+                kwds["useRGBA"] = True
                 self.image, _ = fn.makeARGB(img, *args, **kwds)
 
             if not self.uploaded:

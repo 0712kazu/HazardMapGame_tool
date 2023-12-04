@@ -10,7 +10,7 @@ QTextCharFormat = QtGui.QTextCharFormat
 QSyntaxHighlighter = QtGui.QSyntaxHighlighter
 
 
-def format(color, style=''):
+def format(color, style=""):
     """
     Return a QTextCharFormat with the given attributes.
     """
@@ -22,16 +22,15 @@ def format(color, style=''):
 
     _format = QTextCharFormat()
     _format.setForeground(_color)
-    if 'bold' in style:
+    if "bold" in style:
         _format.setFontWeight(QFont.Weight.Bold)
-    if 'italic' in style:
+    if "italic" in style:
         _format.setFontItalic(True)
 
     return _format
 
 
 class LightThemeColors:
-
     Red = "#B71C1C"
     Pink = "#FCE4EC"
     Purple = "#4A148C"
@@ -54,7 +53,6 @@ class LightThemeColors:
 
 
 class DarkThemeColors:
-
     Red = "#F44336"
     Pink = "#F48FB1"
     Purple = "#CE93D8"
@@ -77,60 +75,113 @@ class DarkThemeColors:
 
 
 LIGHT_STYLES = {
-    'keyword': format(LightThemeColors.Blue, 'bold'),
-    'operator': format(LightThemeColors.Red, 'bold'),
-    'brace': format(LightThemeColors.Purple),
-    'defclass': format(LightThemeColors.Indigo, 'bold'),
-    'string': format(LightThemeColors.Amber),
-    'string2': format(LightThemeColors.DeepPurple),
-    'comment': format(LightThemeColors.Green, 'italic'),
-    'self': format(LightThemeColors.Blue, 'bold'),
-    'numbers': format(LightThemeColors.Teal),
+    "keyword": format(LightThemeColors.Blue, "bold"),
+    "operator": format(LightThemeColors.Red, "bold"),
+    "brace": format(LightThemeColors.Purple),
+    "defclass": format(LightThemeColors.Indigo, "bold"),
+    "string": format(LightThemeColors.Amber),
+    "string2": format(LightThemeColors.DeepPurple),
+    "comment": format(LightThemeColors.Green, "italic"),
+    "self": format(LightThemeColors.Blue, "bold"),
+    "numbers": format(LightThemeColors.Teal),
 }
 
 
 DARK_STYLES = {
-    'keyword': format(DarkThemeColors.Blue, 'bold'),
-    'operator': format(DarkThemeColors.Red, 'bold'),
-    'brace': format(DarkThemeColors.Purple),
-    'defclass': format(DarkThemeColors.Indigo, 'bold'),
-    'string': format(DarkThemeColors.Amber),
-    'string2': format(DarkThemeColors.DeepPurple),
-    'comment': format(DarkThemeColors.Green, 'italic'),
-    'self': format(DarkThemeColors.Blue, 'bold'),
-    'numbers': format(DarkThemeColors.Teal),
+    "keyword": format(DarkThemeColors.Blue, "bold"),
+    "operator": format(DarkThemeColors.Red, "bold"),
+    "brace": format(DarkThemeColors.Purple),
+    "defclass": format(DarkThemeColors.Indigo, "bold"),
+    "string": format(DarkThemeColors.Amber),
+    "string2": format(DarkThemeColors.DeepPurple),
+    "comment": format(DarkThemeColors.Green, "italic"),
+    "self": format(DarkThemeColors.Blue, "bold"),
+    "numbers": format(DarkThemeColors.Teal),
 }
 
 
 class PythonHighlighter(QSyntaxHighlighter):
-    """Syntax highlighter for the Python language.
-    """
+    """Syntax highlighter for the Python language."""
+
     # Python keywords
     keywords = [
-        'and', 'assert', 'break', 'class', 'continue', 'def',
-        'del', 'elif', 'else', 'except', 'exec', 'finally',
-        'for', 'from', 'global', 'if', 'import', 'in',
-        'is', 'lambda', 'not', 'or', 'pass', 'print',
-        'raise', 'return', 'try', 'while', 'yield',
-        'None', 'True', 'False', 'async', 'await',
+        "and",
+        "assert",
+        "break",
+        "class",
+        "continue",
+        "def",
+        "del",
+        "elif",
+        "else",
+        "except",
+        "exec",
+        "finally",
+        "for",
+        "from",
+        "global",
+        "if",
+        "import",
+        "in",
+        "is",
+        "lambda",
+        "not",
+        "or",
+        "pass",
+        "print",
+        "raise",
+        "return",
+        "try",
+        "while",
+        "yield",
+        "None",
+        "True",
+        "False",
+        "async",
+        "await",
     ]
 
     # Python operators
     operators = [
-        r'=',
+        r"=",
         # Comparison
-        r'==', r'!=', r'<', r'<=', r'>', r'>=',
+        r"==",
+        r"!=",
+        r"<",
+        r"<=",
+        r">",
+        r">=",
         # Arithmetic
-        r'\+', r'-', r'\*', r'/', r'//', r'\%', r'\*\*',
+        r"\+",
+        r"-",
+        r"\*",
+        r"/",
+        r"//",
+        r"\%",
+        r"\*\*",
         # In-place
-        r'\+=', r'-=', r'\*=', r'/=', r'\%=',
+        r"\+=",
+        r"-=",
+        r"\*=",
+        r"/=",
+        r"\%=",
         # Bitwise
-        r'\^', r'\|', r'\&', r'\~', r'>>', r'<<',
+        r"\^",
+        r"\|",
+        r"\&",
+        r"\~",
+        r">>",
+        r"<<",
     ]
 
     # Python braces
     braces = [
-        r'\{', r'\}', r'\(', r'\)', r'\[', r'\]',
+        r"\{",
+        r"\}",
+        r"\(",
+        r"\)",
+        r"\[",
+        r"\]",
     ]
 
     def __init__(self, document):
@@ -139,57 +190,46 @@ class PythonHighlighter(QSyntaxHighlighter):
         # Multi-line strings (expression, flag, style)
         # FIXME: The triple-quotes in these two lines will mess up the
         # syntax highlighting from this point onward
-        self.tri_single = (QRegExp("'''"), 1, 'string2')
-        self.tri_double = (QRegExp('"""'), 2, 'string2')
+        self.tri_single = (QRegExp("'''"), 1, "string2")
+        self.tri_double = (QRegExp('"""'), 2, "string2")
 
         rules = []
 
         # Keyword, operator, and brace rules
-        rules += [(r'\b%s\b' % w, 0, 'keyword')
-                  for w in PythonHighlighter.keywords]
-        rules += [(r'%s' % o, 0, 'operator')
-                  for o in PythonHighlighter.operators]
-        rules += [(r'%s' % b, 0, 'brace')
-                  for b in PythonHighlighter.braces]
+        rules += [(r"\b%s\b" % w, 0, "keyword") for w in PythonHighlighter.keywords]
+        rules += [(r"%s" % o, 0, "operator") for o in PythonHighlighter.operators]
+        rules += [(r"%s" % b, 0, "brace") for b in PythonHighlighter.braces]
 
         # All other rules
         rules += [
-
             # 'self'
-            (r'\bself\b', 0, 'self'),
-
+            (r"\bself\b", 0, "self"),
             # 'def' followed by an identifier
-            (r'\bdef\b\s*(\w+)', 1, 'defclass'),
+            (r"\bdef\b\s*(\w+)", 1, "defclass"),
             # 'class' followed by an identifier
-            (r'\bclass\b\s*(\w+)', 1, 'defclass'),
-
+            (r"\bclass\b\s*(\w+)", 1, "defclass"),
             # Numeric literals
-            (r'\b[+-]?[0-9]+[lL]?\b', 0, 'numbers'),
-            (r'\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b', 0, 'numbers'),
-            (r'\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b', 0, 'numbers'),
-
+            (r"\b[+-]?[0-9]+[lL]?\b", 0, "numbers"),
+            (r"\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b", 0, "numbers"),
+            (r"\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b", 0, "numbers"),
             # Double-quoted string, possibly containing escape sequences
-            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, 'string'),
+            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, "string"),
             # Single-quoted string, possibly containing escape sequences
-            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, 'string'),
-
+            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, "string"),
             # From '#' until a newline
-            (r'#[^\n]*', 0, 'comment'),
-
+            (r"#[^\n]*", 0, "comment"),
         ]
 
         # Build a QRegExp for each pattern
-        self.rules = [(QRegExp(pat), index, fmt)
-                      for (pat, index, fmt) in rules]
+        self.rules = [(QRegExp(pat), index, fmt) for (pat, index, fmt) in rules]
 
     @property
     def styles(self):
         app = QtWidgets.QApplication.instance()
-        return DARK_STYLES if app.property('darkMode') else LIGHT_STYLES
+        return DARK_STYLES if app.property("darkMode") else LIGHT_STYLES
 
     def highlightBlock(self, text):
-        """Apply syntax highlighting to the given block of text.
-        """
+        """Apply syntax highlighting to the given block of text."""
         # Do other syntax formatting
         for expression, nth, format in self.rules:
             index = expression.indexIn(text, 0)

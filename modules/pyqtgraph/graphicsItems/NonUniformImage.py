@@ -8,7 +8,8 @@ from ..Qt import QtCore, QtGui
 from .GraphicsObject import GraphicsObject
 from .HistogramLUTItem import HistogramLUTItem
 
-__all__ = ['NonUniformImage']
+__all__ = ["NonUniformImage"]
+
 
 class NonUniformImage(GraphicsObject):
     """
@@ -18,8 +19,8 @@ class NonUniformImage(GraphicsObject):
     commonly used to display 2-d or slices of higher dimensional data that
     have a regular but non-uniform grid e.g. measurements or simulation results.
     """
-    def __init__(self, x, y, z, border=None):
 
+    def __init__(self, x, y, z, border=None):
         GraphicsObject.__init__(self)
 
         # convert to numpy arrays
@@ -54,12 +55,13 @@ class NonUniformImage(GraphicsObject):
                 "NonUniformImage::setLookupTable(HistogramLUTItem) is deprecated "
                 "and will be removed in a future version of PyQtGraph. "
                 "use HistogramLUTItem::setImageItem(NonUniformImage) instead",
-                DeprecationWarning, stacklevel=2
+                DeprecationWarning,
+                stacklevel=2,
             )
             lut.setImageItem(self)
             return
 
-        self.cmap = None    # invalidate since no longer consistent with lut
+        self.cmap = None  # invalidate since no longer consistent with lut
         self.lut = lut
         self.picture = None
         if update:
@@ -96,14 +98,14 @@ class NonUniformImage(GraphicsObject):
         x, y, z = self.data
 
         # pad x and y so that we don't need to special-case the edges
-        x = np.pad(x, 1, mode='edge')
-        y = np.pad(y, 1, mode='edge')
+        x = np.pad(x, 1, mode="edge")
+        y = np.pad(y, 1, mode="edge")
 
         x = (x[:-1] + x[1:]) / 2
         y = (y[:-1] + y[1:]) / 2
 
-        X, Y = np.meshgrid(x[:-1], y[:-1], indexing='ij')
-        W, H = np.meshgrid(np.diff(x), np.diff(y), indexing='ij')
+        X, Y = np.meshgrid(x[:-1], y[:-1], indexing="ij")
+        W, H = np.meshgrid(np.diff(x), np.diff(y), indexing="ij")
         Z = z
 
         # get colormap
@@ -126,7 +128,7 @@ class NonUniformImage(GraphicsObject):
         if rng == 0:
             rng = 1
         scale = len(lut) / rng
-        Z = fn.rescaleData(Z, scale, mn, dtype=int, clip=(0, len(lut)-1))
+        Z = fn.rescaleData(Z, scale, mn, dtype=int, clip=(0, len(lut) - 1))
 
         # replace nans positions with invalid lut index
         invalid_coloridx = len(lut)
@@ -141,7 +143,7 @@ class NonUniformImage(GraphicsObject):
         # (flattened) indices of the same coloridx together.
         sorted_indices = np.argsort(Z, axis=None)
         for arr in X, Y, W, H:
-            arr.shape = -1      # in-place unravel
+            arr.shape = -1  # in-place unravel
 
         self.picture = QtGui.QPicture()
         painter = QtGui.QPainter(self.picture)
@@ -152,14 +154,14 @@ class NonUniformImage(GraphicsObject):
         for coloridx, cnt in zip(color_indices, counts):
             if coloridx == invalid_coloridx:
                 continue
-            indices = sorted_indices[offset:offset+cnt]
+            indices = sorted_indices[offset : offset + cnt]
             offset += cnt
             rectarray.resize(cnt)
             memory = rectarray.ndarray()
-            memory[:,0] = X[indices]
-            memory[:,1] = Y[indices]
-            memory[:,2] = W[indices]
-            memory[:,3] = H[indices]
+            memory[:, 0] = X[indices]
+            memory[:, 1] = Y[indices]
+            memory[:, 2] = W[indices]
+            memory[:, 3] = H[indices]
 
             brush = fn.mkBrush(lut[coloridx])
             painter.setBrush(brush)
@@ -179,4 +181,4 @@ class NonUniformImage(GraphicsObject):
 
     def boundingRect(self):
         x, y, _ = self.data
-        return QtCore.QRectF(x[0], y[0], x[-1]-x[0], y[-1]-y[0])
+        return QtCore.QRectF(x[0], y[0], x[-1] - x[0], y[-1] - y[0])

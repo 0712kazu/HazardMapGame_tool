@@ -8,11 +8,12 @@ import sys
 from .colorama.win32 import windll
 from .colorama.winterm import WinColor, WinStyle, WinTerm
 
-_WIN = sys.platform.startswith('win')
+_WIN = sys.platform.startswith("win")
 if windll is not None:
     winterm = WinTerm()
 else:
     _WIN = False
+
 
 def winset(reset=False, fore=None, back=None, style=None, stderr=False):
     if reset:
@@ -24,23 +25,26 @@ def winset(reset=False, fore=None, back=None, style=None, stderr=False):
     if style is not None:
         winterm.style(style, stderr)
 
+
 ANSI = {}
 WIN = {}
-for i,color in enumerate(['BLACK', 'RED', 'GREEN', 'YELLOW', 'BLUE', 'MAGENTA', 'CYAN', 'WHITE']):
+for i, color in enumerate(
+    ["BLACK", "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE"]
+):
     globals()[color] = i
-    globals()['BR_' + color] = i + 8
-    globals()['BACK_' + color] = i + 40
-    ANSI[i] = "\033[%dm" % (30+i)
-    ANSI[i+8] = "\033[2;%dm" % (30+i)
-    ANSI[i+40] = "\033[%dm" % (40+i)
-    color = 'GREY' if color == 'WHITE' else color
-    WIN[i] = {'fore': getattr(WinColor, color), 'style': WinStyle.NORMAL}
-    WIN[i+8] = {'fore': getattr(WinColor, color), 'style': WinStyle.BRIGHT}
-    WIN[i+40] = {'back': getattr(WinColor, color)}
+    globals()["BR_" + color] = i + 8
+    globals()["BACK_" + color] = i + 40
+    ANSI[i] = "\033[%dm" % (30 + i)
+    ANSI[i + 8] = "\033[2;%dm" % (30 + i)
+    ANSI[i + 40] = "\033[%dm" % (40 + i)
+    color = "GREY" if color == "WHITE" else color
+    WIN[i] = {"fore": getattr(WinColor, color), "style": WinStyle.NORMAL}
+    WIN[i + 8] = {"fore": getattr(WinColor, color), "style": WinStyle.BRIGHT}
+    WIN[i + 40] = {"back": getattr(WinColor, color)}
 
 RESET = -1
 ANSI[RESET] = "\033[0m"
-WIN[RESET] =  {'reset': True}
+WIN[RESET] = {"reset": True}
 
 
 def cprint(stream, *args, **kwds):
@@ -62,13 +66,13 @@ def cprint(stream, *args, **kwds):
 
     """
     if isinstance(stream, str):
-        stream = kwds.get('stream', 'stdout')
-        err = stream == 'stderr'
+        stream = kwds.get("stream", "stdout")
+        err = stream == "stderr"
         stream = getattr(sys, stream)
     else:
-        err = kwds.get('stderr', False)
+        err = kwds.get("stderr", False)
 
-    if hasattr(stream, 'isatty') and stream.isatty():
+    if hasattr(stream, "isatty") and stream.isatty():
         if _WIN:
             # convert to win32 calls
             for arg in args:
@@ -90,10 +94,12 @@ def cprint(stream, *args, **kwds):
             if isinstance(arg, str):
                 stream.write(arg)
 
+
 def cout(*args):
     """Shorthand for cprint('stdout', ...)"""
-    cprint('stdout', *args)
+    cprint("stdout", *args)
+
 
 def cerr(*args):
     """Shorthand for cprint('stderr', ...)"""
-    cprint('stderr', *args)
+    cprint("stderr", *args)

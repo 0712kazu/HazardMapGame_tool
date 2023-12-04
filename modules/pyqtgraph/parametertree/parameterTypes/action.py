@@ -4,9 +4,7 @@ from ..ParameterItem import ParameterItem
 
 
 class ParameterControlledButton(QtWidgets.QPushButton):
-    settableAttributes = {
-        "title", "tip", "icon", "shortcut", "enabled", "visible"
-    }
+    settableAttributes = {"title", "tip", "icon", "shortcut", "enabled", "visible"}
 
     def __init__(self, parameter=None, parent=None):
         super().__init__(parent)
@@ -46,6 +44,7 @@ class ParameterControlledButton(QtWidgets.QPushButton):
 
 class ActionParameterItem(ParameterItem):
     """ParameterItem displaying a clickable button."""
+
     def __init__(self, param, depth):
         ParameterItem.__init__(self, param, depth)
         self.layoutWidget = QtWidgets.QWidget()
@@ -53,7 +52,7 @@ class ActionParameterItem(ParameterItem):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layoutWidget.setLayout(self.layout)
         self.button = ParameterControlledButton(param, self.layoutWidget)
-        #self.layout.addSpacing(100)
+        # self.layout.addSpacing(100)
         self.layout.addWidget(self.button)
         self.layout.addStretch()
         self.titleChanged()
@@ -88,9 +87,10 @@ class ActionParameter(Parameter):
         parameter has an item in a tree that is visible. Can be set to any string
         accepted by :class:`QKeySequence <QtGui.QKeySequence>`.
     """
+
     itemClass = ActionParameterItem
     sigActivated = QtCore.Signal(object)
 
     def activate(self):
         self.sigActivated.emit(self)
-        self.emitStateChanged('activated', None)
+        self.emitStateChanged("activated", None)

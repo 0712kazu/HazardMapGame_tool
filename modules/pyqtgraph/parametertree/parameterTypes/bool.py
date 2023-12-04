@@ -6,6 +6,7 @@ class BoolParameterItem(WidgetParameterItem):
     """
     Registered parameter type which displays a QCheckBox
     """
+
     def makeWidget(self):
         w = QtWidgets.QCheckBox()
         w.sigChanged = w.toggled

@@ -31,8 +31,7 @@ def registerCallback(fn):
 
 
 def unregisterCallback(fn):
-    """Unregister a previously registered callback.
-    """
+    """Unregister a previously registered callback."""
     callbacks.remove(fn)
 
 
@@ -58,7 +57,7 @@ def setTracebackClearing(clear=True):
     """
     Enable or disable traceback clearing.
     By default, clearing is disabled and Python will indefinitely store unhandled exception stack traces.
-    This function is provided since Python's default behavior can cause unexpected retention of 
+    This function is provided since Python's default behavior can cause unexpected retention of
     large memory-consuming objects.
     """
     global clear_tracebacks
@@ -73,14 +72,15 @@ class ExceptionHandler(object):
         threading.excepthook = self.threading_excepthook
 
     def remove(self):
-        """Restore original exception hooks, deactivating this exception handler
-        """
+        """Restore original exception hooks, deactivating this exception handler"""
         sys.excepthook = self.orig_sys_excepthook
         threading.excepthook = self.orig_threading_excepthook
 
     def sys_excepthook(self, *args):
         # sys.excepthook signature is (exc_type, exc_value, exc_traceback)
-        args = SimpleNamespace(exc_type=args[0], exc_value=args[1], exc_traceback=args[2], thread=None)
+        args = SimpleNamespace(
+            exc_type=args[0], exc_value=args[1], exc_traceback=args[2], thread=None
+        )
         return self._excepthook(args, use_thread_hook=False)
 
     def threading_excepthook(self, args):
@@ -88,15 +88,17 @@ class ExceptionHandler(object):
         return self._excepthook(args, use_thread_hook=True)
 
     def _excepthook(self, args, use_thread_hook):
-        ## Start by extending recursion depth just a bit. 
+        ## Start by extending recursion depth just a bit.
         ## If the error we are catching is due to recursion, we don't want to generate another one here.
         recursionLimit = sys.getrecursionlimit()
         try:
-            sys.setrecursionlimit(recursionLimit+100)
+            sys.setrecursionlimit(recursionLimit + 100)
 
             ## call original exception handler first (prints exception)
             global callbacks, clear_tracebacks
-            header = "===== %s =====" % str(time.strftime("%Y.%m.%d %H:%m:%S", time.localtime(time.time())))
+            header = "===== %s =====" % str(
+                time.strftime("%Y.%m.%d %H:%m:%S", time.localtime(time.time()))
+            )
             try:
                 print(header)
             except Exception:
@@ -106,15 +108,21 @@ class ExceptionHandler(object):
             if use_thread_hook:
                 ret = self.orig_threading_excepthook(args)
             else:
-                ret = self.orig_sys_excepthook(args.exc_type, args.exc_value, args.exc_traceback)
+                ret = self.orig_sys_excepthook(
+                    args.exc_type, args.exc_value, args.exc_traceback
+                )
 
             for cb in callbacks:
                 try:
                     cb(args)
                 except Exception:
-                    print("   --------------------------------------------------------------")
+                    print(
+                        "   --------------------------------------------------------------"
+                    )
                     print("      Error occurred during exception callback %s" % str(cb))
-                    print("   --------------------------------------------------------------")
+                    print(
+                        "   --------------------------------------------------------------"
+                    )
                     traceback.print_exception(*sys.exc_info())
 
             # deprecated callback style requiring 3 args
@@ -122,9 +130,13 @@ class ExceptionHandler(object):
                 try:
                     cb(args.exc_type, args.exc_value, args.exc_traceback)
                 except Exception:
-                    print("   --------------------------------------------------------------")
+                    print(
+                        "   --------------------------------------------------------------"
+                    )
                     print("      Error occurred during exception callback %s" % str(cb))
-                    print("   --------------------------------------------------------------")
+                    print(
+                        "   --------------------------------------------------------------"
+                    )
                     traceback.print_exception(*sys.exc_info())
 
             ## Clear long-term storage of last traceback to prevent memory-hogging.
@@ -136,20 +148,23 @@ class ExceptionHandler(object):
                 sys.last_traceback = None
 
             return ret
-        
+
         finally:
-            sys.setrecursionlimit(recursionLimit)            
+            sys.setrecursionlimit(recursionLimit)
 
     def implements(self, interface=None):
         ## this just makes it easy for us to detect whether an ExceptionHook is already installed.
         if interface is None:
-            return ['ExceptionHandler']
+            return ["ExceptionHandler"]
         else:
-            return interface == 'ExceptionHandler'
+            return interface == "ExceptionHandler"
 
 
 ## replace built-in excepthook only if this has not already been done
-if not (hasattr(sys.excepthook, 'implements') and sys.excepthook.implements('ExceptionHandler')):
+if not (
+    hasattr(sys.excepthook, "implements")
+    and sys.excepthook.implements("ExceptionHandler")
+):
     handler = ExceptionHandler()
     original_excepthook = handler.orig_sys_excepthook
     original_threading_excepthook = handler.orig_threading_excepthook

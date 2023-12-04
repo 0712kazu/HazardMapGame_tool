@@ -12,11 +12,11 @@ import pyqtgraph as pg
 from pyqtgraph.Qt import QtGui
 
 # Interpret image data as row-major instead of col-major
-pg.setConfigOptions(imageAxisOrder='row-major')
+pg.setConfigOptions(imageAxisOrder="row-major")
 
 pg.mkQApp()
 win = pg.GraphicsLayoutWidget()
-win.setWindowTitle('pyqtgraph example: Image Analysis')
+win.setWindowTitle("pyqtgraph example: Image Analysis")
 
 # A plot area (ViewBox + axes) for displaying the image
 p1 = win.addPlot(title="")
@@ -33,7 +33,7 @@ p1.addItem(roi)
 roi.setZValue(10)  # make sure ROI is drawn above image
 
 # Isocurve drawing
-iso = pg.IsocurveItem(level=0.8, pen='g')
+iso = pg.IsocurveItem(level=0.8, pen="g")
 iso.setParentItem(img)
 iso.setZValue(5)
 
@@ -43,11 +43,11 @@ hist.setImageItem(img)
 win.addItem(hist)
 
 # Draggable line for setting isocurve level
-isoLine = pg.InfiniteLine(angle=0, movable=True, pen='g')
+isoLine = pg.InfiniteLine(angle=0, movable=True, pen="g")
 hist.vb.addItem(isoLine)
-hist.vb.setMouseEnabled(y=False) # makes user interaction a little easier
+hist.vb.setMouseEnabled(y=False)  # makes user interaction a little easier
 isoLine.setValue(0.8)
-isoLine.setZValue(1000) # bring iso line above contrast controls
+isoLine.setZValue(1000)  # bring iso line above contrast controls
 
 # Another plot area for displaying ROI data
 win.nextRow()
@@ -59,7 +59,7 @@ win.show()
 
 # Generate image data
 data = np.random.normal(size=(200, 100))
-data[20:80, 20:80] += 2.
+data[20:80, 20:80] += 2.0
 data = pg.gaussianFilter(data, (3, 3))
 data += np.random.normal(size=(200, 100)) * 0.1
 img.setImage(data)
@@ -73,7 +73,7 @@ tr = QtGui.QTransform()
 img.setTransform(tr.scale(0.2, 0.2).translate(-50, 0))
 
 # zoom to fit imageo
-p1.autoRange()  
+p1.autoRange()
 
 
 # Callbacks for handling user interaction
@@ -82,18 +82,21 @@ def updatePlot():
     selected = roi.getArrayRegion(data, img)
     p2.plot(selected.mean(axis=0), clear=True)
 
+
 roi.sigRegionChanged.connect(updatePlot)
 updatePlot()
+
 
 def updateIsocurve():
     global isoLine, iso
     iso.setLevel(isoLine.value())
 
+
 isoLine.sigDragged.connect(updateIsocurve)
 
+
 def imageHoverEvent(event):
-    """Show the position, pixel, and value under the mouse cursor.
-    """
+    """Show the position, pixel, and value under the mouse cursor."""
     if event.isExit():
         p1.setTitle("")
         return
@@ -106,10 +109,11 @@ def imageHoverEvent(event):
     x, y = ppos.x(), ppos.y()
     p1.setTitle("pos: (%0.1f, %0.1f)  pixel: (%d, %d)  value: %.3g" % (x, y, i, j, val))
 
-# Monkey-patch the image to use our custom hover function. 
+
+# Monkey-patch the image to use our custom hover function.
 # This is generally discouraged (you should subclass ImageItem instead),
-# but it works for a very simple use like this. 
+# but it works for a very simple use like this.
 img.hoverEvent = imageHoverEvent
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()

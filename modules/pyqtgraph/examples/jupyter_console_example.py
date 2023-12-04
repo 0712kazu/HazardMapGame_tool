@@ -70,9 +70,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # set dark mode
         if dark_mode:
             # Set Dark bg color via this relatively roundabout method
-            self.jupyter_console_widget.set_default_style(
-                "linux"
-            )
+            self.jupyter_console_widget.set_default_style("linux")
+
 
 if __name__ == "__main__":
     pg.mkQApp()

@@ -22,7 +22,9 @@ class ReplWidget(QtWidgets.QWidget):
         self._setupUi()
 
         # define text styles
-        isDark = self.output.palette().color(QtGui.QPalette.ColorRole.Base).value() < 128
+        isDark = (
+            self.output.palette().color(QtGui.QPalette.ColorRole.Base).value() < 128
+        )
         outputBlockFormat = QtGui.QTextBlockFormat()
         outputFirstLineBlockFormat = QtGui.QTextBlockFormat(outputBlockFormat)
         outputFirstLineBlockFormat.setTopMargin(5)
@@ -33,9 +35,9 @@ class ReplWidget(QtWidgets.QWidget):
         cmdCharFormat = QtGui.QTextCharFormat()
         cmdCharFormat.setFontWeight(QtGui.QFont.Weight.Bold)
         self.textStyles = {
-            'command': (cmdCharFormat, cmdBlockFormat),
-            'output': (outputCharFormat, outputBlockFormat),
-            'output_first_line': (outputCharFormat, outputFirstLineBlockFormat),
+            "command": (cmdCharFormat, cmdBlockFormat),
+            "output": (outputCharFormat, outputBlockFormat),
+            "output_first_line": (outputCharFormat, outputFirstLineBlockFormat),
         }
 
         self.input.ps1 = self.ps1
@@ -54,7 +56,7 @@ class ReplWidget(QtWidgets.QWidget):
         self.output.setFont(font)
         self.output.setReadOnly(True)
         self.layout.addWidget(self.output)
-        
+
         # put input box in a horizontal layout so we can easily place buttons at the end
         self.inputWidget = QtWidgets.QWidget(self)
         self.layout.addWidget(self.inputWidget)
@@ -68,20 +70,20 @@ class ReplWidget(QtWidgets.QWidget):
         self.input.sigExecuteCmd.connect(self.runCmd)
 
     def runCmd(self, cmd):
-        if '\n' in cmd:
-            for line in cmd.split('\n'):
+        if "\n" in cmd:
+            for line in cmd.split("\n"):
                 self.runCmd(line)
             return
 
         if len(self._commandBuffer) == 0:
-            self.write(f"{self.ps1}{cmd}\n", style='command')
+            self.write(f"{self.ps1}{cmd}\n", style="command")
         else:
-            self.write(f"{self.ps2}{cmd}\n", style='command')
-        
+            self.write(f"{self.ps2}{cmd}\n", style="command")
+
         self.sigCommandEntered.emit(self, cmd)
         self._commandBuffer.append(cmd)
 
-        fullcmd = '\n'.join(self._commandBuffer)
+        fullcmd = "\n".join(self._commandBuffer)
         try:
             cmdCode = code.compile_command(fullcmd)
             self.input.setMultiline(False)
@@ -109,15 +111,18 @@ class ReplWidget(QtWidgets.QWidget):
             # Add a newline if the output did not
             cursor = self.output.textCursor()
             if cursor.columnNumber() > 0:
-                self.write('\n')
+                self.write("\n")
 
-    def write(self, strn, style='output', scrollToBottom='auto'):
+    def write(self, strn, style="output", scrollToBottom="auto"):
         """Write a string into the console.
 
         If scrollToBottom is 'auto', then the console is automatically scrolled
         to fit the new text only if it was already at the bottom.
         """
-        isGuiThread = QtCore.QThread.currentThread() == QtCore.QCoreApplication.instance().thread()
+        isGuiThread = (
+            QtCore.QThread.currentThread()
+            == QtCore.QCoreApplication.instance().thread()
+        )
         if not isGuiThread:
             sys.__stdout__.write(strn)
             return
@@ -128,26 +133,26 @@ class ReplWidget(QtWidgets.QWidget):
 
         sb = self.output.verticalScrollBar()
         scroll = sb.value()
-        if scrollToBottom == 'auto':
+        if scrollToBottom == "auto":
             atBottom = scroll == sb.maximum()
             scrollToBottom = atBottom
 
         row = cursor.blockNumber()
-        if style == 'command':
+        if style == "command":
             self._lastCommandRow = row
 
-        if style == 'output' and row == self._lastCommandRow + 1:
+        if style == "output" and row == self._lastCommandRow + 1:
             # adjust style for first line of output
-            firstLine, endl, strn = strn.partition('\n')
-            self._setTextStyle('output_first_line')
+            firstLine, endl, strn = strn.partition("\n")
+            self._setTextStyle("output_first_line")
             self.output.insertPlainText(firstLine + endl)
 
         if len(strn) > 0:
             self._setTextStyle(style)
             self.output.insertPlainText(strn)
             # return to output style immediately to avoid seeing an extra line of command style
-            if style != 'output':
-                self._setTextStyle('output')
+            if style != "output":
+                self._setTextStyle("output")
 
         if scrollToBottom:
             sb.setValue(sb.maximum())
@@ -161,11 +166,11 @@ class ReplWidget(QtWidgets.QWidget):
         tb = traceback.format_exc()
         lines = []
         indent = 4
-        prefix = '' 
-        for l in tb.split('\n'):
-            lines.append(" "*indent + prefix + l)
-        self.write('\n'.join(lines))
-        
+        prefix = ""
+        for l in tb.split("\n"):
+            lines.append(" " * indent + prefix + l)
+        self.write("\n".join(lines))
+
     def _setTextStyle(self, style):
         charFormat, blockFormat = self.textStyles[style]
         cursor = self.output.textCursor()
@@ -174,25 +179,20 @@ class ReplWidget(QtWidgets.QWidget):
 
 
 class StdoutInterceptor:
-    """Used to temporarily redirect writes meant for sys.stdout and sys.stderr to a new location
-    """
+    """Used to temporarily redirect writes meant for sys.stdout and sys.stderr to a new location"""
+
     def __init__(self, writeFn):
         self._orig_stdout = None
         self._orig_stderr = None
         self.writeFn = writeFn
 
     def realOutputFiles(self):
-        """Return the real sys.stdout and stderr (which are sometimes masked while running commands)
-        """
-        return (
-            self._orig_stdout or sys.stdout,
-            self._orig_stderr or sys.stderr
-        )
+        """Return the real sys.stdout and stderr (which are sometimes masked while running commands)"""
+        return (self._orig_stdout or sys.stdout, self._orig_stderr or sys.stderr)
 
     def print(self, *args):
-        """Print to real stdout (for debugging)
-        """
-        self.realOutputFiles()[0].write(' '.join(map(str, args)) + "\n")
+        """Print to real stdout (for debugging)"""
+        self.realOutputFiles()[0].write(" ".join(map(str, args)) + "\n")
 
     def flush(self):
         # Need to implement this since we temporarily occlude sys.stdout
@@ -216,4 +216,3 @@ class StdoutInterceptor:
         sys.stderr = self._orig_stderr
         self._orig_stdout = None
         self._orig_stderr = None
-

@@ -7,12 +7,13 @@ from . import QT_LIB, QtCore, QtGui, compat
 
 __all__ = ["get_qpainterpath_element_array"]
 
-if QT_LIB.startswith('PyQt'):
+if QT_LIB.startswith("PyQt"):
     from . import sip
-elif QT_LIB == 'PySide2':
+elif QT_LIB == "PySide2":
     from PySide2 import __version_info__ as pyside_version_info
-elif QT_LIB == 'PySide6':
+elif QT_LIB == "PySide6":
     from PySide6 import __version_info__ as pyside_version_info
+
 
 class QArrayDataQt5(ctypes.Structure):
     _fields_ = [
@@ -22,11 +23,13 @@ class QArrayDataQt5(ctypes.Structure):
         ("offset", ctypes.c_ssize_t),
     ]
 
+
 class QPainterPathPrivateQt5(ctypes.Structure):
     _fields_ = [
         ("ref", ctypes.c_int),
         ("adata", ctypes.POINTER(QArrayDataQt5)),
     ]
+
 
 class QArrayDataQt6(ctypes.Structure):
     _fields_ = [
@@ -34,6 +37,7 @@ class QArrayDataQt6(ctypes.Structure):
         ("flags", ctypes.c_uint),
         ("alloc", ctypes.c_ssize_t),
     ]
+
 
 class QPainterPathPrivateQt6(ctypes.Structure):
     _fields_ = [
@@ -43,13 +47,14 @@ class QPainterPathPrivateQt6(ctypes.Structure):
         ("size", ctypes.c_ssize_t),
     ]
 
+
 def get_qpainterpath_element_array(qpath, nelems=None):
     writable = nelems is not None
     if writable:
         qpath.reserve(nelems)
 
     itemsize = 24
-    dtype = dict(names=['x','y','c'], formats=['f8', 'f8', 'i4'], itemsize=itemsize)
+    dtype = dict(names=["x", "y", "c"], formats=["f8", "f8", "i4"], itemsize=itemsize)
 
     ptr0 = compat.unwrapinstance(qpath)
     pte_cp = ctypes.c_void_p.from_address(ptr0)
@@ -58,12 +63,12 @@ def get_qpainterpath_element_array(qpath, nelems=None):
 
     # _cp : ctypes pointer
     # _ci : ctypes instance
-    if QT_LIB in ['PyQt5', 'PySide2']:
+    if QT_LIB in ["PyQt5", "PySide2"]:
         PTR = ctypes.POINTER(QPainterPathPrivateQt5)
         pte_ci = ctypes.cast(pte_cp, PTR).contents
         size_ci = pte_ci.adata[0]
         eptr = ctypes.addressof(size_ci) + size_ci.offset
-    elif QT_LIB in ['PyQt6', 'PySide6']:
+    elif QT_LIB in ["PyQt6", "PySide6"]:
         PTR = ctypes.POINTER(QPainterPathPrivateQt6)
         pte_ci = ctypes.cast(pte_cp, PTR).contents
         size_ci = pte_ci
@@ -76,8 +81,9 @@ def get_qpainterpath_element_array(qpath, nelems=None):
     else:
         nelems = size_ci.size
 
-    vp = compat.voidptr(eptr, itemsize*nelems, writable)
+    vp = compat.voidptr(eptr, itemsize * nelems, writable)
     return np.frombuffer(vp, dtype=dtype)
+
 
 class PrimitiveArray:
     # Note: This class is an internal implementation detail and is not part
@@ -111,18 +117,15 @@ class PrimitiveArray:
         self.use_sip_array = False
         self.use_ptr_to_array = False
 
-        if QT_LIB.startswith('PyQt'):
+        if QT_LIB.startswith("PyQt"):
             if use_array is None:
-                use_array = (
-                    hasattr(sip, 'array') and
-                    (
-                        (0x60301 <= QtCore.PYQT_VERSION) or
-                        (0x50f07 <= QtCore.PYQT_VERSION < 0x60000)
-                    )
+                use_array = hasattr(sip, "array") and (
+                    (0x60301 <= QtCore.PYQT_VERSION)
+                    or (0x50F07 <= QtCore.PYQT_VERSION < 0x60000)
                 )
             self.use_sip_array = use_array
 
-        if QT_LIB.startswith('PySide'):
+        if QT_LIB.startswith("PySide"):
             if use_array is None:
                 use_array = (
                     Klass is QtGui.QPainter.PixmapFragment
@@ -165,9 +168,13 @@ class PrimitiveArray:
         self._size = size
 
     def _wrap_instances(self, array):
-        return list(map(compat.wrapinstance,
-            itertools.count(array.ctypes.data, array.strides[0]),
-            itertools.repeat(self._Klass, array.shape[0])))
+        return list(
+            map(
+                compat.wrapinstance,
+                itertools.count(array.ctypes.data, array.strides[0]),
+                itertools.repeat(self._Klass, array.shape[0]),
+            )
+        )
 
     def __len__(self):
         return self._size
@@ -176,8 +183,8 @@ class PrimitiveArray:
         # ndarray views are cheap to recreate each time
         if self.use_sip_array:
             if (
-                sip.SIP_VERSION >= 0x60708 and 
-                np.__version__ != "1.22.4"  # TODO: remove me after numpy 1.23+
+                sip.SIP_VERSION >= 0x60708
+                and np.__version__ != "1.22.4"  # TODO: remove me after numpy 1.23+
             ):  # workaround for numpy/sip compatability issue
                 # see https://github.com/numpy/numpy/issues/21612
                 mv = self._siparray
@@ -185,12 +192,12 @@ class PrimitiveArray:
                 # sip.array prior to SIP_VERSION 6.7.8 had a buggy buffer protocol
                 # that set the wrong size.
                 # workaround it by going through a sip.voidptr
-                mv = sip.voidptr(self._siparray, self._capa*self._nfields*8)
+                mv = sip.voidptr(self._siparray, self._capa * self._nfields * 8)
             # note that we perform the slicing by using only _size rows
-            nd = np.frombuffer(mv, dtype=np.float64, count=self._size*self._nfields)
+            nd = np.frombuffer(mv, dtype=np.float64, count=self._size * self._nfields)
             return nd.reshape((-1, self._nfields))
         else:
-            return self._ndarray[:self._size]
+            return self._ndarray[: self._size]
 
     def instances(self):
         # this returns an iterable container of Klass instances.
@@ -200,11 +207,11 @@ class PrimitiveArray:
             if self._size == self._capa:
                 # avoiding slicing when it's not necessary
                 # handles the case where sip.array had a buggy
-                # slicing implementation 
+                # slicing implementation
                 return self._siparray
             else:
                 # this is a view
-                return self._siparray[:self._size]
+                return self._siparray[: self._size]
 
         if self._objs is None:
             self._objs = self._wrap_instances(self._ndarray)
@@ -213,7 +220,7 @@ class PrimitiveArray:
             return self._objs
         else:
             # this is a shallow copy
-            return self._objs[:self._size]
+            return self._objs[: self._size]
 
     def drawargs(self):
         # returns arguments to apply to the respective drawPrimitives() functions
@@ -228,4 +235,4 @@ class PrimitiveArray:
             return ptr, self._size
 
         else:
-            return self.instances(),
+            return (self.instances(),)

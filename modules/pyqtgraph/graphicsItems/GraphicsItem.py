@@ -1,4 +1,4 @@
-__all__ = ['GraphicsItem']
+__all__ = ["GraphicsItem"]
 
 import operator
 import weakref
@@ -17,7 +17,7 @@ from ..Qt import QtCore, QtWidgets, isQObjectAlive
 # Recipe from https://docs.python.org/3.8/library/collections.html#collections.OrderedDict
 # slightly adapted for Python 3.7 compatibility
 class LRU(OrderedDict):
-    'Limit size, evicting the least recently looked-up key when full'
+    "Limit size, evicting the least recently looked-up key when full"
 
     def __init__(self, maxsize=128, *args, **kwds):
         self.maxsize = maxsize
@@ -48,29 +48,31 @@ class GraphicsItem(object):
 
     The GraphicsView system places a lot of emphasis on the notion that the graphics within the scene should be device independent--you should be able to take the same graphics and display them on screens of different resolutions, printers, export to SVG, etc. This is nice in principle, but causes me a lot of headache in practice. It means that I have to circumvent all the device-independent expectations any time I want to operate in pixel coordinates rather than arbitrary scene coordinates. A lot of the code in GraphicsItem is devoted to this task--keeping track of view widgets and device transforms, computing the size and shape of a pixel in local item coordinates, etc. Note that in item coordinates, a pixel does not have to be square or even rectangular, so just asking how to increase a bounding rect by 2px can be a rather complex task.
     """
+
     _pixelVectorGlobalCache = LRU(100)
 
     def __init__(self):
-        if not hasattr(self, '_qtBaseClass'):
+        if not hasattr(self, "_qtBaseClass"):
             for b in self.__class__.__bases__:
                 if issubclass(b, QtWidgets.QGraphicsItem):
                     self.__class__._qtBaseClass = b
                     break
-        if not hasattr(self, '_qtBaseClass'):
-            raise Exception('Could not determine Qt base class for GraphicsItem: %s' % str(self))
+        if not hasattr(self, "_qtBaseClass"):
+            raise Exception(
+                "Could not determine Qt base class for GraphicsItem: %s" % str(self)
+            )
 
         self._pixelVectorCache = [None, None]
         self._viewWidget = None
         self._viewBox = None
         self._connectedView = None
-        self._exportOpts = False   ## If False, not currently exporting. Otherwise, contains dict of export options.
+        self._exportOpts = False  ## If False, not currently exporting. Otherwise, contains dict of export options.
         self._cachedView = None
-
 
     def getViewWidget(self):
         """
-        Return the view widget for this item. 
-        
+        Return the view widget for this item.
+
         If the scene has multiple views, only the first view is returned.
         The return value is cached; clear the cached value with forgetViewWidget().
         If the view has been deleted by Qt, return None.
@@ -83,16 +85,16 @@ class GraphicsItem(object):
             if len(views) < 1:
                 return None
             self._viewWidget = weakref.ref(self.scene().views()[0])
-            
+
         v = self._viewWidget()
         if v is not None and not isQObjectAlive(v):
             return None
-            
+
         return v
-    
+
     def forgetViewWidget(self):
         self._viewWidget = None
-    
+
     def getViewBox(self):
         """
         Return the first ViewBox or GraphicsView which bounds this item's visible space.
@@ -114,14 +116,16 @@ class GraphicsItem(object):
                     else:
                         self._viewBox = weakref.ref(vb)
                         break
-                if hasattr(p, 'implements') and p.implements('ViewBox'):
+                if hasattr(p, "implements") and p.implements("ViewBox"):
                     self._viewBox = weakref.ref(p)
                     break
-        return self._viewBox()  ## If we made it this far, _viewBox is definitely not None
+        return (
+            self._viewBox()
+        )  ## If we made it this far, _viewBox is definitely not None
 
     def forgetViewBox(self):
         self._viewBox = None
-        
+
     def deviceTransform(self, viewportTransform=None):
         """
         Return the transform that converts local item coordinates to device coordinates (usually pixels).
@@ -133,15 +137,17 @@ class GraphicsItem(object):
                 return None
             viewportTransform = view.viewportTransform()
         dt = self._qtBaseClass.deviceTransform(self, viewportTransform)
-        
-        #xmag = abs(dt.m11())+abs(dt.m12())
-        #ymag = abs(dt.m21())+abs(dt.m22())
-        #if xmag * ymag == 0: 
-        if dt.determinant() == 0:  ## occurs when deviceTransform is invalid because widget has not been displayed
+
+        # xmag = abs(dt.m11())+abs(dt.m12())
+        # ymag = abs(dt.m21())+abs(dt.m22())
+        # if xmag * ymag == 0:
+        if (
+            dt.determinant() == 0
+        ):  ## occurs when deviceTransform is invalid because widget has not been displayed
             return None
         else:
             return dt
-        
+
     def viewTransform(self):
         """Return the transform that maps from local coordinates to the item's ViewBox coordinates
         If there is no ViewBox, return the scene transform.
@@ -149,11 +155,11 @@ class GraphicsItem(object):
         view = self.getViewBox()
         if view is None:
             return None
-        if hasattr(view, 'implements') and view.implements('ViewBox'):
+        if hasattr(view, "implements") and view.implements("ViewBox"):
             return self.itemTransform(view.innerSceneItem())[0]
         else:
             return self.sceneTransform()
-            #return self.deviceTransform(view.viewportTransform())
+            # return self.deviceTransform(view.viewportTransform())
 
     def getBoundingParents(self):
         """Return a list of parents to this item that have child clipping enabled."""
@@ -166,7 +172,7 @@ class GraphicsItem(object):
             if p.flags() & self.GraphicsItemFlag.ItemClipsChildrenToShape:
                 parents.append(p)
         return parents
-    
+
     def viewRect(self):
         """Return the visible bounds of this item's ViewBox or GraphicsWidget,
         in the local coordinate system of the item."""
@@ -182,36 +188,34 @@ class GraphicsItem(object):
             return None
 
         bounds = bounds.normalized()
-        
+
         self._cachedView = bounds
-            
+
         ## nah.
-        #for p in self.getBoundingParents():
-            #bounds &= self.mapRectFromScene(p.sceneBoundingRect())
+        # for p in self.getBoundingParents():
+        # bounds &= self.mapRectFromScene(p.sceneBoundingRect())
 
         return bounds
-        
-        
-        
+
     def pixelVectors(self, direction=None):
         """Return vectors in local coordinates representing the width and height of a view pixel.
         If direction is specified, then return vectors parallel and orthogonal to it.
-        
+
         Return (None, None) if pixel size is not yet defined (usually because the item has not yet been displayed)
         or if pixel size is below floating-point precision limit.
         """
-        
+
         ## This is an expensive function that gets called very frequently.
         ## We have two levels of cache to try speeding things up.
-        
+
         dt = self.deviceTransform()
         if dt is None:
             return None, None
-            
+
         ## Ignore translation. If the translation is much larger than the scale
         ## (such as when looking at unix timestamps), we can get floating-point errors.
         dt.setMatrix(dt.m11(), dt.m12(), 0, dt.m21(), dt.m22(), 0, 0, 0, 1)
-        
+
         if direction is None:
             direction = QtCore.QPointF(1, 0)
         elif direction.manhattanLength() == 0:
@@ -227,68 +231,67 @@ class GraphicsItem(object):
         pv = self._pixelVectorGlobalCache.get(key, None)
         if pv is not None:
             self._pixelVectorCache = [key, pv]
-            return tuple(map(Point,pv))  ## return a *copy*
-        
+            return tuple(map(Point, pv))  ## return a *copy*
+
         ## attempt to re-scale direction vector to fit within the precision of the coordinate system
         ## Here's the problem: we need to map the vector 'direction' from the item to the device, via transform 'dt'.
         ## In some extreme cases, this mapping can fail unless the length of 'direction' is cleverly chosen.
         ## Example:
-        ##   dt = [ 1, 0,    2 
+        ##   dt = [ 1, 0,    2
         ##          0, 2, 1e20
         ##          0, 0,    1 ]
         ## Then we map the origin (0,0) and direction (0,1) and get:
         ##    o' = 2,1e20
         ##    d' = 2,1e20  <-- should be 1e20+2, but this can't be represented with a 32-bit float
-        ##    
+        ##
         ##    |o' - d'|  == 0    <-- this is the problem.
-        
+
         ## Perhaps the easiest solution is to exclude the transformation column from dt. Does this cause any other problems?
-        
-        #if direction.x() == 0:
-            #r = abs(dt.m32())/(abs(dt.m12()) + abs(dt.m22()))
-            ##r = 1.0/(abs(dt.m12()) + abs(dt.m22()))
-        #elif direction.y() == 0:
-            #r = abs(dt.m31())/(abs(dt.m11()) + abs(dt.m21()))
-            ##r = 1.0/(abs(dt.m11()) + abs(dt.m21()))
-        #else:
-            #r = ((abs(dt.m32())/(abs(dt.m12()) + abs(dt.m22()))) * (abs(dt.m31())/(abs(dt.m11()) + abs(dt.m21()))))**0.5
-        #if r == 0:
-            #r = 1.  ## shouldn't need to do this; probably means the math above is wrong?
-        #directionr = direction * r
+
+        # if direction.x() == 0:
+        # r = abs(dt.m32())/(abs(dt.m12()) + abs(dt.m22()))
+        ##r = 1.0/(abs(dt.m12()) + abs(dt.m22()))
+        # elif direction.y() == 0:
+        # r = abs(dt.m31())/(abs(dt.m11()) + abs(dt.m21()))
+        ##r = 1.0/(abs(dt.m11()) + abs(dt.m21()))
+        # else:
+        # r = ((abs(dt.m32())/(abs(dt.m12()) + abs(dt.m22()))) * (abs(dt.m31())/(abs(dt.m11()) + abs(dt.m21()))))**0.5
+        # if r == 0:
+        # r = 1.  ## shouldn't need to do this; probably means the math above is wrong?
+        # directionr = direction * r
         directionr = direction
-        
+
         ## map direction vector onto device
-        #viewDir = Point(dt.map(directionr) - dt.map(Point(0,0)))
-        #mdirection = dt.map(directionr)
-        dirLine = QtCore.QLineF(QtCore.QPointF(0,0), directionr)
+        # viewDir = Point(dt.map(directionr) - dt.map(Point(0,0)))
+        # mdirection = dt.map(directionr)
+        dirLine = QtCore.QLineF(QtCore.QPointF(0, 0), directionr)
         viewDir = dt.map(dirLine)
         if viewDir.length() == 0:
-            return None, None   ##  pixel size cannot be represented on this scale
-           
+            return None, None  ##  pixel size cannot be represented on this scale
+
         ## get unit vector and orthogonal vector (length of pixel)
-        #orthoDir = Point(viewDir[1], -viewDir[0])  ## orthogonal to line in pixel-space
-        try:  
+        # orthoDir = Point(viewDir[1], -viewDir[0])  ## orthogonal to line in pixel-space
+        try:
             normView = viewDir.unitVector()
-            #normView = viewDir.norm()  ## direction of one pixel orthogonal to line
+            # normView = viewDir.norm()  ## direction of one pixel orthogonal to line
             normOrtho = normView.normalVector()
-            #normOrtho = orthoDir.norm()
+            # normOrtho = orthoDir.norm()
         except:
-            raise Exception("Invalid direction %s" %directionr)
-            
-        ## map back to item 
+            raise Exception("Invalid direction %s" % directionr)
+
+        ## map back to item
         dti = fn.invertQTransform(dt)
-        #pv = Point(dti.map(normView)-dti.map(Point(0,0))), Point(dti.map(normOrtho)-dti.map(Point(0,0)))
+        # pv = Point(dti.map(normView)-dti.map(Point(0,0))), Point(dti.map(normOrtho)-dti.map(Point(0,0)))
         pv = Point(dti.map(normView).p2()), Point(dti.map(normOrtho).p2())
         self._pixelVectorCache[1] = pv
         self._pixelVectorCache[0] = key
         self._pixelVectorGlobalCache[key] = pv
         return self._pixelVectorCache[1]
-    
-        
+
     def pixelLength(self, direction, ortho=False):
         """Return the length of one pixel in the direction indicated (in local coordinates)
         If ortho=True, then return the length of one pixel orthogonal to the direction indicated.
-        
+
         Return None if pixel size is not yet defined (usually because the item has not yet been displayed).
         """
         normV, orthoV = self.pixelVectors(direction)
@@ -297,7 +300,6 @@ class GraphicsItem(object):
         if ortho:
             return orthoV.length()
         return normV.length()
-        
 
     def pixelSize(self):
         ## deprecated
@@ -313,7 +315,7 @@ class GraphicsItem(object):
             return 0
         vt = fn.invertQTransform(vt)
         return vt.map(QtCore.QLineF(0, 0, 1, 0)).length()
-        
+
     def pixelHeight(self):
         ## deprecated
         vt = self.deviceTransform()
@@ -321,9 +323,8 @@ class GraphicsItem(object):
             return 0
         vt = fn.invertQTransform(vt)
         return vt.map(QtCore.QLineF(0, 0, 0, 1)).length()
-        #return Point(vt.map(QtCore.QPointF(0, 1))-vt.map(QtCore.QPointF(0, 0))).length()
-        
-        
+        # return Point(vt.map(QtCore.QPointF(0, 1))-vt.map(QtCore.QPointF(0, 0))).length()
+
     def mapToDevice(self, obj):
         """
         Return *obj* mapped from local coordinates to device coordinates (pixels).
@@ -333,7 +334,7 @@ class GraphicsItem(object):
         if vt is None:
             return None
         return vt.map(obj)
-        
+
     def mapFromDevice(self, obj):
         """
         Return *obj* mapped from device coordinates (pixels) to local coordinates.
@@ -367,19 +368,19 @@ class GraphicsItem(object):
             return None
         vt = fn.invertQTransform(vt)
         return vt.mapRect(rect)
-    
+
     def mapToView(self, obj):
         vt = self.viewTransform()
         if vt is None:
             return None
         return vt.map(obj)
-        
+
     def mapRectToView(self, obj):
         vt = self.viewTransform()
         if vt is None:
             return None
         return vt.mapRect(obj)
-        
+
     def mapFromView(self, obj):
         vt = self.viewTransform()
         if vt is None:
@@ -396,13 +397,13 @@ class GraphicsItem(object):
 
     def pos(self):
         return Point(self._qtBaseClass.pos(self))
-    
+
     def viewPos(self):
         return self.mapToView(self.mapFromParent(self.pos()))
-    
+
     def parentItem(self):
         return self._qtBaseClass.parentItem(self)
-        
+
     def setParentItem(self, parent):
         ## Workaround for Qt bug: https://bugreports.qt-project.org/browse/QTBUG-18616
         if parent is not None:
@@ -410,20 +411,18 @@ class GraphicsItem(object):
             if pscene is not None and self.scene() is not pscene:
                 pscene.addItem(self)
         return self._qtBaseClass.setParentItem(self, parent)
-    
+
     def childItems(self):
         return self._qtBaseClass.childItems(self)
 
-
     def sceneTransform(self):
-        ## Qt bug: do no allow access to sceneTransform() until 
+        ## Qt bug: do no allow access to sceneTransform() until
         ## the item has a scene.
-        
+
         if self.scene() is None:
             return self.transform()
         else:
             return self._qtBaseClass.sceneTransform(self)
-
 
     def transformAngle(self, relativeItem=None):
         """Return the rotation produced by this item's transform (this assumes there is no shear in the transform)
@@ -433,30 +432,30 @@ class GraphicsItem(object):
             relativeItem = self.parentItem()
 
         tr = self.itemTransform(relativeItem)[0]
-        vec = tr.map(QtCore.QLineF(0,0,1,0))
-        return vec.angleTo(QtCore.QLineF(vec.p1(), vec.p1()+QtCore.QPointF(1,0)))
-        
-    #def itemChange(self, change, value):
-        #ret = self._qtBaseClass.itemChange(self, change, value)
-        #if change == self.GraphicsItemChange.ItemParentHasChanged or change == self.ItemSceneHasChanged:
-            #print "Item scene changed:", self
-            #self.setChildScene(self)  ## This is bizarre.
-        #return ret
+        vec = tr.map(QtCore.QLineF(0, 0, 1, 0))
+        return vec.angleTo(QtCore.QLineF(vec.p1(), vec.p1() + QtCore.QPointF(1, 0)))
 
-    #def setChildScene(self, ch):
-        #scene = self.scene()
-        #for ch2 in ch.childItems():
-            #if ch2.scene() is not scene:
-                #print "item", ch2, "has different scene:", ch2.scene(), scene
-                #scene.addItem(ch2)
-                #QtWidgets.QApplication.processEvents()
-                #print "   --> ", ch2.scene()
-            #self.setChildScene(ch2)
+    # def itemChange(self, change, value):
+    # ret = self._qtBaseClass.itemChange(self, change, value)
+    # if change == self.GraphicsItemChange.ItemParentHasChanged or change == self.ItemSceneHasChanged:
+    # print "Item scene changed:", self
+    # self.setChildScene(self)  ## This is bizarre.
+    # return ret
+
+    # def setChildScene(self, ch):
+    # scene = self.scene()
+    # for ch2 in ch.childItems():
+    # if ch2.scene() is not scene:
+    # print "item", ch2, "has different scene:", ch2.scene(), scene
+    # scene.addItem(ch2)
+    # QtWidgets.QApplication.processEvents()
+    # print "   --> ", ch2.scene()
+    # self.setChildScene(ch2)
 
     def changeParent(self):
-        """Called when the item's parent has changed. 
+        """Called when the item's parent has changed.
         This method handles connecting / disconnecting from ViewBox signals
-        to make sure viewRangeChanged works properly. It should generally be 
+        to make sure viewRangeChanged works properly. It should generally be
         extended, not overridden."""
         self._updateView()
 
@@ -468,7 +467,7 @@ class GraphicsItem(object):
         ## called to see whether this item has a new view to connect to
         ## NOTE: This is called from GraphicsObject.itemChange or GraphicsWidget.itemChange.
 
-        if not hasattr(self, '_connectedView'):
+        if not hasattr(self, "_connectedView"):
             # Happens when Python is shutting down.
             return
 
@@ -476,39 +475,41 @@ class GraphicsItem(object):
         ## clear out previously determined references to these.
         self.forgetViewBox()
         self.forgetViewWidget()
-        
+
         ## check for this item's current viewbox or view widget
         view = self.getViewBox()
-        #if view is None:
-            ##print "  no view"
-            #return
+        # if view is None:
+        ##print "  no view"
+        # return
 
         oldView = None
         if self._connectedView is not None:
             oldView = self._connectedView()
-            
+
         if view is oldView:
-            #print "  already have view", view
+            # print "  already have view", view
             return
 
         ## disconnect from previous view
         if oldView is not None:
-            for signal, slot in [('sigRangeChanged', self.viewRangeChanged),
-                                 ('sigDeviceRangeChanged', self.viewRangeChanged), 
-                                 ('sigTransformChanged', self.viewTransformChanged), 
-                                 ('sigDeviceTransformChanged', self.viewTransformChanged)]:
+            for signal, slot in [
+                ("sigRangeChanged", self.viewRangeChanged),
+                ("sigDeviceRangeChanged", self.viewRangeChanged),
+                ("sigTransformChanged", self.viewTransformChanged),
+                ("sigDeviceTransformChanged", self.viewTransformChanged),
+            ]:
                 try:
                     getattr(oldView, signal).disconnect(slot)
                 except (TypeError, AttributeError, RuntimeError):
                     # TypeError and RuntimeError are from pyqt and pyside, respectively
                     pass
-            
+
             self._connectedView = None
 
         ## connect to new view
         if view is not None:
-            #print "connect:", self, view
-            if hasattr(view, 'sigDeviceRangeChanged'):
+            # print "connect:", self, view
+            if hasattr(view, "sigDeviceRangeChanged"):
                 # connect signals from GraphicsView
                 view.sigDeviceRangeChanged.connect(self.viewRangeChanged)
                 view.sigDeviceTransformChanged.connect(self.viewTransformChanged)
@@ -519,16 +520,16 @@ class GraphicsItem(object):
             self._connectedView = weakref.ref(view)
             self.viewRangeChanged()
             self.viewTransformChanged()
-        
+
         ## inform children that their view might have changed
         self._replaceView(oldView)
-        
+
         self.viewChanged(view, oldView)
-        
+
     def viewChanged(self, view, oldView):
         """Called when this item's view has changed
         (ie, the item has been added to or removed from a ViewBox)"""
-        
+
     def _replaceView(self, oldView, item=None):
         if item is None:
             item = self
@@ -536,11 +537,9 @@ class GraphicsItem(object):
             if isinstance(child, GraphicsItem):
                 if child.getViewBox() is oldView:
                     child._updateView()
-                        #self._replaceView(oldView, child)
+                    # self._replaceView(oldView, child)
             else:
                 self._replaceView(oldView, child)
-        
-        
 
     def viewRangeChanged(self):
         """
@@ -548,7 +547,7 @@ class GraphicsItem(object):
         """
         # when this is called, _cachedView is not invalidated.
         # this means that for functions overriding viewRangeChanged, viewRect() may be stale.
-    
+
     def viewTransformChanged(self):
         """
         Called whenever the transformation matrix of the view has changed.
@@ -556,25 +555,31 @@ class GraphicsItem(object):
         Invalidates the viewRect cache.
         """
         self._cachedView = None
-    
-    #def prepareGeometryChange(self):
-        #self._qtBaseClass.prepareGeometryChange(self)
-        #self.informViewBoundsChanged()
-        
+
+    # def prepareGeometryChange(self):
+    # self._qtBaseClass.prepareGeometryChange(self)
+    # self.informViewBoundsChanged()
+
     def informViewBoundsChanged(self):
         """
         Inform this item's container ViewBox that the bounds of this item have changed.
         This is used by ViewBox to react if auto-range is enabled.
         """
         view = self.getViewBox()
-        if view is not None and hasattr(view, 'implements') and view.implements('ViewBox'):
-            view.itemBoundsChanged(self)  ## inform view so it can update its range if it wants
-    
+        if (
+            view is not None
+            and hasattr(view, "implements")
+            and view.implements("ViewBox")
+        ):
+            view.itemBoundsChanged(
+                self
+            )  ## inform view so it can update its range if it wants
+
     def childrenShape(self):
         """Return the union of the shapes of all descendants of this item in local coordinates."""
         shapes = [self.mapFromItem(c, c.shape()) for c in self.allChildItems()]
         return reduce(operator.add, shapes)
-    
+
     def allChildItems(self, root=None):
         """Return list of the entire item tree descending from this item."""
         if root is None:
@@ -584,8 +589,7 @@ class GraphicsItem(object):
             tree.append(ch)
             tree.extend(self.allChildItems(ch))
         return tree
-    
-    
+
     def setExportMode(self, export, opts=None):
         """
         This method is called by exporters to inform items that they are being drawn for export
@@ -596,21 +600,20 @@ class GraphicsItem(object):
             opts = {}
         if export:
             self._exportOpts = opts
-            #if 'antialias' not in opts:
-                #self._exportOpts['antialias'] = True
+            # if 'antialias' not in opts:
+            # self._exportOpts['antialias'] = True
         else:
             self._exportOpts = False
-    
-    #def update(self):
-        #self._qtBaseClass.update(self)
-        #print "Update:", self
+
+    # def update(self):
+    # self._qtBaseClass.update(self)
+    # print "Update:", self
 
     def getContextMenus(self, event):
         return [self.getMenu()] if hasattr(self, "getMenu") else []
 
     def generateSvg(
-            self,
-            nodes: dict[str, Element]
+        self, nodes: dict[str, Element]
     ) -> Optional[tuple[Element, list[Element]]]:
         """Method to override to manually specify the SVG writer mechanism.
 
@@ -620,7 +623,7 @@ class GraphicsItem(object):
             Dictionary keyed by the name of graphics items and the XML
             representation of the the item that can be written as valid
             SVG.
-        
+
         Returns
         -------
         tuple

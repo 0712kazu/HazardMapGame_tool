@@ -12,6 +12,7 @@ class ChecklistParameterItem(GroupParameterItem):
     Wraps a :class:`GroupParameterItem` to manage ``bool`` parameter children. Also provides convenience buttons to
     select or clear all values at once. Note these conveniences are disabled when ``exclusive`` is *True*.
     """
+
     def __init__(self, param, depth):
         self.btnGrp = QtWidgets.QButtonGroup()
         self.btnGrp.setExclusive(False)
@@ -26,13 +27,13 @@ class ChecklistParameterItem(GroupParameterItem):
         lay.setSpacing(2)
         self.metaBtns = {}
         lay.addStretch(0)
-        for title in 'Clear', 'Select':
-            self.metaBtns[title] = btn = QtWidgets.QPushButton(f'{title} All')
+        for title in "Clear", "Select":
+            self.metaBtns[title] = btn = QtWidgets.QPushButton(f"{title} All")
             self.metaBtnLayout.addWidget(btn)
-            btn.clicked.connect(getattr(self, f'{title.lower()}AllClicked'))
+            btn.clicked.connect(getattr(self, f"{title.lower()}AllClicked"))
 
-        self.metaBtns['default'] = self.makeDefaultButton()
-        self.metaBtnLayout.addWidget(self.metaBtns['default'])
+        self.metaBtns["default"] = self.makeDefaultButton()
+        self.metaBtnLayout.addWidget(self.metaBtns["default"])
 
     def treeWidgetChanged(self):
         ParameterItem.treeWidgetChanged(self)
@@ -67,17 +68,17 @@ class ChecklistParameterItem(GroupParameterItem):
 
     def optsChanged(self, param, opts):
         super().optsChanged(param, opts)
-        if 'expanded' in opts:
+        if "expanded" in opts:
             for btn in self.metaBtns.values():
-                btn.setVisible(opts['expanded'])
-        exclusive = opts.get('exclusive', param.opts['exclusive'])
-        enabled = opts.get('enabled', param.opts['enabled'])
+                btn.setVisible(opts["expanded"])
+        exclusive = opts.get("exclusive", param.opts["exclusive"])
+        enabled = opts.get("enabled", param.opts["enabled"])
         for name, btn in self.metaBtns.items():
-            if name != 'default':
+            if name != "default":
                 btn.setDisabled(exclusive or (not enabled))
         self.btnGrp.setExclusive(exclusive)
         # "Limits" will force update anyway, no need to duplicate if it's present
-        if 'limits' not in opts and ('enabled' in opts or 'readonly' in opts):
+        if "limits" not in opts and ("enabled" in opts or "readonly" in opts):
             self.updateDefaultBtn()
 
     def expandedChangedEvent(self, expanded):
@@ -97,6 +98,7 @@ class ChecklistParameterItem(GroupParameterItem):
 
     makeDefaultButton = WidgetParameterItem.makeDefaultButton
     defaultClicked = WidgetParameterItem.defaultClicked
+
 
 class RadioParameterItem(BoolParameterItem):
     """
@@ -130,13 +132,13 @@ class RadioParameterItem(BoolParameterItem):
 
 # Proxy around radio/bool type so the correct item class gets instantiated
 class BoolOrRadioParameter(SimpleParameter):
-
     def __init__(self, **kargs):
-        if kargs.get('type') == 'bool':
+        if kargs.get("type") == "bool":
             self.itemClass = BoolParameterItem
         else:
             self.itemClass = RadioParameterItem
         super().__init__(**kargs)
+
 
 class ChecklistParameter(GroupParameter):
     """
@@ -152,19 +154,20 @@ class ChecklistParameter(GroupParameter):
                    signal. This allows users to edit multiple boxes at once for a single value update.
     ============== ========================================================
     """
+
     itemClass = ChecklistParameterItem
 
     def __init__(self, **opts):
         # Child options are populated through values, not explicit "children"
-        if 'children' in opts:
+        if "children" in opts:
             raise ValueError(
                 "Cannot pass 'children' to ChecklistParameter. Pass a 'value' key only."
             )
         self.targetValue = None
-        limits = opts.setdefault('limits', [])
+        limits = opts.setdefault("limits", [])
         self.forward, self.reverse = ListParameter.mapping(limits)
-        value = opts.setdefault('value', limits)
-        opts.setdefault('exclusive', False)
+        value = opts.setdefault("value", limits)
+        opts.setdefault("exclusive", False)
         super().__init__(**opts)
         # Force 'exclusive' to trigger by making sure value is not the same
         self.sigLimitsChanged.connect(self.updateLimits)
@@ -177,14 +180,14 @@ class ChecklistParameter(GroupParameter):
 
         self.valChangingProxy = SignalProxy(
             self.sigValueChanging,
-            delay=opts.get('delay', 1.0),
+            delay=opts.get("delay", 1.0),
             slot=self._finishChildChanges,
             threadSafe=False,
         )
 
     def childrenValue(self):
         vals = [self.forward[p.name()] for p in self.children() if p.value()]
-        exclusive = self.opts['exclusive']
+        exclusive = self.opts["exclusive"]
         if not vals and exclusive:
             return None
         elif exclusive:
@@ -194,7 +197,7 @@ class ChecklistParameter(GroupParameter):
 
     def _onChildChanging(self, child, value):
         # When exclusive, ensure only this value is True
-        if self.opts['exclusive'] and value:
+        if self.opts["exclusive"] and value:
             value = self.forward[child.name()]
         else:
             value = self.childrenValue()
@@ -202,19 +205,21 @@ class ChecklistParameter(GroupParameter):
 
     def updateLimits(self, _param, limits):
         oldOpts = self.names
-        val = self.opts['value']
+        val = self.opts["value"]
         # Make sure adding and removing children don't cause tree state changes
         self.blockTreeChangeSignal()
         self.clearChildren()
         self.forward, self.reverse = ListParameter.mapping(limits)
-        if self.opts.get('exclusive'):
-            typ = 'radio'
+        if self.opts.get("exclusive"):
+            typ = "radio"
         else:
-            typ = 'bool'
+            typ = "bool"
         for chName in self.forward:
             # Recycle old values if they match the new limits
             newVal = bool(oldOpts.get(chName, False))
-            child = BoolOrRadioParameter(type=typ, name=chName, value=newVal, default=None)
+            child = BoolOrRadioParameter(
+                type=typ, name=chName, value=newVal, default=None
+            )
             self.addChild(child)
             # Prevent child from broadcasting tree state changes, since this is handled by self
             child.blockTreeChangeSignal()
@@ -230,12 +235,12 @@ class ChecklistParameter(GroupParameter):
         return self.setValue(value)
 
     def optsChanged(self, param, opts):
-        if 'exclusive' in opts:
+        if "exclusive" in opts:
             # Force set value to ensure updates
             # self.opts['value'] = self._VALUE_UNSET
-            self.updateLimits(None, self.opts.get('limits', []))
-        if 'delay' in opts:
-            self.valChangingProxy.setDelay(opts['delay'])
+            self.updateLimits(None, self.opts.get("limits", []))
+        if "delay" in opts:
+            self.valChangingProxy.setDelay(opts["delay"])
 
     def setValue(self, value, blockSignal=None):
         self.targetValue = value
@@ -244,7 +249,7 @@ class ChecklistParameter(GroupParameter):
         names, values = self._intersectionWithLimits(value)
         valueToSet = values
 
-        if self.opts['exclusive']:
+        if self.opts["exclusive"]:
             if len(self.forward):
                 # Exclusive means at least one entry must exist, grab from limits
                 # if they exist
@@ -298,7 +303,7 @@ class ChecklistParameter(GroupParameter):
         recursive=True,
         addChildren=True,
         removeChildren=True,
-        blockSignals=True
+        blockSignals=True,
     ):
         # Child management shouldn't happen through state
         return super().restoreState(
@@ -306,5 +311,5 @@ class ChecklistParameter(GroupParameter):
             recursive,
             addChildren=False,
             removeChildren=False,
-            blockSignals=blockSignals
+            blockSignals=blockSignals,
         )

@@ -5,7 +5,7 @@ from .functions import SignalBlock
 from .Qt import QtCore
 from .ThreadsafeTimer import ThreadsafeTimer
 
-__all__ = ['SignalProxy']
+__all__ = ["SignalProxy"]
 
 
 class SignalProxy(QtCore.QObject):

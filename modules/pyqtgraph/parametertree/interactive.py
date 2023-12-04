@@ -13,7 +13,6 @@ class PARAM_UNSET:
 
 
 class RunOptions:
-
     ON_ACTION = "action"
     """
     Indicator for ``interactive`` parameter which adds an ``action`` parameter

@@ -17,11 +17,14 @@ class WidgetParameterItem(ParameterItem):
 
     This class can be subclassed by overriding makeWidget() to provide a custom widget.
     """
+
     def __init__(self, param, depth):
         ParameterItem.__init__(self, param, depth)
 
         self.asSubItem = False  # place in a child item's column 0 instead of column 1
-        self.hideWidget = True  ## hide edit widget, replace with label when not selected
+        self.hideWidget = (
+            True  ## hide edit widget, replace with label when not selected
+        )
         ## set this to False to keep the editor widget always visible
 
         # build widget with a display label and default button
@@ -53,13 +56,13 @@ class WidgetParameterItem(ParameterItem):
         if w.sigChanged is not None:
             w.sigChanged.connect(self.widgetValueChanged)
 
-        if hasattr(w, 'sigChanging'):
+        if hasattr(w, "sigChanging"):
             w.sigChanging.connect(self.widgetValueChanging)
 
         ## update value shown in widget.
         opts = self.param.opts
-        if opts.get('value', None) is not None:
-            self.valueChanged(self, opts['value'], force=True)
+        if opts.get("value", None) is not None:
+            self.valueChanged(self, opts["value"], force=True)
         else:
             ## no starting value was given; use whatever the widget has
             self.widgetValueChanged()
@@ -119,7 +122,7 @@ class WidgetParameterItem(ParameterItem):
         defaultBtn.setAutoDefault(False)
         defaultBtn.setFixedWidth(20)
         defaultBtn.setFixedHeight(20)
-        defaultBtn.setIcon(icons.getGraphIcon('default'))
+        defaultBtn.setIcon(icons.getGraphIcon("default"))
         defaultBtn.clicked.connect(self.defaultClicked)
         return defaultBtn
 
@@ -127,7 +130,11 @@ class WidgetParameterItem(ParameterItem):
         self.showEditor()
 
     def isFocusable(self):
-        return self.param.opts['visible'] and self.param.opts['enabled'] and self.param.writable()
+        return (
+            self.param.opts["visible"]
+            and self.param.opts["enabled"]
+            and self.param.writable()
+        )
 
     def valueChanged(self, param, val, force=False):
         ## called when the parameter's value has changed
@@ -149,10 +156,15 @@ class WidgetParameterItem(ParameterItem):
     def updateDefaultBtn(self):
         ## enable/disable default btn
         self.defaultBtn.setEnabled(
-            not self.param.valueIsDefault() and self.param.opts['enabled'] and self.param.writable())
+            not self.param.valueIsDefault()
+            and self.param.opts["enabled"]
+            and self.param.writable()
+        )
 
         # hide / show
-        self.defaultBtn.setVisible(self.param.hasDefault() and not self.param.readonly())
+        self.defaultBtn.setVisible(
+            self.param.hasDefault() and not self.param.readonly()
+        )
 
     def updateDisplayLabel(self, value=None):
         """Update the display label to reflect the value of the parameter."""
@@ -223,25 +235,31 @@ class WidgetParameterItem(ParameterItem):
         name, value, default, or limits"""
         ParameterItem.optsChanged(self, param, opts)
 
-        if 'enabled' in opts:
+        if "enabled" in opts:
             self.updateDefaultBtn()
-            self.widget.setEnabled(opts['enabled'])
+            self.widget.setEnabled(opts["enabled"])
 
-        if 'readonly' in opts:
+        if "readonly" in opts:
             self.updateDefaultBtn()
 
-            if opts['readonly']:
-                self.displayLabel.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextSelectableByMouse)
+            if opts["readonly"]:
+                self.displayLabel.setTextInteractionFlags(
+                    QtCore.Qt.TextInteractionFlag.TextSelectableByMouse
+                )
             else:
-                self.displayLabel.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.LinksAccessibleByMouse)
+                self.displayLabel.setTextInteractionFlags(
+                    QtCore.Qt.TextInteractionFlag.LinksAccessibleByMouse
+                )
 
-            if hasattr(self.widget, 'setReadOnly'):
-                self.widget.setReadOnly(opts['readonly'])
+            if hasattr(self.widget, "setReadOnly"):
+                self.widget.setReadOnly(opts["readonly"])
             else:
-                self.widget.setEnabled(self.param.opts['enabled'] and not opts['readonly'])
+                self.widget.setEnabled(
+                    self.param.opts["enabled"] and not opts["readonly"]
+                )
 
-        if 'tip' in opts:
-            self.widget.setToolTip(opts['tip'])
+        if "tip" in opts:
+            self.widget.setToolTip(opts["tip"])
 
 
 class EventProxy(QtCore.QObject):
@@ -280,7 +298,7 @@ class SimpleParameter(Parameter):
         Parameter.__init__(self, *args, **kargs)
 
     def _interpretValue(self, v):
-        typ = self.opts['type']
+        typ = self.opts["type"]
 
         def _missing_interp(v):
             # Assume raw interpretation
@@ -305,11 +323,13 @@ class GroupParameterItem(ParameterItem):
         self.updateDepth(depth)
 
         self.addItem = None
-        if 'addText' in param.opts:
-            addText = param.opts['addText']
-            if 'addList' in param.opts:
+        if "addText" in param.opts:
+            addText = param.opts["addText"]
+            if "addList" in param.opts:
                 self.addWidget = QtWidgets.QComboBox()
-                self.addWidget.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
+                self.addWidget.setSizeAdjustPolicy(
+                    QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents
+                )
                 self.updateAddList()
                 self.addWidget.currentIndexChanged.connect(self.addChanged)
             else:
@@ -371,7 +391,9 @@ class GroupParameterItem(ParameterItem):
             tw.setItemWidget(self.addItem, 0, self.addWidgetBox)
             self.addItem.setFirstColumnSpanned(True)
 
-    def addChild(self, child):  ## make sure added childs are actually inserted before add btn
+    def addChild(
+        self, child
+    ):  ## make sure added childs are actually inserted before add btn
         if self.addItem is not None:
             ParameterItem.insertChild(self, self.childCount() - 1, child)
         else:
@@ -380,26 +402,25 @@ class GroupParameterItem(ParameterItem):
     def optsChanged(self, param, opts):
         ParameterItem.optsChanged(self, param, opts)
 
-        if 'addList' in opts:
+        if "addList" in opts:
             self.updateAddList()
 
-        if hasattr(self, 'addWidget'):
-            if 'enabled' in opts:
-                self.addWidget.setEnabled(opts['enabled'])
+        if hasattr(self, "addWidget"):
+            if "enabled" in opts:
+                self.addWidget.setEnabled(opts["enabled"])
 
-            if 'tip' in opts:
-                self.addWidget.setToolTip(opts['tip'])
+            if "tip" in opts:
+                self.addWidget.setToolTip(opts["tip"])
 
     def updateAddList(self):
         self.addWidget.blockSignals(True)
         try:
             self.addWidget.clear()
-            self.addWidget.addItem(self.param.opts['addText'])
-            for t in self.param.opts['addList']:
+            self.addWidget.addItem(self.param.opts["addText"])
+            for t in self.param.opts["addList"]:
                 self.addWidget.addItem(t)
         finally:
             self.addWidget.blockSignals(False)
-
 
 
 class GroupParameter(Parameter):
@@ -414,6 +435,7 @@ class GroupParameter(Parameter):
     option is specified as well, then a dropdown-list of addable items will be displayed
     instead of a button.
     """
+
     itemClass = GroupParameterItem
 
     sigAddNew = QtCore.Signal(object, object)  # self, type
@@ -434,5 +456,6 @@ class Emitter(QtCore.QObject):
     """
     WidgetParameterItem is not a QObject, so create a QObject wrapper that items can use for emitting
     """
+
     sigChanging = QtCore.Signal(object, object)
     sigChanged = QtCore.Signal(object, object)

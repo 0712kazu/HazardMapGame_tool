@@ -9,12 +9,12 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
     sigStackItemClicked = QtCore.Signal(object, object)  # self, item
     sigStackItemDblClicked = QtCore.Signal(object, object)  # self, item
     _threadException = QtCore.Signal(object)
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._setupUi()
 
-        self.filterString = ''
+        self.filterString = ""
         self._inSystrace = False
 
         # send exceptions raised in non-gui threads back to the main thread by signal.
@@ -47,11 +47,18 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
         self.stackTree = StackWidget(self)
         self.layout.addWidget(self.stackTree, 2, 0, 1, 7)
 
-        self.runSelectedFrameCheck = QtWidgets.QCheckBox("Run commands in selected stack frame", self)
+        self.runSelectedFrameCheck = QtWidgets.QCheckBox(
+            "Run commands in selected stack frame", self
+        )
         self.runSelectedFrameCheck.setChecked(True)
         self.layout.addWidget(self.runSelectedFrameCheck, 3, 0, 1, 7)
 
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Minimum)
+        spacerItem = QtWidgets.QSpacerItem(
+            40,
+            20,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Minimum,
+        )
         self.layout.addItem(spacerItem, 0, 5, 1, 1)
 
         self.filterLabel = QtWidgets.QLabel("Filter (regex):", self)
@@ -86,14 +93,16 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
         """
         with SignalBlock(self.catchAllExceptionsBtn.toggled, self.catchAllExceptions):
             self.catchAllExceptionsBtn.setChecked(catch)
-        
+
         if catch:
-            with SignalBlock(self.catchNextExceptionBtn.toggled, self.catchNextException):
+            with SignalBlock(
+                self.catchNextExceptionBtn.toggled, self.catchNextException
+            ):
                 self.catchNextExceptionBtn.setChecked(False)
             self.enableExceptionHandling()
         else:
             self.disableExceptionHandling()
-        
+
     def catchNextException(self, catch=True):
         """
         If True, the console will catch the next unhandled exception and display the stack
@@ -102,55 +111,62 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
         with SignalBlock(self.catchNextExceptionBtn.toggled, self.catchNextException):
             self.catchNextExceptionBtn.setChecked(catch)
         if catch:
-            with SignalBlock(self.catchAllExceptionsBtn.toggled, self.catchAllExceptions):
+            with SignalBlock(
+                self.catchAllExceptionsBtn.toggled, self.catchAllExceptions
+            ):
                 self.catchAllExceptionsBtn.setChecked(False)
             self.enableExceptionHandling()
         else:
             self.disableExceptionHandling()
-        
+
     def enableExceptionHandling(self):
         exceptionHandling.registerCallback(self.exceptionHandler)
         self.updateSysTrace()
-        
+
     def disableExceptionHandling(self):
         exceptionHandling.unregisterCallback(self.exceptionHandler)
         self.updateSysTrace()
-        
+
     def clearExceptionClicked(self):
         self.stackTree.clear()
         self.clearExceptionBtn.setEnabled(False)
-        
+
     def updateSysTrace(self):
-        ## Install or uninstall  sys.settrace handler 
-        
-        if not self.catchNextExceptionBtn.isChecked() and not self.catchAllExceptionsBtn.isChecked():
+        ## Install or uninstall  sys.settrace handler
+
+        if (
+            not self.catchNextExceptionBtn.isChecked()
+            and not self.catchAllExceptionsBtn.isChecked()
+        ):
             if sys.gettrace() == self.systrace:
                 self._disableSysTrace()
             return
-        
+
         if self.onlyUncaughtCheck.isChecked():
             if sys.gettrace() == self.systrace:
                 self._disableSysTrace()
         else:
             if sys.gettrace() not in (None, self.systrace):
                 self.onlyUncaughtCheck.setChecked(False)
-                raise Exception("sys.settrace is in use (are you using another debugger?); cannot monitor for caught exceptions.")
+                raise Exception(
+                    "sys.settrace is in use (are you using another debugger?); cannot monitor for caught exceptions."
+                )
             else:
                 self._enableSysTrace()
 
     def _enableSysTrace(self):
         # set global trace function
-        # note: this has no effect on pre-existing frames or threads 
+        # note: this has no effect on pre-existing frames or threads
         # until settrace_all_threads arrives in python 3.12.
         sys.settrace(self.systrace)  # affects current thread only
         threading.settrace(self.systrace)  # affects new threads only
-        if hasattr(threading, 'settrace_all_threads'):
+        if hasattr(threading, "settrace_all_threads"):
             threading.settrace_all_threads(self.systrace)
 
     def _disableSysTrace(self):
         sys.settrace(None)
         threading.settrace(None)
-        if hasattr(threading, 'settrace_all_threads'):
+        if hasattr(threading, "settrace_all_threads"):
             threading.settrace_all_threads(None)
 
     def exceptionHandler(self, excInfo, lastFrame=None):
@@ -160,9 +176,12 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
             exc = excInfo.exc_value
 
         # exceptions raised in non-gui threads must be sent to the gui thread by signal
-        isGuiThread = QtCore.QThread.currentThread() == QtCore.QCoreApplication.instance().thread()
+        isGuiThread = (
+            QtCore.QThread.currentThread()
+            == QtCore.QCoreApplication.instance().thread()
+        )
         if not isGuiThread:
-            # note: we are giving the user the ability to modify a frame owned by another thread.. 
+            # note: we are giving the user the ability to modify a frame owned by another thread..
             # expect trouble :)
             self._threadException.emit((excInfo, lastFrame))
             return
@@ -171,14 +190,14 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
             self.catchNextExceptionBtn.setChecked(False)
         elif not self.catchAllExceptionsBtn.isChecked():
             return
-        
+
         self.setException(exc, lastFrame=lastFrame)
-    
+
     def _threadExceptionHandler(self, args):
         self.exceptionHandler(*args)
 
     def systrace(self, frame, event, arg):
-        if event != 'exception':
+        if event != "exception":
             return self.systrace
 
         if self._inSystrace:
@@ -195,15 +214,15 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
         finally:
             self.inSystrace = False
         return self.systrace
-        
+
     def checkException(self, excType, exc, tb):
         ## Return True if the exception is interesting; False if it should be ignored.
-        
+
         filename = tb.tb_frame.f_code.co_filename
         function = tb.tb_frame.f_code.co_name
-        
+
         filterStr = self.filterString
-        if filterStr != '':
+        if filterStr != "":
             if isinstance(exc, Exception):
                 msg = traceback.format_exception_only(type(exc), exc)
             elif isinstance(exc, str):
@@ -217,22 +236,36 @@ class ExceptionHandlerWidget(QtWidgets.QGroupBox):
         if excType is GeneratorExit or excType is StopIteration:
             return False
         if excType is AttributeError:
-            if filename.endswith('numpy/core/fromnumeric.py') and function in ('all', '_wrapit', 'transpose', 'sum'):
+            if filename.endswith("numpy/core/fromnumeric.py") and function in (
+                "all",
+                "_wrapit",
+                "transpose",
+                "sum",
+            ):
                 return False
-            if filename.endswith('numpy/core/arrayprint.py') and function in ('_array2string'):
+            if filename.endswith("numpy/core/arrayprint.py") and function in (
+                "_array2string"
+            ):
                 return False
-            if filename.endswith('MetaArray.py') and function == '__getattr__':
-                for name in ('__array_interface__', '__array_struct__', '__array__'):  ## numpy looks for these when converting objects to array
+            if filename.endswith("MetaArray.py") and function == "__getattr__":
+                for name in (
+                    "__array_interface__",
+                    "__array_struct__",
+                    "__array__",
+                ):  ## numpy looks for these when converting objects to array
                     if name in exc:
                         return False
-            if filename.endswith('flowchart/eq.py'):
+            if filename.endswith("flowchart/eq.py"):
                 return False
         if excType is TypeError:
-            if filename.endswith('numpy/lib/function_base.py') and function == 'iterable':
+            if (
+                filename.endswith("numpy/lib/function_base.py")
+                and function == "iterable"
+            ):
                 return False
-            
+
         return True
-    
+
     def stackItemClicked(self, item):
         self.sigStackItemClicked.emit(self, item)
 

@@ -11,7 +11,7 @@ from .LabelItem import LabelItem
 from .PlotDataItem import PlotDataItem
 from .ScatterPlotItem import ScatterPlotItem, drawSymbol
 
-__all__ = ['LegendItem', 'ItemSample']
+__all__ = ["LegendItem", "ItemSample"]
 
 
 class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
@@ -29,9 +29,21 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
     """
 
-    def __init__(self, size=None, offset=None, horSpacing=25, verSpacing=0,
-                 pen=None, brush=None, labelTextColor=None, frame=True,
-                 labelTextSize='9pt', colCount=1, sampleType=None, **kwargs):
+    def __init__(
+        self,
+        size=None,
+        offset=None,
+        horSpacing=25,
+        verSpacing=0,
+        pen=None,
+        brush=None,
+        labelTextColor=None,
+        frame=True,
+        labelTextSize="9pt",
+        colCount=1,
+        sampleType=None,
+        **kwargs,
+    ):
         """
         ==============  ===============================================================
         **Arguments:**
@@ -81,18 +93,20 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
         if sampleType is not None:
             if not issubclass(sampleType, GraphicsWidget):
-                raise RuntimeError("Only classes of type `GraphicsWidgets` "
-                                   "are allowed as `sampleType`")
+                raise RuntimeError(
+                    "Only classes of type `GraphicsWidgets` "
+                    "are allowed as `sampleType`"
+                )
             self.sampleType = sampleType
         else:
             self.sampleType = ItemSample
 
         self.opts = {
-            'pen': fn.mkPen(pen),
-            'brush': fn.mkBrush(brush),
-            'labelTextColor': labelTextColor,
-            'labelTextSize': labelTextSize,
-            'offset': offset,
+            "pen": fn.mkPen(pen),
+            "brush": fn.mkBrush(brush),
+            "labelTextColor": labelTextColor,
+            "labelTextSize": labelTextSize,
+            "offset": offset,
         }
         self.opts.update(kwargs)
 
@@ -116,13 +130,13 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
     def offset(self):
         """Get the offset position relative to the parent."""
-        return self.opts['offset']
+        return self.opts["offset"]
 
     def setOffset(self, offset):
         """Set the offset position relative to the parent."""
-        self.opts['offset'] = offset
+        self.opts["offset"] = offset
 
-        offset = Point(self.opts['offset'])
+        offset = Point(self.opts["offset"])
         anchorx = 1 if offset[0] <= 0 else 0
         anchory = 1 if offset[1] <= 0 else 0
         anchor = (anchorx, anchory)
@@ -130,7 +144,7 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
     def pen(self):
         """Get the QPen used to draw the border around the legend."""
-        return self.opts['pen']
+        return self.opts["pen"]
 
     def setPen(self, *args, **kargs):
         """Set the pen used to draw a border around the legend.
@@ -138,13 +152,13 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
         Accepts the same arguments as :func:`~pyqtgraph.mkPen`.
         """
         pen = fn.mkPen(*args, **kargs)
-        self.opts['pen'] = pen
+        self.opts["pen"] = pen
 
         self.update()
 
     def brush(self):
         """Get the QBrush used to draw the legend background."""
-        return self.opts['brush']
+        return self.opts["brush"]
 
     def setBrush(self, *args, **kargs):
         """Set the brush used to draw the legend background.
@@ -152,47 +166,47 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
         Accepts the same arguments as :func:`~pyqtgraph.mkBrush`.
         """
         brush = fn.mkBrush(*args, **kargs)
-        if self.opts['brush'] == brush:
+        if self.opts["brush"] == brush:
             return
-        self.opts['brush'] = brush
+        self.opts["brush"] = brush
 
         self.update()
 
     def labelTextColor(self):
         """Get the QColor used for the item labels."""
-        return self.opts['labelTextColor']
+        return self.opts["labelTextColor"]
 
     def setLabelTextColor(self, *args, **kargs):
         """Set the color of the item labels.
 
         Accepts the same arguments as :func:`~pyqtgraph.mkColor`.
         """
-        self.opts['labelTextColor'] = fn.mkColor(*args, **kargs)
+        self.opts["labelTextColor"] = fn.mkColor(*args, **kargs)
         for sample, label in self.items:
-            label.setAttr('color', self.opts['labelTextColor'])
+            label.setAttr("color", self.opts["labelTextColor"])
 
         self.update()
 
     def labelTextSize(self):
         """Get the `labelTextSize` used for the item labels."""
-        return self.opts['labelTextSize']
+        return self.opts["labelTextSize"]
 
     def setLabelTextSize(self, size):
         """Set the `size` of the item labels.
 
         Accepts the CSS style string arguments, e.g. '8pt'.
         """
-        self.opts['labelTextSize'] = size
+        self.opts["labelTextSize"] = size
         for _, label in self.items:
-            label.setAttr('size', self.opts['labelTextSize'])
+            label.setAttr("size", self.opts["labelTextSize"])
 
         self.update()
 
     def setParentItem(self, p):
         """Set the parent."""
         ret = GraphicsWidget.setParentItem(self, p)
-        if self.opts['offset'] is not None:
-            offset = Point(self.opts['offset'])
+        if self.opts["offset"] is not None:
+            offset = Point(self.opts["offset"])
             anchorx = 1 if offset[0] <= 0 else 0
             anchory = 1 if offset[1] <= 0 else 0
             anchor = (anchorx, anchory)
@@ -212,8 +226,12 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
         title           The title to display for this item. Simple HTML allowed.
         ==============  ========================================================
         """
-        label = LabelItem(name, color=self.opts['labelTextColor'],
-                          justify='left', size=self.opts['labelTextSize'])
+        label = LabelItem(
+            name,
+            color=self.opts["labelTextColor"],
+            justify="left",
+            size=self.opts["labelTextSize"],
+        )
         if isinstance(item, self.sampleType):
             sample = item
         else:
@@ -245,8 +263,7 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
         self.rowCount = max(self.rowCount, row + 1)
 
     def setColumnCount(self, columnCount):
-        """change the orientation of all items of the legend
-        """
+        """change the orientation of all items of the legend"""
         if columnCount != self.columnCount:
             self.columnCount = columnCount
 
@@ -326,8 +343,8 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
     def paint(self, p, *args):
         if self.frame:
-            p.setPen(self.opts['pen'])
-            p.setBrush(self.opts['brush'])
+            p.setPen(self.opts["pen"])
+            p.setBrush(self.opts["brush"])
             p.drawRect(self.boundingRect())
 
     def hoverEvent(self, ev):
@@ -341,8 +358,7 @@ class LegendItem(GraphicsWidgetAnchor, GraphicsWidget):
 
 
 class ItemSample(GraphicsWidget):
-    """Class responsible for drawing a single item in a LegendItem (sans label)
-    """
+    """Class responsible for drawing a single item in a LegendItem (sans label)"""
 
     def __init__(self, item):
         GraphicsWidget.__init__(self)
@@ -353,7 +369,7 @@ class ItemSample(GraphicsWidget):
 
     def paint(self, p, *args):
         opts = self.item.opts
-        if opts.get('antialias'):
+        if opts.get("antialias"):
             p.setRenderHint(p.RenderHint.Antialiasing)
 
         visible = self.item.isVisible()
@@ -363,32 +379,44 @@ class ItemSample(GraphicsWidget):
             return
 
         if not isinstance(self.item, ScatterPlotItem):
-            p.setPen(fn.mkPen(opts['pen']))
+            p.setPen(fn.mkPen(opts["pen"]))
             p.drawLine(0, 11, 20, 11)
 
-            if (opts.get('fillLevel', None) is not None and
-                    opts.get('fillBrush', None) is not None):
-                p.setBrush(fn.mkBrush(opts['fillBrush']))
-                p.setPen(fn.mkPen(opts['pen']))
-                p.drawPolygon(QtGui.QPolygonF(
-                    [QtCore.QPointF(2, 18), QtCore.QPointF(18, 2),
-                     QtCore.QPointF(18, 18)]))
+            if (
+                opts.get("fillLevel", None) is not None
+                and opts.get("fillBrush", None) is not None
+            ):
+                p.setBrush(fn.mkBrush(opts["fillBrush"]))
+                p.setPen(fn.mkPen(opts["pen"]))
+                p.drawPolygon(
+                    QtGui.QPolygonF(
+                        [
+                            QtCore.QPointF(2, 18),
+                            QtCore.QPointF(18, 2),
+                            QtCore.QPointF(18, 18),
+                        ]
+                    )
+                )
 
-        symbol = opts.get('symbol', None)
+        symbol = opts.get("symbol", None)
         if symbol is not None:
             if isinstance(self.item, PlotDataItem):
                 opts = self.item.scatter.opts
             p.translate(10, 10)
-            drawSymbol(p, symbol, opts['size'], fn.mkPen(opts['pen']),
-                       fn.mkBrush(opts['brush']))
+            drawSymbol(
+                p,
+                symbol,
+                opts["size"],
+                fn.mkPen(opts["pen"]),
+                fn.mkBrush(opts["brush"]),
+            )
 
         if isinstance(self.item, BarGraphItem):
-            p.setBrush(fn.mkBrush(opts['brush']))
+            p.setBrush(fn.mkBrush(opts["brush"]))
             p.drawRect(QtCore.QRectF(2, 2, 18, 18))
 
     def mouseClickEvent(self, event):
-        """Use the mouseClick event to toggle the visibility of the plotItem
-        """
+        """Use the mouseClick event to toggle the visibility of the plotItem"""
         if event.button() == QtCore.Qt.MouseButton.LeftButton:
             visible = self.item.isVisible()
             self.item.setVisible(not visible)

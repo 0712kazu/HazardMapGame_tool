@@ -4,7 +4,8 @@ from .basetypes import SimpleParameter, WidgetParameterItem
 
 
 class ColorParameterItem(WidgetParameterItem):
-    """Registered parameter type which displays a :class:`ColorButton <pyqtgraph.ColorButton>` """
+    """Registered parameter type which displays a :class:`ColorButton <pyqtgraph.ColorButton>`"""
+
     def makeWidget(self):
         w = ColorButton()
         w.sigChanged = w.sigColorChanged
@@ -27,5 +28,5 @@ class ColorParameter(SimpleParameter):
 
     def saveState(self, filter=None):
         state = super().saveState(filter)
-        state['value'] = self.value().getRgb()
+        state["value"] = self.value().getRgb()
         return state

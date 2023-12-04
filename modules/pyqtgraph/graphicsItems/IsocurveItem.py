@@ -3,19 +3,21 @@ from .. import getConfigOption
 from ..Qt import QtCore, QtGui
 from .GraphicsObject import GraphicsObject
 
-__all__ = ['IsocurveItem']
+__all__ = ["IsocurveItem"]
+
 
 class IsocurveItem(GraphicsObject):
     """
     **Bases:** :class:`GraphicsObject <pyqtgraph.GraphicsObject>`
-    
-    Item displaying an isocurve of a 2D array. To align this item correctly with an 
+
+    Item displaying an isocurve of a 2D array. To align this item correctly with an
     ImageItem, call ``isocurve.setParentItem(image)``.
     """
-    def __init__(self, data=None, level=0, pen='w', axisOrder=None):
+
+    def __init__(self, data=None, level=0, pen="w", axisOrder=None):
         """
-        Create a new isocurve item. 
-        
+        Create a new isocurve item.
+
         ==============  ===============================================================
         **Arguments:**
         data            A 2-dimensional ndarray. Can be initialized as None, and set
@@ -33,14 +35,16 @@ class IsocurveItem(GraphicsObject):
         self.level = level
         self.data = None
         self.path = None
-        self.axisOrder = getConfigOption('imageAxisOrder') if axisOrder is None else axisOrder
+        self.axisOrder = (
+            getConfigOption("imageAxisOrder") if axisOrder is None else axisOrder
+        )
         self.setPen(pen)
         self.setData(data, level)
-    
+
     def setData(self, data, level=None):
         """
         Set the data/image to draw isocurves for.
-        
+
         ==============  ========================================================================
         **Arguments:**
         data            A 2-dimensional ndarray.
@@ -64,17 +68,17 @@ class IsocurveItem(GraphicsObject):
         self.update()
 
     def setPen(self, *args, **kwargs):
-        """Set the pen used to draw the isocurve. Arguments can be any that are valid 
+        """Set the pen used to draw the isocurve. Arguments can be any that are valid
         for :func:`mkPen <pyqtgraph.mkPen>`"""
         self.pen = fn.mkPen(*args, **kwargs)
         self.update()
 
     def setBrush(self, *args, **kwargs):
-        """Set the brush used to draw the isocurve. Arguments can be any that are valid 
+        """Set the brush used to draw the isocurve. Arguments can be any that are valid
         for :func:`mkBrush <pyqtgraph.mkBrush>`"""
         self.brush = fn.mkBrush(*args, **kwargs)
         self.update()
-        
+
     def updateLines(self, data, level):
         self.setData(data, level)
 
@@ -84,24 +88,24 @@ class IsocurveItem(GraphicsObject):
         if self.path is None:
             self.generatePath()
         return self.path.boundingRect()
-    
+
     def generatePath(self):
         if self.data is None:
             self.path = None
             return
-        
-        if self.axisOrder == 'row-major':
+
+        if self.axisOrder == "row-major":
             data = self.data.T
         else:
             data = self.data
-        
+
         lines = fn.isocurve(data, self.level, connected=True, extendToEdge=True)
         self.path = QtGui.QPainterPath()
         for line in lines:
             self.path.moveTo(*line[0])
             for p in line[1:]:
                 self.path.lineTo(*p)
-    
+
     def paint(self, p, *args):
         if self.data is None:
             return
@@ -109,4 +113,3 @@ class IsocurveItem(GraphicsObject):
             self.generatePath()
         p.setPen(self.pen)
         p.drawPath(self.path)
-    

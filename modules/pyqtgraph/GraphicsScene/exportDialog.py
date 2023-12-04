@@ -6,6 +6,7 @@ from ..Qt import QtCore, QtWidgets
 
 from . import exportDialogTemplate_generic as ui_template
 
+
 class FormatExportListWidgetItem(QtWidgets.QListWidgetItem):
     def __init__(self, expClass, *args, **kwargs):
         QtWidgets.QListWidgetItem.__init__(self, *args, **kwargs)
@@ -22,24 +23,27 @@ class ExportDialog(QtWidgets.QWidget):
         self.scene = scene
 
         self.selectBox = QtWidgets.QGraphicsRectItem()
-        self.selectBox.setPen(fn.mkPen('y', width=3, style=QtCore.Qt.PenStyle.DashLine))
+        self.selectBox.setPen(fn.mkPen("y", width=3, style=QtCore.Qt.PenStyle.DashLine))
         self.selectBox.hide()
         self.scene.addItem(self.selectBox)
-        
+
         self.ui = ui_template.Ui_Form()
         self.ui.setupUi(self)
-        
+
         self.ui.closeBtn.clicked.connect(self.close)
         self.ui.exportBtn.clicked.connect(self.exportClicked)
         self.ui.copyBtn.clicked.connect(self.copyClicked)
         self.ui.itemTree.currentItemChanged.connect(self.exportItemChanged)
         self.ui.formatList.currentItemChanged.connect(self.exportFormatChanged)
-        
 
     def show(self, item=None):
         if item is not None:
             ## Select next exportable parent of the item originally clicked on
-            while not isinstance(item, ViewBox) and not isinstance(item, PlotItem) and item is not None:
+            while (
+                not isinstance(item, ViewBox)
+                and not isinstance(item, PlotItem)
+                and item is not None
+            ):
                 item = item.parentItem()
             ## if this is a ViewBox inside a PlotItem, select the parent instead.
             if isinstance(item, ViewBox) and isinstance(item.parentItem(), PlotItem):
@@ -55,7 +59,7 @@ class ExportDialog(QtWidgets.QWidget):
             x = max(0, int(vcenter.x() - self.width() / 2))
             y = max(0, int(vcenter.y() - self.height() / 2))
             self.move(x, y)
-        
+
     def updateItemList(self, select=None):
         self.ui.itemTree.clear()
         si = QtWidgets.QTreeWidgetItem(["Entire Scene"])
@@ -66,25 +70,24 @@ class ExportDialog(QtWidgets.QWidget):
         for child in self.scene.items():
             if child.parentItem() is None:
                 self.updateItemTree(child, si, select=select)
-                
+
     def updateItemTree(self, item, treeItem, select=None):
         si = None
         if isinstance(item, ViewBox):
-            si = QtWidgets.QTreeWidgetItem(['ViewBox'])
+            si = QtWidgets.QTreeWidgetItem(["ViewBox"])
         elif isinstance(item, PlotItem):
-            si = QtWidgets.QTreeWidgetItem(['Plot'])
-            
+            si = QtWidgets.QTreeWidgetItem(["Plot"])
+
         if si is not None:
             si.gitem = item
             treeItem.addChild(si)
             treeItem = si
             if si.gitem is select:
                 self.ui.itemTree.setCurrentItem(si)
-            
+
         for ch in item.childItems():
             self.updateItemTree(ch, treeItem, select=select)
-        
-            
+
     def exportItemChanged(self, item, prev):
         if item is None:
             return
@@ -95,22 +98,24 @@ class ExportDialog(QtWidgets.QWidget):
         self.selectBox.setRect(newBounds)
         self.selectBox.show()
         self.updateFormatList()
-        
+
     def updateFormatList(self):
         current = self.ui.formatList.currentItem()
 
         self.ui.formatList.clear()
         gotCurrent = False
         for exp in exporters.listExporters():
-            item = FormatExportListWidgetItem(exp, QtCore.QCoreApplication.translate('Exporter', exp.Name))
+            item = FormatExportListWidgetItem(
+                exp, QtCore.QCoreApplication.translate("Exporter", exp.Name)
+            )
             self.ui.formatList.addItem(item)
             if item is current:
                 self.ui.formatList.setCurrentRow(self.ui.formatList.count() - 1)
                 gotCurrent = True
-                
+
         if not gotCurrent:
             self.ui.formatList.setCurrentRow(0)
-        
+
     def exportFormatChanged(self, item, prev):
         if item is None:
             self.currentExporter = None
@@ -127,15 +132,15 @@ class ExportDialog(QtWidgets.QWidget):
             self.ui.paramTree.setParameters(params)
         self.currentExporter = exp
         self.ui.copyBtn.setEnabled(exp.allowCopy)
-        
+
     def exportClicked(self):
         self.selectBox.hide()
         self.currentExporter.export()
-        
+
     def copyClicked(self):
         self.selectBox.hide()
         self.currentExporter.export(copy=True)
-        
+
     def close(self):
         self.selectBox.setVisible(False)
         self.setVisible(False)

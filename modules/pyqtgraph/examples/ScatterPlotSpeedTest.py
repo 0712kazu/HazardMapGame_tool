@@ -19,8 +19,11 @@ from pyqtgraph.Qt import QtCore, QtWidgets
 translate = QtCore.QCoreApplication.translate
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--iterations', default=float('inf'), type=float,
-    help="Number of iterations to run before exiting"
+parser.add_argument(
+    "--iterations",
+    default=float("inf"),
+    type=float,
+    help="Number of iterations to run before exiting",
 )
 args = parser.parse_args()
 iterations_counter = itertools.count()
@@ -28,7 +31,9 @@ iterations_counter = itertools.count()
 app = pg.mkQApp()
 
 pt = ptree.ParameterTree(showHeader=False)
-param = ptree.Parameter.create(name=translate("ScatterPlot", "Parameters"), type="group")
+param = ptree.Parameter.create(
+    name=translate("ScatterPlot", "Parameters"), type="group"
+)
 pt.setParameters(param)
 p = pg.PlotWidget()
 splitter = QtWidgets.QSplitter()
@@ -43,6 +48,7 @@ item = pg.ScatterPlotItem()
 hoverBrush = pg.mkBrush("y")
 ptr = 0
 timer = QtCore.QTimer()
+
 
 def fmt(name):
     replace = r"\1 \2"
@@ -137,12 +143,13 @@ def pausePlot(paused=False):
     else:
         timer.start()
 
+
 mkDataAndItem()
 timer.timeout.connect(update)
 timer.start(0)
 
 framecnt = FrameCounter()
-framecnt.sigFpsUpdate.connect(lambda fps : p.setTitle(f'{fps:.1f} fps'))
+framecnt.sigFpsUpdate.connect(lambda fps: p.setTitle(f"{fps:.1f} fps"))
 
 if __name__ == "__main__":
     pg.exec()

@@ -2,9 +2,8 @@ from ..Qt import QtCore, QtWidgets
 
 
 class CmdInput(QtWidgets.QLineEdit):
-    
     sigExecuteCmd = QtCore.Signal(object)
-    
+
     def __init__(self, parent):
         QtWidgets.QLineEdit.__init__(self, parent)
         self.ps1 = ">>> "
@@ -12,7 +11,7 @@ class CmdInput(QtWidgets.QLineEdit):
         self.history = [""]
         self.ptr = 0
         self.setMultiline(False)
-    
+
     def setMultiline(self, ml):
         if ml:
             self.setPlaceholderText(self.ps2)
@@ -22,12 +21,12 @@ class CmdInput(QtWidgets.QLineEdit):
     def keyPressEvent(self, ev):
         if ev.key() == QtCore.Qt.Key.Key_Up:
             if self.ptr < len(self.history) - 1:
-                self.setHistory(self.ptr+1)
+                self.setHistory(self.ptr + 1)
                 ev.accept()
                 return
-        elif ev.key() ==  QtCore.Qt.Key.Key_Down:
+        elif ev.key() == QtCore.Qt.Key.Key_Down:
             if self.ptr > 0:
-                self.setHistory(self.ptr-1)
+                self.setHistory(self.ptr - 1)
                 ev.accept()
                 return
         elif ev.key() in (QtCore.Qt.Key.Key_Return, QtCore.Qt.Key.Key_Enter):
@@ -35,7 +34,7 @@ class CmdInput(QtWidgets.QLineEdit):
         else:
             super().keyPressEvent(ev)
             self.history[0] = self.text()
-        
+
     def execCmd(self):
         cmd = self.text()
         if len(self.history) == 1 or cmd != self.history[1]:
@@ -43,7 +42,7 @@ class CmdInput(QtWidgets.QLineEdit):
         self.history[0] = ""
         self.setHistory(0)
         self.sigExecuteCmd.emit(cmd)
-        
+
     def setHistory(self, num):
         self.ptr = num
         self.setText(self.history[self.ptr])

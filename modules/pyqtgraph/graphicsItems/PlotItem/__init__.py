@@ -1,3 +1,3 @@
 from .PlotItem import PlotItem
 
-__all__ = ['PlotItem']
+__all__ = ["PlotItem"]

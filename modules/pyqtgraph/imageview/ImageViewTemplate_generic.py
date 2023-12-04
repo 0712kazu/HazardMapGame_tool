@@ -33,7 +33,9 @@ class Ui_Form(object):
         self.histogram.setObjectName("histogram")
         self.gridLayout.addWidget(self.histogram, 0, 1, 1, 2)
         self.roiBtn = QtWidgets.QPushButton(self.layoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.roiBtn.sizePolicy().hasHeightForWidth())
@@ -42,7 +44,9 @@ class Ui_Form(object):
         self.roiBtn.setObjectName("roiBtn")
         self.gridLayout.addWidget(self.roiBtn, 1, 1, 1, 1)
         self.menuBtn = QtWidgets.QPushButton(self.layoutWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.menuBtn.sizePolicy().hasHeightForWidth())
@@ -50,7 +54,10 @@ class Ui_Form(object):
         self.menuBtn.setObjectName("menuBtn")
         self.gridLayout.addWidget(self.menuBtn, 1, 2, 1, 1)
         self.roiPlot = PlotWidget(self.splitter)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Preferred,
+            QtWidgets.QSizePolicy.Policy.Preferred,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.roiPlot.sizePolicy().hasHeightForWidth())
@@ -96,18 +103,30 @@ class Ui_Form(object):
         self.normXBlurSpin.setObjectName("normXBlurSpin")
         self.gridLayout_2.addWidget(self.normXBlurSpin, 2, 2, 1, 1)
         self.label_8 = QtWidgets.QLabel(self.normGroup)
-        self.label_8.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_8.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.label_8.setObjectName("label_8")
         self.gridLayout_2.addWidget(self.label_8, 2, 1, 1, 1)
         self.label_9 = QtWidgets.QLabel(self.normGroup)
-        self.label_9.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_9.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.label_9.setObjectName("label_9")
         self.gridLayout_2.addWidget(self.label_9, 2, 3, 1, 1)
         self.normYBlurSpin = QtWidgets.QDoubleSpinBox(self.normGroup)
         self.normYBlurSpin.setObjectName("normYBlurSpin")
         self.gridLayout_2.addWidget(self.normYBlurSpin, 2, 4, 1, 1)
         self.label_10 = QtWidgets.QLabel(self.normGroup)
-        self.label_10.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight|QtCore.Qt.AlignmentFlag.AlignTrailing|QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.label_10.setAlignment(
+            QtCore.Qt.AlignmentFlag.AlignRight
+            | QtCore.Qt.AlignmentFlag.AlignTrailing
+            | QtCore.Qt.AlignmentFlag.AlignVCenter
+        )
         self.label_10.setObjectName("label_10")
         self.gridLayout_2.addWidget(self.label_10, 2, 5, 1, 1)
         self.normOffRadio = QtWidgets.QRadioButton(self.normGroup)
@@ -146,6 +165,8 @@ class Ui_Form(object):
         self.normOffRadio.setText(_translate("Form", "Off"))
         self.normTimeRangeCheck.setText(_translate("Form", "Time range"))
         self.normFrameCheck.setText(_translate("Form", "Frame"))
+
+
 from ..widgets.GraphicsView import GraphicsView
 from ..widgets.HistogramLUTWidget import HistogramLUTWidget
 from ..widgets.PlotWidget import PlotWidget

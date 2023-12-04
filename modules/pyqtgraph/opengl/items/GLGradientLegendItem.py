@@ -3,7 +3,8 @@ from ...colormap import ColorMap
 from ...Qt import QtCore, QtGui
 from ..GLGraphicsItem import GLGraphicsItem
 
-__all__ = ['GLGradientLegendItem']
+__all__ = ["GLGradientLegendItem"]
+
 
 class GLGradientLegendItem(GLGraphicsItem):
     """
@@ -34,7 +35,7 @@ class GLGradientLegendItem(GLGraphicsItem):
         stops = (0.0, 1.0)
         self.gradient = ColorMap(pos=stops, color=(0.0, 1.0))
         self._gradient = None
-        self.labels = {str(x) : x for x in stops}
+        self.labels = {str(x): x for x in stops}
         self.setData(**kwds)
 
     def setData(self, **kwds):
@@ -50,9 +51,9 @@ class GLGradientLegendItem(GLGraphicsItem):
 
         for key in kwds:
             value = kwds[key]
-            if key == 'fontColor':
+            if key == "fontColor":
                 value = fn.mkColor(value)
-            elif key == 'gradient':
+            elif key == "gradient":
                 self._gradient = None
             setattr(self, key, value)
 

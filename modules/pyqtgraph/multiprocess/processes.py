@@ -18,36 +18,48 @@ from .remoteproxy import (
     RemoteEventHandler,
 )
 
-__all__ = ['Process', 'QtProcess', 'ForkedProcess', 'ClosedError', 'NoResultError']
+__all__ = ["Process", "QtProcess", "ForkedProcess", "ClosedError", "NoResultError"]
+
 
 class Process(RemoteEventHandler):
     """
     Bases: RemoteEventHandler
-    
+
     This class is used to spawn and control a new python interpreter.
     It uses subprocess.Popen to start the new process and communicates with it
     using multiprocessing.Connection objects over a network socket.
-    
+
     By default, the remote process will immediately enter an event-processing
     loop that carries out requests send from the parent process.
-    
+
     Remote control works mainly through proxy objects::
-    
+
         proc = Process()              ## starts process, returns handle
         rsys = proc._import('sys')    ## asks remote process to import 'sys', returns
                                       ## a proxy which references the imported module
-        rsys.stdout.write('hello\n')  ## This message will be printed from the remote 
+        rsys.stdout.write('hello\n')  ## This message will be printed from the remote
                                       ## process. Proxy objects can usually be used
                                       ## exactly as regular objects are.
         proc.close()                  ## Request the remote process shut down
-    
+
     Requests made via proxy objects may be synchronous or asynchronous and may
     return objects either by proxy or by value (if they are picklable). See
     ProxyObject for more information.
     """
+
     _process_count = 1  # just used for assigning colors to each process for debugging
 
-    def __init__(self, name=None, target=None, executable=None, copySysPath=True, debug=False, timeout=20, wrapStdout=None, pyqtapis=None):
+    def __init__(
+        self,
+        name=None,
+        target=None,
+        executable=None,
+        copySysPath=True,
+        debug=False,
+        timeout=20,
+        wrapStdout=None,
+        pyqtapis=None,
+    ):
         """
         ==============  =============================================================
         **Arguments:**
@@ -81,12 +93,12 @@ class Process(RemoteEventHandler):
         if executable is None:
             executable = sys.executable
         self.debug = 7 if debug is True else False  # 7 causes printing in white
-        
+
         ## random authentication key
         authkey = os.urandom(20)
 
         ## Listen for connection from remote process (and find free port number)
-        l = multiprocessing.connection.Listener(('localhost', 0), authkey=authkey)
+        l = multiprocessing.connection.Listener(("localhost", 0), authkey=authkey)
         port = l.address[1]
 
         ## start remote process, instruct it to run target function
@@ -95,37 +107,52 @@ class Process(RemoteEventHandler):
         else:
             # what path do we need to make target importable?
             mod = inspect.getmodule(target)
-            modroot = sys.modules[mod.__name__.split('.')[0]]
-            sysPath = os.path.abspath(os.path.join(os.path.dirname(modroot.__file__), '..'))
-        bootstrap = os.path.abspath(os.path.join(os.path.dirname(__file__), 'bootstrap.py'))
-        self.debugMsg('Starting child process (%s %s)' % (executable, bootstrap))
+            modroot = sys.modules[mod.__name__.split(".")[0]]
+            sysPath = os.path.abspath(
+                os.path.join(os.path.dirname(modroot.__file__), "..")
+            )
+        bootstrap = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), "bootstrap.py")
+        )
+        self.debugMsg("Starting child process (%s %s)" % (executable, bootstrap))
 
         # Decide on printing color for this process
         if debug:
-            procDebug = (Process._process_count%6) + 1  # pick a color for this process to print in
+            procDebug = (
+                Process._process_count % 6
+            ) + 1  # pick a color for this process to print in
             Process._process_count += 1
         else:
             procDebug = False
-        
+
         if wrapStdout is None:
-            wrapStdout = sys.platform.startswith('win')
+            wrapStdout = sys.platform.startswith("win")
 
         if wrapStdout:
             ## note: we need all three streams to have their own PIPE due to this bug:
             ## http://bugs.python.org/issue3905
             stdout = subprocess.PIPE
             stderr = subprocess.PIPE
-            self.proc = subprocess.Popen((executable, bootstrap), stdin=subprocess.PIPE, stdout=stdout, stderr=stderr)
-            ## to circumvent the bug and still make the output visible, we use 
+            self.proc = subprocess.Popen(
+                (executable, bootstrap),
+                stdin=subprocess.PIPE,
+                stdout=stdout,
+                stderr=stderr,
+            )
+            ## to circumvent the bug and still make the output visible, we use
             ## background threads to pass data from pipes to stdout/stderr
             self._stdoutForwarder = FileForwarder(self.proc.stdout, "stdout", procDebug)
             self._stderrForwarder = FileForwarder(self.proc.stderr, "stderr", procDebug)
         else:
             self.proc = subprocess.Popen((executable, bootstrap), stdin=subprocess.PIPE)
 
-        targetStr = pickle.dumps(target)  ## double-pickle target so that child has a chance to 
-                                          ## set its sys.path properly before unpickling the target
-        pid = os.getpid() # we must send pid to child because windows does not have getppid
+        targetStr = pickle.dumps(
+            target
+        )  ## double-pickle target so that child has a chance to
+        ## set its sys.path properly before unpickling the target
+        pid = (
+            os.getpid()
+        )  # we must send pid to child because windows does not have getppid
 
         # When running in a venv on Windows platform, since Python >= 3.7.3, the launched
         # subprocess is a grandchild instead of a child, leading to self.proc.pid not being
@@ -139,24 +166,27 @@ class Process(RemoteEventHandler):
         #
         # We detect a virtual environment using sys.base_prefix, see https://docs.python.org/3/library/sys.html#sys.base_prefix
         # See https://github.com/pyqtgraph/pyqtgraph/pull/2566 and https://github.com/spyder-ide/spyder/issues/20273
-        xchg_pids = sys.platform == 'win32' and sys.prefix != sys.base_prefix
+        xchg_pids = sys.platform == "win32" and sys.prefix != sys.base_prefix
 
         ## Send everything the remote process needs to start correctly
         data = dict(
-            name=name+'_child', 
-            port=port, 
-            authkey=authkey, 
+            name=name + "_child",
+            port=port,
+            authkey=authkey,
             ppid=pid if not xchg_pids else None,
-            targetStr=targetStr, 
-            path=sysPath, 
+            targetStr=targetStr,
+            path=sysPath,
             qt_lib=QT_LIB,
             debug=procDebug,
-            )
+        )
         pickle.dump(data, self.proc.stdin)
         self.proc.stdin.close()
-        
+
         ## open connection for remote process
-        self.debugMsg('Listening for child process on port %d, authkey=%s..' % (port, repr(authkey)))
+        self.debugMsg(
+            "Listening for child process on port %d, authkey=%s.."
+            % (port, repr(authkey))
+        )
         while True:
             try:
                 conn = l.accept()
@@ -174,20 +204,21 @@ class Process(RemoteEventHandler):
             conn.send(pid)
             child_pid = conn.recv()
 
-        RemoteEventHandler.__init__(self, conn, name+'_parent', pid=child_pid, debug=self.debug)
-        self.debugMsg('Connected to child process.')
-        
+        RemoteEventHandler.__init__(
+            self, conn, name + "_parent", pid=child_pid, debug=self.debug
+        )
+        self.debugMsg("Connected to child process.")
+
         atexit.register(self.join)
 
-        
     def join(self, timeout=10):
-        self.debugMsg('Joining child process..')
+        self.debugMsg("Joining child process..")
         if self.proc.poll() is None:
             self.close()
             start = time.time()
             while self.proc.poll() is None:
                 if timeout is not None and time.time() - start > timeout:
-                    raise Exception('Timed out waiting for remote process to end.')
+                    raise Exception("Timed out waiting for remote process to end.")
                 time.sleep(0.05)
         self.conn.close()
 
@@ -198,10 +229,10 @@ class Process(RemoteEventHandler):
             self._stdoutForwarder.join()
             self._stderrForwarder.join()
 
-        self.debugMsg('Child process exited. (%d)' % self.proc.returncode)
+        self.debugMsg("Child process exited. (%d)" % self.proc.returncode)
 
     def debugMsg(self, msg, *args):
-        if hasattr(self, '_stdoutForwarder'):
+        if hasattr(self, "_stdoutForwarder"):
             ## Lock output from subprocess to make sure we do not get line collisions
             with self._stdoutForwarder.lock:
                 with self._stderrForwarder.lock:
@@ -209,24 +240,29 @@ class Process(RemoteEventHandler):
         else:
             RemoteEventHandler.debugMsg(self, msg, *args)
 
-        
+
 def startEventLoop(name, port, authkey, ppid, debug=False):
     if debug:
         import os
-        cprint.cout(debug, '[%d] connecting to server at port localhost:%d, authkey=%s..\n' 
-                    % (os.getpid(), port, repr(authkey)), -1)
-    conn = multiprocessing.connection.Client(('localhost', int(port)), authkey=authkey)
+
+        cprint.cout(
+            debug,
+            "[%d] connecting to server at port localhost:%d, authkey=%s..\n"
+            % (os.getpid(), port, repr(authkey)),
+            -1,
+        )
+    conn = multiprocessing.connection.Client(("localhost", int(port)), authkey=authkey)
     if debug:
-        cprint.cout(debug, '[%d] connected; starting remote proxy.\n' % os.getpid(), -1)
+        cprint.cout(debug, "[%d] connected; starting remote proxy.\n" % os.getpid(), -1)
     global HANDLER
-    #ppid = 0 if not hasattr(os, 'getppid') else os.getppid()
+    # ppid = 0 if not hasattr(os, 'getppid') else os.getppid()
     HANDLER = RemoteEventHandler(conn, name, ppid, debug=debug)
     while True:
         try:
             HANDLER.processRequests()  # exception raised when the loop should exit
             time.sleep(0.01)
         except ClosedError:
-            HANDLER.debugMsg('Exiting server loop.')
+            HANDLER.debugMsg("Exiting server loop.")
             sys.exit(0)
 
 
@@ -237,7 +273,7 @@ class ForkedProcess(RemoteEventHandler):
     automatically have a copy of the entire program state from before the fork. This
     makes it an appealing approach when parallelizing expensive computations. (see
     also Parallelizer)
-    
+
     However, fork() comes with some caveats and limitations:
 
       - fork() is not available on Windows.
@@ -255,21 +291,21 @@ class ForkedProcess(RemoteEventHandler):
         which is potentially dangerous. ForkedProcess is careful to close all file handles
         that are not explicitly needed--stdout, stderr, and a single pipe to the parent
         process.
-      
+
     """
-    
+
     def __init__(self, name=None, target=0, preProxy=None, randomReseed=True):
         """
-        When initializing, an optional target may be given. 
+        When initializing, an optional target may be given.
         If no target is specified, self.eventLoop will be used.
-        If None is given, no target will be called (and it will be up 
+        If None is given, no target will be called (and it will be up
         to the caller to properly shut down the forked process)
-        
+
         preProxy may be a dict of values that will appear as ObjectProxy
-        in the remote process (but do not need to be sent explicitly since 
+        in the remote process (but do not need to be sent explicitly since
         they are available immediately before the call to fork().
         Proxies will be availabe as self.proxies[name].
-        
+
         If randomReseed is True, the built-in random and numpy.random generators
         will be reseeded in the child process.
         """
@@ -278,15 +314,15 @@ class ForkedProcess(RemoteEventHandler):
             target = self.eventLoop
         if name is None:
             name = str(self)
-        
+
         conn, remoteConn = multiprocessing.Pipe()
-        
+
         proxyIDs = {}
         if preProxy is not None:
             for k, v in preProxy.items():
                 proxyId = LocalObjectProxy.registerObject(v)
                 proxyIDs[k] = proxyId
-        
+
         ppid = os.getpid()  # write this down now; windows doesn't have getppid
         pid = os.fork()
         if pid == 0:
@@ -295,59 +331,68 @@ class ForkedProcess(RemoteEventHandler):
             ##   - no reading/writing file handles/sockets owned by parent process (stdout is ok)
             ##   - don't touch QtGui or QApplication at all; these are landmines.
             ##   - don't let the process call exit handlers
-            
+
             os.setpgrp()  ## prevents signals (notably keyboard interrupt) being forwarded from parent to this process
-            
+
             ## close all file handles we do not want shared with parent
             conn.close()
             sys.stdin.close()  ## otherwise we screw with interactive prompts.
             fid = remoteConn.fileno()
             os.closerange(3, fid)
-            os.closerange(fid+1, 4096) ## just guessing on the maximum descriptor count..
-            
+            os.closerange(
+                fid + 1, 4096
+            )  ## just guessing on the maximum descriptor count..
+
             ## Override any custom exception hooks
             def excepthook(*args):
                 import traceback
+
                 traceback.print_exception(*args)
-            sys.excepthook = excepthook 
-            
+
+            sys.excepthook = excepthook
+
             ## Make it harder to access QApplication instance
-            for qtlib in ('PyQt4', 'PySide', 'PyQt5'):
+            for qtlib in ("PyQt4", "PySide", "PyQt5"):
                 if qtlib in sys.modules:
-                    sys.modules[qtlib+'.QtGui'].QApplication = None
-                    sys.modules.pop(qtlib+'.QtGui', None)
-                    sys.modules.pop(qtlib+'.QtCore', None)
-            
+                    sys.modules[qtlib + ".QtGui"].QApplication = None
+                    sys.modules.pop(qtlib + ".QtGui", None)
+                    sys.modules.pop(qtlib + ".QtCore", None)
+
             ## sabotage atexit callbacks
             atexit._exithandlers = []
             atexit.register(lambda: os._exit(0))
-            
+
             if randomReseed:
-                if 'numpy.random' in sys.modules:
-                    sys.modules['numpy.random'].seed(os.getpid() ^ int(time.time()*10000%10000))
-                if 'random' in sys.modules:
-                    sys.modules['random'].seed(os.getpid() ^ int(time.time()*10000%10000))
-            
-            #ppid = 0 if not hasattr(os, 'getppid') else os.getppid()
-            RemoteEventHandler.__init__(self, remoteConn, name+'_child', pid=ppid)
-            
+                if "numpy.random" in sys.modules:
+                    sys.modules["numpy.random"].seed(
+                        os.getpid() ^ int(time.time() * 10000 % 10000)
+                    )
+                if "random" in sys.modules:
+                    sys.modules["random"].seed(
+                        os.getpid() ^ int(time.time() * 10000 % 10000)
+                    )
+
+            # ppid = 0 if not hasattr(os, 'getppid') else os.getppid()
+            RemoteEventHandler.__init__(self, remoteConn, name + "_child", pid=ppid)
+
             self.forkedProxies = {}
             for name, proxyId in proxyIDs.items():
-                self.forkedProxies[name] = ObjectProxy(ppid, proxyId=proxyId, typeStr=repr(preProxy[name]))
-            
+                self.forkedProxies[name] = ObjectProxy(
+                    ppid, proxyId=proxyId, typeStr=repr(preProxy[name])
+                )
+
             if target is not None:
                 target()
-                
+
         else:
             self.isParent = True
             self.childPid = pid
             remoteConn.close()
             RemoteEventHandler.handlers = {}  ## don't want to inherit any of this from the parent.
-            
-            RemoteEventHandler.__init__(self, conn, name+'_parent', pid=pid)
+
+            RemoteEventHandler.__init__(self, conn, name + "_parent", pid=pid)
             atexit.register(self.join)
-        
-        
+
     def eventLoop(self):
         while True:
             try:
@@ -359,58 +404,63 @@ class ForkedProcess(RemoteEventHandler):
                 print("Error occurred in forked event loop:")
                 sys.excepthook(*sys.exc_info())
         sys.exit(0)
-        
+
     def join(self, timeout=10):
         if self.hasJoined:
             return
-        #os.kill(pid, 9)  
+        # os.kill(pid, 9)
         try:
-            self.close(callSync='sync', timeout=timeout, noCleanup=True)  ## ask the child process to exit and require that it return a confirmation.
+            self.close(
+                callSync="sync", timeout=timeout, noCleanup=True
+            )  ## ask the child process to exit and require that it return a confirmation.
         except IOError:  ## probably remote process has already quit
-            pass  
-        
+            pass
+
         try:
             os.waitpid(self.childPid, 0)
         except OSError:  ## probably remote process has already quit
             pass
-        
+
         self.conn.close()  # don't leak file handles!
         self.hasJoined = True
 
     def kill(self):
-        """Immediately kill the forked remote process. 
+        """Immediately kill the forked remote process.
         This is generally safe because forked processes are already
         expected to _avoid_ any cleanup at exit."""
         os.kill(self.childPid, signal.SIGKILL)
         self.hasJoined = True
-        
-        
+
 
 ##Special set of subclasses that implement a Qt event loop instead.
-        
+
+
 class RemoteQtEventHandler(RemoteEventHandler):
     def __init__(self, *args, **kwds):
         RemoteEventHandler.__init__(self, *args, **kwds)
-        
+
     def startEventTimer(self):
         from ..Qt import QtCore
+
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.processRequests)
         self.timer.start(10)
-    
+
     def processRequests(self):
         try:
             RemoteEventHandler.processRequests(self)
         except ClosedError:
             from ..Qt import QtWidgets
+
             QtWidgets.QApplication.instance().quit()
             self.timer.stop()
-            #raise SystemExit
+            # raise SystemExit
+
 
 class QtProcess(Process):
     """
     QtProcess is essentially the same as Process, with two major differences:
-    
+
       - The remote process starts by running startQtEventLoop() which creates a
         QApplication in the remote process and uses a QTimer to trigger
         remote event processing. This allows the remote process to have its own
@@ -419,79 +469,94 @@ class QtProcess(Process):
         from the child process. This allows Qt signals emitted within the child
         process to invoke slots on the parent process and vice-versa. This can
         be disabled using processRequests=False in the constructor.
-      
+
     Example::
-    
-        proc = QtProcess()            
+
+        proc = QtProcess()
         rQtGui = proc._import('PyQt4.QtGui')
         btn = rQtWidgets.QPushButton('button on child process')
         btn.show()
-        
+
         def slot():
             print('slot invoked on parent process')
         btn.clicked.connect(proxy(slot))   # be sure to send a proxy of the slot
     """
-    
+
     def __init__(self, **kwds):
-        if 'target' not in kwds:
-            kwds['target'] = startQtEventLoop
+        if "target" not in kwds:
+            kwds["target"] = startQtEventLoop
         from ..Qt import (  # # avoid module-level import to keep bootstrap snappy.
             QtWidgets,
         )
-        self._processRequests = kwds.pop('processRequests', True)
+
+        self._processRequests = kwds.pop("processRequests", True)
         if self._processRequests and QtWidgets.QApplication.instance() is None:
-            raise Exception("Must create QApplication before starting QtProcess, or use QtProcess(processRequests=False)")
+            raise Exception(
+                "Must create QApplication before starting QtProcess, or use QtProcess(processRequests=False)"
+            )
         Process.__init__(self, **kwds)
         self.startEventTimer()
-        
+
     def startEventTimer(self):
         from ..Qt import QtCore  # # avoid module-level import to keep bootstrap snappy.
+
         self.timer = QtCore.QTimer()
         if self._processRequests:
             self.startRequestProcessing()
-    
+
     def startRequestProcessing(self, interval=0.01):
         """Start listening for requests coming from the child process.
         This allows signals to be connected from the child process to the parent.
         """
         self.timer.timeout.connect(self.processRequests)
-        self.timer.start(int(interval*1000))
-        
+        self.timer.start(int(interval * 1000))
+
     def stopRequestProcessing(self):
         self.timer.stop()
-    
+
     def processRequests(self):
         try:
             Process.processRequests(self)
         except ClosedError:
             self.timer.stop()
-    
+
+
 def startQtEventLoop(name, port, authkey, ppid, debug=False):
     if debug:
         import os
-        cprint.cout(debug, '[%d] connecting to server at port localhost:%d, authkey=%s..\n' % (os.getpid(), port, repr(authkey)), -1)
-    conn = multiprocessing.connection.Client(('localhost', int(port)), authkey=authkey)
+
+        cprint.cout(
+            debug,
+            "[%d] connecting to server at port localhost:%d, authkey=%s..\n"
+            % (os.getpid(), port, repr(authkey)),
+            -1,
+        )
+    conn = multiprocessing.connection.Client(("localhost", int(port)), authkey=authkey)
     if debug:
-        cprint.cout(debug, '[%d] connected; starting remote proxy.\n' % os.getpid(), -1)
+        cprint.cout(debug, "[%d] connected; starting remote proxy.\n" % os.getpid(), -1)
     from ..Qt import QtWidgets
+
     app = QtWidgets.QApplication.instance()
-    #print app
+    # print app
     if app is None:
         app = mkQApp()
-        app.setQuitOnLastWindowClosed(False)  ## generally we want the event loop to stay open 
-                                              ## until it is explicitly closed by the parent process.
-    
+        app.setQuitOnLastWindowClosed(
+            False
+        )  ## generally we want the event loop to stay open
+        ## until it is explicitly closed by the parent process.
+
     global HANDLER
     HANDLER = RemoteQtEventHandler(conn, name, ppid, debug=debug)
     HANDLER.startEventTimer()
-    app.exec() if hasattr(app, 'exec') else app.exec_()
+    app.exec() if hasattr(app, "exec") else app.exec_()
+
 
 import threading
 
 
 class FileForwarder(threading.Thread):
     """
-    Background thread that forwards data from one pipe to another. 
+    Background thread that forwards data from one pipe to another.
     This is used to catch data from stdout/stderr of the child process
     and print it back out to stdout/stderr. We need this because this
     bug: http://bugs.python.org/issue3905  _requires_ us to catch
@@ -499,9 +564,10 @@ class FileForwarder(threading.Thread):
 
     *output* may be a file or 'stdout' or 'stderr'. In the latter cases,
     sys.stdout/stderr are retrieved once for every line that is output,
-    which ensures that the correct behavior is achieved even if 
+    which ensures that the correct behavior is achieved even if
     sys.stdout/stderr are replaced at runtime.
     """
+
     def __init__(self, input, output, color):
         threading.Thread.__init__(self)
         self.input = input
@@ -513,20 +579,20 @@ class FileForwarder(threading.Thread):
         self.start()
 
     def run(self):
-        if self.output == 'stdout' and self.color is not False:
+        if self.output == "stdout" and self.color is not False:
             while not self.finish.is_set():
                 line = self.input.readline()
                 with self.lock:
-                    cprint.cout(self.color, line.decode('utf8'), -1)
-        elif self.output == 'stderr' and self.color is not False:
+                    cprint.cout(self.color, line.decode("utf8"), -1)
+        elif self.output == "stderr" and self.color is not False:
             while not self.finish.is_set():
                 line = self.input.readline()
                 with self.lock:
-                    cprint.cerr(self.color, line.decode('utf8'), -1)
+                    cprint.cerr(self.color, line.decode("utf8"), -1)
         else:
             if isinstance(self.output, str):
                 self.output = getattr(sys, self.output)
             while not self.finish.is_set():
                 line = self.input.readline()
                 with self.lock:
-                    self.output.write(line.decode('utf8'))
+                    self.output.write(line.decode("utf8"))

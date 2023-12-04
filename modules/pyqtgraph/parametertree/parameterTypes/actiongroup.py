@@ -49,7 +49,7 @@ class ActionGroupParameter(GroupParameter):
 
     def activate(self):
         self.sigActivated.emit(self)
-        self.emitStateChanged('activated', None)
+        self.emitStateChanged("activated", None)
 
     def setButtonOpts(self, **opts):
         """

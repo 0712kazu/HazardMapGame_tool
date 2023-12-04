@@ -18,9 +18,9 @@ class PenPreviewLabel(QtWidgets.QLabel):
         displaySize = self.size()
         w, h = displaySize.width(), displaySize.height()
         # draw a squiggle with the pen
-        path.moveTo(w * .2, h * .2)
-        path.lineTo(w * .4, h * .8)
-        path.cubicTo(w * .5, h * .1, w * .7, h * .1, w * .8, h * .8)
+        path.moveTo(w * 0.2, h * 0.2)
+        path.lineTo(w * 0.4, h * 0.8)
+        path.cubicTo(w * 0.5, h * 0.1, w * 0.7, h * 0.1, w * 0.8, h * 0.8)
 
         painter = QtGui.QPainter(self)
         painter.setPen(self.pen)
@@ -28,6 +28,6 @@ class PenPreviewLabel(QtWidgets.QLabel):
 
         # No indication of "cosmetic" from just the paint path, so add something extra in that case
         if self.pen.isCosmetic():
-            painter.setPen(mkPen('k'))
-            painter.drawText(QtCore.QPointF(w * 0.81, 12), 'C')
+            painter.setPen(mkPen("k"))
+            painter.drawText(QtCore.QPointF(w * 0.81, 12), "C")
         painter.end()

@@ -13,7 +13,7 @@ class QtEnumParameter(ListParameter):
         """
         self.enum = enum
         self.searchObj = searchObj
-        opts.setdefault('name', enum.__name__)
+        opts.setdefault("name", enum.__name__)
         self.enumMap = self._getAllowedEnums(enum)
 
         opts.update(limits=self.formattedLimits())
@@ -31,9 +31,9 @@ class QtEnumParameter(ListParameter):
         shortestName = min(len(name) for name in mapping)
         names = list(mapping)
         cmpName, *names = names
-        for ii in range(-1, -shortestName-1, -1):
+        for ii in range(-1, -shortestName - 1, -1):
             if any(cmpName[ii] != curName[ii] for curName in names):
-                substringEnd = ii+1
+                substringEnd = ii + 1
                 break
         # Special case of 0: Set to none to avoid null string
         if substringEnd == 0:
@@ -46,7 +46,7 @@ class QtEnumParameter(ListParameter):
     def saveState(self, filter=None):
         state = super().saveState(filter)
         reverseMap = dict(zip(self.enumMap.values(), self.enumMap))
-        state['value'] = reverseMap[state['value']]
+        state["value"] = reverseMap[state["value"]]
         return state
 
     def _getAllowedEnums(self, enum):
@@ -54,16 +54,18 @@ class QtEnumParameter(ListParameter):
         if issubclass(enum, Enum):
             # PyQt6 and PySide6 (opt-in in 6.3.1) use python enums
             vals = {e.name: e for e in enum}
-        elif 'PySide' in QT_LIB:
+        elif "PySide" in QT_LIB:
             vals = enum.values
-        elif 'PyQt5' in QT_LIB:
+        elif "PyQt5" in QT_LIB:
             vals = {}
             for key in dir(self.searchObj):
                 value = getattr(self.searchObj, key)
                 if isinstance(value, enum):
                     vals[key] = value
         else:
-            raise RuntimeError(f'Cannot find associated enum values for qt lib {QT_LIB}')
+            raise RuntimeError(
+                f"Cannot find associated enum values for qt lib {QT_LIB}"
+            )
         # Remove "M<enum>" since it's not a real option
-        vals.pop(f'M{enum.__name__}', None)
+        vals.pop(f"M{enum.__name__}", None)
         return vals

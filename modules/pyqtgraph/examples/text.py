@@ -14,13 +14,19 @@ from pyqtgraph.Qt import QtCore
 
 x = np.linspace(-20, 20, 1000)
 y = np.sin(x) / x
-plot = pg.plot()   ## create an empty plot widget
+plot = pg.plot()  ## create an empty plot widget
 plot.setYRange(-1, 2)
-plot.setWindowTitle('pyqtgraph example: text')
-curve = plot.plot(x,y)  ## add a single curve
+plot.setWindowTitle("pyqtgraph example: text")
+curve = plot.plot(x, y)  ## add a single curve
 
 ## Create text object, use HTML tags to specify color/size
-text = pg.TextItem(html='<div style="text-align: center"><span style="color: #FFF;">This is the</span><br><span style="color: #FF0; font-size: 16pt;">PEAK</span></div>', anchor=(-0.3,0.5), angle=45, border='w', fill=(0, 0, 255, 100))
+text = pg.TextItem(
+    html='<div style="text-align: center"><span style="color: #FFF;">This is the</span><br><span style="color: #FF0; font-size: 16pt;">PEAK</span></div>',
+    anchor=(-0.3, 0.5),
+    angle=45,
+    border="w",
+    fill=(0, 0, 255, 100),
+)
 plot.addItem(text)
 text.setPos(0, y.max())
 
@@ -39,15 +45,18 @@ arrow2.setParentItem(curvePoint)
 
 ## update position every 10ms
 index = 0
+
+
 def update():
     global curvePoint, index
     index = (index + 1) % len(x)
-    curvePoint.setPos(float(index)/(len(x)-1))
-    text2.setText('[%0.1f, %0.1f]' % (x[index], y[index]))
-    
+    curvePoint.setPos(float(index) / (len(x) - 1))
+    text2.setText("[%0.1f, %0.1f]" % (x[index], y[index]))
+
+
 timer = QtCore.QTimer()
 timer.timeout.connect(update)
 timer.start(10)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()

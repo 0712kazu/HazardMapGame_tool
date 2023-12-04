@@ -9,6 +9,7 @@ from ...Qt import QtCore, QtWidgets
 from ...SignalProxy import SignalProxy
 from ...widgets.PenPreviewLabel import PenPreviewLabel
 
+
 class PenParameterItem(GroupParameterItem):
     def __init__(self, param, depth):
         self.defaultBtn = self.makeDefaultButton()
@@ -64,12 +65,13 @@ class PenParameter(GroupParameter):
     cosmetic       Boolean, whether or not the pen is cosmetic (defaults to True)
     ============== ========================================================
     """
+
     itemClass = PenParameterItem
 
     def __init__(self, **opts):
         self.pen = fn.mkPen(**opts)
         children = self._makeChildren(self.pen)
-        if 'children' in opts:
+        if "children" in opts:
             raise KeyError('Cannot set "children" argument in Pen Parameter opts')
         super().__init__(**opts, children=list(children))
         self.valChangingProxy = SignalProxy(
@@ -89,7 +91,7 @@ class PenParameter(GroupParameter):
             for opt in self.names:
                 # Booleans have different naming convention
                 if isinstance(self[opt], bool):
-                    attrName = f'is{opt.title()}'
+                    attrName = f"is{opt.title()}"
                 else:
                     attrName = opt
                 self.child(opt).setDefault(getattr(pen, attrName)())
@@ -98,12 +100,25 @@ class PenParameter(GroupParameter):
 
     def saveState(self, filter=None):
         state = super().saveState(filter)
-        opts = state.pop('children')
-        state['value'] = tuple(o['value'] for o in opts.values())
+        opts = state.pop("children")
+        state["value"] = tuple(o["value"] for o in opts.values())
         return state
 
-    def restoreState(self, state, recursive=True, addChildren=True, removeChildren=True, blockSignals=True):
-        return super().restoreState(state, recursive=False, addChildren=False, removeChildren=False, blockSignals=blockSignals)
+    def restoreState(
+        self,
+        state,
+        recursive=True,
+        addChildren=True,
+        removeChildren=True,
+        blockSignals=True,
+    ):
+        return super().restoreState(
+            state,
+            recursive=False,
+            addChildren=False,
+            removeChildren=False,
+            blockSignals=blockSignals,
+        )
 
     def _interpretValue(self, v):
         return self.mkPen(v)
@@ -119,8 +134,8 @@ class PenParameter(GroupParameter):
         paramNames = set(opts).intersection(self.names)
         # Value should be overridden by opts
         with self.treeChangeBlocker():
-            if 'value' in opts:
-                pen = self.mkPen(opts.pop('value'))
+            if "value" in opts:
+                pen = self.mkPen(opts.pop("value"))
                 if not fn.eq(pen, self.pen):
                     self.updateFromPen(self, pen)
             penOpts = {}
@@ -138,7 +153,11 @@ class PenParameter(GroupParameter):
 
     def mkPen(self, *args, **kwargs):
         """Thin wrapper around fn.mkPen which accepts the serialized state from saveState"""
-        if len(args) == 1 and isinstance(args[0], tuple) and len(args[0]) == len(self.childs):
+        if (
+            len(args) == 1
+            and isinstance(args[0], tuple)
+            and len(args[0]) == len(self.childs)
+        ):
             opts = dict(zip(self.names, args[0]))
             self.applyOptsToPen(**opts)
             args = (self.pen,)
@@ -150,39 +169,41 @@ class PenParameter(GroupParameter):
         js = QtCore.Qt.PenJoinStyle
         ps = QtCore.Qt.PenStyle
         param = Parameter.create(
-            name='Params', type='group', children=[
-                dict(name='color', type='color', value='k'),
-                dict(name='width', value=1, type='int', limits=[0, None]),
-                QtEnumParameter(ps, name='style', value='SolidLine'),
-                QtEnumParameter(cs, name='capStyle'),
-                QtEnumParameter(js, name='joinStyle'),
-                dict(name='cosmetic', type='bool', value=True)
-            ]
-            )
+            name="Params",
+            type="group",
+            children=[
+                dict(name="color", type="color", value="k"),
+                dict(name="width", value=1, type="int", limits=[0, None]),
+                QtEnumParameter(ps, name="style", value="SolidLine"),
+                QtEnumParameter(cs, name="capStyle"),
+                QtEnumParameter(js, name="joinStyle"),
+                dict(name="cosmetic", type="bool", value=True),
+            ],
+        )
 
         optsPen = boundPen or fn.mkPen()
         for p in param:
             name = p.name()
             # Qt naming scheme uses isXXX for booleans
             if isinstance(p.value(), bool):
-                attrName = f'is{name.title()}'
+                attrName = f"is{name.title()}"
             else:
                 attrName = name
             default = getattr(optsPen, attrName)()
-            replace = r'\1 \2'
-            name = re.sub(r'(\w)([A-Z])', replace, name)
+            replace = r"\1 \2"
+            name = re.sub(r"(\w)([A-Z])", replace, name)
             name = name.title().strip()
             p.setOpts(title=name, default=default)
 
         if boundPen is not None:
             self.updateFromPen(param, boundPen)
             for p in param:
-                setName = f'set{p.name().capitalize()}'
+                setName = f"set{p.name().capitalize()}"
                 # Instead, set the parameter which will signal the old setter
                 setattr(boundPen, setName, p.setValue)
                 newSetter = self.penPropertySetter
                 # Edge case: color picker uses a dialog with user interaction, so wait until full change there
-                if p.type() != 'color':
+                if p.type() != "color":
                     p.sigValueChanging.connect(newSetter)
                 # Force children to emulate self's value instead of being part of a tree like normal
                 try:
@@ -192,7 +213,10 @@ class PenParameter(GroupParameter):
                     # that affects PySide 6.5.3
                     # Since the child param was freshly created by us, there can only have been one slot
                     # connected. So we can just disconnect all the slots without specifying which one.
-                    assert p.receivers(QtCore.SIGNAL("sigValueChanged(PyObject,PyObject)")) == 1
+                    assert (
+                        p.receivers(QtCore.SIGNAL("sigValueChanged(PyObject,PyObject)"))
+                        == 1
+                    )
                     p.sigValueChanged.disconnect()
                 # Some widgets (e.g. checkbox, combobox) don't emit 'changing' signals, so tie to 'changed' as well
                 p.sigValueChanged.connect(newSetter)
@@ -201,7 +225,7 @@ class PenParameter(GroupParameter):
 
     def penPropertySetter(self, p, value):
         boundPen = self.pen
-        setName = f'set{p.name().capitalize()}'
+        setName = f"set{p.name().capitalize()}"
         # boundPen.setName has been monkey-patched
         # so we get the original setter from the class
         getattr(boundPen.__class__, setName)(boundPen, value)
@@ -223,7 +247,7 @@ class PenParameter(GroupParameter):
         for opt in names:
             # Booleans have different naming convention
             if isinstance(param[opt], bool):
-                attrName = f'is{opt.title()}'
+                attrName = f"is{opt.title()}"
             else:
                 attrName = opt
             param[opt] = getattr(pen, attrName)()

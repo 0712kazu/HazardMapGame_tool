@@ -61,5 +61,7 @@ class Ui_Form(object):
         self.saveAsBtn.setText(_translate("Form", "As.."))
         self.reloadBtn.setText(_translate("Form", "Reload Libs"))
         self.showChartBtn.setText(_translate("Form", "Flowchart"))
+
+
 from ..widgets.FeedbackButton import FeedbackButton
 from ..widgets.TreeWidget import TreeWidget

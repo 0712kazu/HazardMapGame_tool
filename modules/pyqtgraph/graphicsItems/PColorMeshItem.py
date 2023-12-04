@@ -5,7 +5,7 @@ from .. import functions as fn
 from ..Qt import QtCore, QtGui
 from .GraphicsObject import GraphicsObject
 
-__all__ = ['PColorMeshItem']
+__all__ = ["PColorMeshItem"]
 
 
 class QuadInstances:
@@ -23,7 +23,7 @@ class QuadInstances:
         self.ncols = ncols
 
         # (nrows + 1) * (ncols + 1) vertices, (x, y)
-        self.pointsarray.resize((nrows+1)*(ncols+1))
+        self.pointsarray.resize((nrows + 1) * (ncols + 1))
         points = self.pointsarray.instances()
         # points is a flattened list of a 2d array of
         # QPointF(s) of shape (nrows+1, ncols+1)
@@ -34,10 +34,10 @@ class QuadInstances:
         polys = []
         for r in range(nrows):
             for c in range(ncols):
-                bl = points[(r+0)*(ncols+1)+(c+0)]
-                tl = points[(r+0)*(ncols+1)+(c+1)]
-                br = points[(r+1)*(ncols+1)+(c+0)]
-                tr = points[(r+1)*(ncols+1)+(c+1)]
+                bl = points[(r + 0) * (ncols + 1) + (c + 0)]
+                tl = points[(r + 0) * (ncols + 1) + (c + 1)]
+                br = points[(r + 1) * (ncols + 1) + (c + 0)]
+                tr = points[(r + 1) * (ncols + 1) + (c + 1)]
                 poly = (bl, br, tr, tl)
                 polys.append(poly)
         self.polys = polys
@@ -54,7 +54,9 @@ class PColorMeshItem(GraphicsObject):
     **Bases:** :class:`GraphicsObject <pyqtgraph.GraphicsObject>`
     """
 
-    sigLevelsChanged = QtCore.Signal(object)  # emits tuple with levels (low,high) when color levels are changed.
+    sigLevelsChanged = QtCore.Signal(
+        object
+    )  # emits tuple with levels (low,high) when color levels are changed.
 
     def __init__(self, *args, **kwargs):
         """
@@ -88,16 +90,16 @@ class PColorMeshItem(GraphicsObject):
             Colormap used to map the z value to colors.
             default ``pyqtgraph.colormap.get('viridis')``
         levels: tuple, optional, default None
-            Sets the minimum and maximum values to be represented by the colormap (min, max). 
+            Sets the minimum and maximum values to be represented by the colormap (min, max).
             Values outside this range will be clipped to the colors representing min or max.
-            ``None`` disables the limits, meaning that the colormap will autoscale 
+            ``None`` disables the limits, meaning that the colormap will autoscale
             the next time ``setData()`` is called with new data.
         enableAutoLevels: bool, optional, default True
-            Causes the colormap levels to autoscale whenever ``setData()`` is called. 
+            Causes the colormap levels to autoscale whenever ``setData()`` is called.
             It is possible to override this value on a per-change-basis by using the
             ``autoLevels`` keyword argument when calling ``setData()``.
-            If ``enableAutoLevels==False`` and ``levels==None``, autoscaling will be 
-            performed once when the first z data is supplied. 
+            If ``enableAutoLevels==False`` and ``levels==None``, autoscaling will be
+            performed once when the first z data is supplied.
         edgecolors : dict, optional
             The color of the edges of the polygons.
             Default None means no edges.
@@ -117,32 +119,31 @@ class PColorMeshItem(GraphicsObject):
         self.z = None
         self._dataBounds = None
 
-        self.edgecolors = kwargs.get('edgecolors', None)
+        self.edgecolors = kwargs.get("edgecolors", None)
         if self.edgecolors is not None:
             self.edgecolors = fn.mkPen(self.edgecolors)
             # force the pen to be cosmetic. see discussion in
             # https://github.com/pyqtgraph/pyqtgraph/pull/2586
             self.edgecolors.setCosmetic(True)
-        self.antialiasing = kwargs.get('antialiasing', False)
-        self.levels = kwargs.get('levels', None)
-        self._defaultAutoLevels = kwargs.get('enableAutoLevels', True)
-        
-        if 'colorMap' in kwargs:
-            cmap = kwargs.get('colorMap')
+        self.antialiasing = kwargs.get("antialiasing", False)
+        self.levels = kwargs.get("levels", None)
+        self._defaultAutoLevels = kwargs.get("enableAutoLevels", True)
+
+        if "colorMap" in kwargs:
+            cmap = kwargs.get("colorMap")
             if not isinstance(cmap, colormap.ColorMap):
-                raise ValueError('colorMap argument must be a ColorMap instance')
+                raise ValueError("colorMap argument must be a ColorMap instance")
             self.cmap = cmap
         else:
-            self.cmap = colormap.get('viridis')
+            self.cmap = colormap.get("viridis")
 
         self.lut_qcolor = self.cmap.getLookupTable(nPts=256, mode=self.cmap.QCOLOR)
 
         self.quads = QuadInstances()
 
         # If some data have been sent we directly display it
-        if len(args)>0:
+        if len(args) > 0:
             self.setData(*args)
-
 
     def _prepareData(self, args):
         """
@@ -151,34 +152,42 @@ class PColorMeshItem(GraphicsObject):
         """
 
         # User didn't specified data
-        if len(args)==0:
-
+        if len(args) == 0:
             self.x = None
             self.y = None
             self.z = None
 
             self._dataBounds = None
-            
+
         # User only specified z
-        elif len(args)==1:
+        elif len(args) == 1:
             # If x and y is None, the polygons will be displaced on a grid
-            x = np.arange(0, args[0].shape[0]+1, 1)
-            y = np.arange(0, args[0].shape[1]+1, 1)
-            self.x, self.y = np.meshgrid(x, y, indexing='ij')
+            x = np.arange(0, args[0].shape[0] + 1, 1)
+            y = np.arange(0, args[0].shape[1] + 1, 1)
+            self.x, self.y = np.meshgrid(x, y, indexing="ij")
             self.z = args[0]
 
             self._dataBounds = ((x[0], x[-1]), (y[0], y[-1]))
 
         # User specified x, y, z
-        elif len(args)==3:
-
+        elif len(args) == 3:
             # Shape checking
-            if args[0].shape[0] != args[2].shape[0]+1 or args[0].shape[1] != args[2].shape[1]+1:
-                raise ValueError('The dimension of x should be one greater than the one of z')
-            
-            if args[1].shape[0] != args[2].shape[0]+1 or args[1].shape[1] != args[2].shape[1]+1:
-                raise ValueError('The dimension of y should be one greater than the one of z')
-        
+            if (
+                args[0].shape[0] != args[2].shape[0] + 1
+                or args[0].shape[1] != args[2].shape[1] + 1
+            ):
+                raise ValueError(
+                    "The dimension of x should be one greater than the one of z"
+                )
+
+            if (
+                args[1].shape[0] != args[2].shape[0] + 1
+                or args[1].shape[1] != args[2].shape[1] + 1
+            ):
+                raise ValueError(
+                    "The dimension of y should be one greater than the one of z"
+                )
+
             self.x = args[0]
             self.y = args[1]
             self.z = args[2]
@@ -188,8 +197,7 @@ class PColorMeshItem(GraphicsObject):
             self._dataBounds = ((xmn, xmx), (ymn, ymx))
 
         else:
-            raise ValueError('Data must been sent as (z) or (x, y, z)')
-
+            raise ValueError("Data must been sent as (z) or (x, y, z)")
 
     def setData(self, *args, **kwargs):
         """
@@ -204,7 +212,7 @@ class PColorMeshItem(GraphicsObject):
             colors.
             If x and y is None, the polygons will be displaced on a grid
             otherwise x and y will be used as polygons vertices coordinates as::
-                
+
                 (x[i+1, j], y[i+1, j])           (x[i+1, j+1], y[i+1, j+1])
                                     +---------+
                                     | z[i, j] |
@@ -220,9 +228,7 @@ class PColorMeshItem(GraphicsObject):
         self._prepareData(args)
         boundsChanged = old_bounds != self._dataBounds
 
-        self._rerender(
-            autoLevels=kwargs.get('autoLevels', self._defaultAutoLevels)
-        )
+        self._rerender(autoLevels=kwargs.get("autoLevels", self._defaultAutoLevels))
 
         if boundsChanged:
             self.prepareGeometryChange()
@@ -237,7 +243,7 @@ class PColorMeshItem(GraphicsObject):
                 # Autoscale colormap
                 z_min = self.z.min()
                 z_max = self.z.max()
-                self.setLevels( (z_min, z_max), update=False)
+                self.setLevels((z_min, z_max), update=False)
             self.qpicture = self._drawPicture()
 
     def _drawPicture(self) -> QtGui.QPicture:
@@ -263,10 +269,12 @@ class PColorMeshItem(GraphicsObject):
         rng = hi - lo
         if rng == 0:
             rng = 1
-        norm = fn.rescaleData(self.z, scale / rng, lo, dtype=int, clip=(0, len(lut)-1))
+        norm = fn.rescaleData(
+            self.z, scale / rng, lo, dtype=int, clip=(0, len(lut) - 1)
+        )
 
-        if Qt.QT_LIB.startswith('PyQt'):
-            drawConvexPolygon = lambda x : painter.drawConvexPolygon(*x)
+        if Qt.QT_LIB.startswith("PyQt"):
+            drawConvexPolygon = lambda x: painter.drawConvexPolygon(*x)
         else:
             drawConvexPolygon = painter.drawConvexPolygon
 
@@ -282,7 +290,7 @@ class PColorMeshItem(GraphicsObject):
 
         offset = 0
         for coloridx, cnt in zip(color_indices, counts):
-            indices = sorted_indices[offset:offset+cnt]
+            indices = sorted_indices[offset : offset + cnt]
             offset += cnt
             painter.setBrush(lut[coloridx])
             for idx in indices:
@@ -291,15 +299,14 @@ class PColorMeshItem(GraphicsObject):
         painter.end()
         return picture
 
-
     def setLevels(self, levels, update=True):
         """
-        Sets color-scaling levels for the mesh. 
-        
+        Sets color-scaling levels for the mesh.
+
         Parameters
         ----------
             levels: tuple
-                ``(low, high)`` 
+                ``(low, high)``
                 sets the range for which values can be represented in the colormap.
             update: bool, optional
                 Controls if mesh immediately updates to reflect the new color levels.
@@ -317,10 +324,8 @@ class PColorMeshItem(GraphicsObject):
         """
         return self.levels
 
-
-    
     def setLookupTable(self, lut, update=True):
-        self.cmap = None    # invalidate since no longer consistent with lut
+        self.cmap = None  # invalidate since no longer consistent with lut
         self.lut_qcolor = lut[:]
         if update:
             self._rerender(autoLevels=False)
@@ -330,7 +335,9 @@ class PColorMeshItem(GraphicsObject):
         return self.cmap
 
     def setColorMap(self, cmap):
-        self.setLookupTable(cmap.getLookupTable(nPts=256, mode=cmap.QCOLOR), update=True)
+        self.setLookupTable(
+            cmap.getLookupTable(nPts=256, mode=cmap.QCOLOR), update=True
+        )
         self.cmap = cmap
 
     def enableAutoLevels(self):
@@ -347,13 +354,13 @@ class PColorMeshItem(GraphicsObject):
         if self._dataBounds is None:
             return 0
         bounds = self._dataBounds[0]
-        return bounds[1]-bounds[0]
+        return bounds[1] - bounds[0]
 
     def height(self):
         if self._dataBounds is None:
             return 0
         bounds = self._dataBounds[1]
-        return bounds[1]-bounds[0]
+        return bounds[1] - bounds[0]
 
     def dataBounds(self, ax, frac=1.0, orthoRange=None):
         if self._dataBounds is None:
@@ -385,4 +392,6 @@ class PColorMeshItem(GraphicsObject):
             px *= pxPad
             py *= pxPad
 
-        return QtCore.QRectF(xmn-px, ymn-py, (2*px)+xmx-xmn, (2*py)+ymx-ymn)
+        return QtCore.QRectF(
+            xmn - px, ymn - py, (2 * px) + xmx - xmn, (2 * py) + ymx - ymn
+        )

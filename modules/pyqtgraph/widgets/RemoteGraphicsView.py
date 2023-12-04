@@ -12,7 +12,7 @@ from .. import CONFIG_OPTIONS
 from .. import multiprocess as mp
 from .GraphicsView import GraphicsView
 
-__all__ = ['RemoteGraphicsView']
+__all__ = ["RemoteGraphicsView"]
 
 
 def serialize_mouse_enum(*args):
@@ -36,8 +36,10 @@ class MouseEvent(QtGui.QMouseEvent):
             # Note however that its QtCore.QEvent constructor accepts both
             # QEvent.Type and int.
             typ = QtCore.QEvent.Type(typ)
-        lpos = obj.position() if hasattr(obj, 'position') else obj.localPos()
-        gpos = obj.globalPosition() if hasattr(obj, 'globalPosition') else obj.screenPos()
+        lpos = obj.position() if hasattr(obj, "position") else obj.localPos()
+        gpos = (
+            obj.globalPosition() if hasattr(obj, "globalPosition") else obj.screenPos()
+        )
         btn, btns, mods = obj.button(), obj.buttons(), obj.modifiers()
         if picklable:
             typ, btn, btns, mods = serialize_mouse_enum(typ, btn, btns, mods)
@@ -67,8 +69,10 @@ class WheelEvent(QtGui.QWheelEvent):
         # {PyQt5, PySide2} 5.15 have position()
         # {PyQt5, PySide2} 5.15 have posF() (contrary to C++ docs)
         # {PyQt5, PySide2} 5.12 have posF()
-        lpos = obj.position() if hasattr(obj, 'position') else obj.posF()
-        gpos = obj.globalPosition() if hasattr(obj, 'globalPosition') else obj.globalPosF()
+        lpos = obj.position() if hasattr(obj, "position") else obj.posF()
+        gpos = (
+            obj.globalPosition() if hasattr(obj, "globalPosition") else obj.globalPosF()
+        )
         pixdel, angdel, btns = obj.pixelDelta(), obj.angleDelta(), obj.buttons()
         mods, phase, inverted = obj.modifiers(), obj.phase(), obj.inverted()
         if picklable:
@@ -77,7 +81,7 @@ class WheelEvent(QtGui.QWheelEvent):
 
     def __init__(self, rhs):
         items = list(self.get_state(rhs))
-        items[1] = items[0]     # gpos = lpos
+        items[1] = items[0]  # gpos = lpos
         super().__init__(*items)
 
     def __getstate__(self):
@@ -96,9 +100,11 @@ class WheelEvent(QtGui.QWheelEvent):
 class EnterEvent(QtGui.QEnterEvent):
     @staticmethod
     def get_state(obj):
-        lpos = obj.position() if hasattr(obj, 'position') else obj.localPos()
-        wpos = obj.scenePosition() if hasattr(obj, 'scenePosition') else obj.windowPos()
-        gpos = obj.globalPosition() if hasattr(obj, 'globalPosition') else obj.screenPos()
+        lpos = obj.position() if hasattr(obj, "position") else obj.localPos()
+        wpos = obj.scenePosition() if hasattr(obj, "scenePosition") else obj.windowPos()
+        gpos = (
+            obj.globalPosition() if hasattr(obj, "globalPosition") else obj.screenPos()
+        )
         return lpos, wpos, gpos
 
     def __init__(self, rhs):
@@ -116,8 +122,8 @@ class LeaveEvent(QtCore.QEvent):
     def get_state(obj, picklable=False):
         typ = obj.type()
         if picklable:
-            typ, = serialize_mouse_enum(typ)
-        return typ,
+            (typ,) = serialize_mouse_enum(typ)
+        return (typ,)
 
     def __init__(self, rhs):
         super().__init__(*self.get_state(rhs))
@@ -126,7 +132,7 @@ class LeaveEvent(QtCore.QEvent):
         return self.get_state(self, picklable=True)
 
     def __setstate__(self, state):
-        typ, = state
+        (typ,) = state
         typ = QtCore.QEvent.Type(typ)
         super().__init__(typ)
 
@@ -135,10 +141,11 @@ class RemoteGraphicsView(QtWidgets.QWidget):
     """
     Replacement for GraphicsView that does all scene management and rendering on a remote process,
     while displaying on the local widget.
-    
+
     GraphicsItems must be created by proxy to the remote process.
-    
+
     """
+
     def __init__(self, parent=None, *args, **kwds):
         """
         The keyword arguments 'useOpenGL' and 'backgound', if specified, are passed to the remote
@@ -146,60 +153,70 @@ class RemoteGraphicsView(QtWidgets.QWidget):
         """
         self._img = None
         self._imgReq = None
-        self._sizeHint = (640,480)  ## no clue why this is needed, but it seems to be the default sizeHint for GraphicsView.
-                                    ## without it, the widget will not compete for space against another GraphicsView.
+        self._sizeHint = (
+            640,
+            480,
+        )  ## no clue why this is needed, but it seems to be the default sizeHint for GraphicsView.
+        ## without it, the widget will not compete for space against another GraphicsView.
         QtWidgets.QWidget.__init__(self)
 
         # separate local keyword arguments from remote.
         remoteKwds = {}
-        for kwd in ['useOpenGL', 'background']:
+        for kwd in ["useOpenGL", "background"]:
             if kwd in kwds:
                 remoteKwds[kwd] = kwds.pop(kwd)
 
         self._proc = mp.QtProcess(**kwds)
-        self.pg = self._proc._import('pyqtgraph')
+        self.pg = self._proc._import("pyqtgraph")
         self.pg.setConfigOptions(**CONFIG_OPTIONS)
-        rpgRemote = self._proc._import('pyqtgraph.widgets.RemoteGraphicsView')
+        rpgRemote = self._proc._import("pyqtgraph.widgets.RemoteGraphicsView")
         self._view = rpgRemote.Renderer(*args, **remoteKwds)
         self._view._setProxyOptions(deferGetattr=True)
-        
+
         self.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.setSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
         self.setMouseTracking(True)
         self.shm = None
         shmFileName = self._view.shmFileName()
-        if sys.platform == 'win32':
+        if sys.platform == "win32":
             opener = lambda path, flags: os.open(path, flags | os.O_TEMPORARY)
         else:
             opener = None
-        self.shmFile = open(shmFileName, 'rb', opener=opener)
-        
-        self._view.sceneRendered.connect(mp.proxy(self.remoteSceneChanged)) #, callSync='off'))
-                                                                            ## Note: we need synchronous signals
-                                                                            ## even though there is no return value--
-                                                                            ## this informs the renderer that it is 
-                                                                            ## safe to begin rendering again. 
-        
-        for method in ['scene', 'setCentralItem']:
+        self.shmFile = open(shmFileName, "rb", opener=opener)
+
+        self._view.sceneRendered.connect(
+            mp.proxy(self.remoteSceneChanged)
+        )  # , callSync='off'))
+        ## Note: we need synchronous signals
+        ## even though there is no return value--
+        ## this informs the renderer that it is
+        ## safe to begin rendering again.
+
+        for method in ["scene", "setCentralItem"]:
             setattr(self, method, getattr(self._view, method))
-        
+
     def resizeEvent(self, ev):
         ret = super().resizeEvent(ev)
-        self._view.resize(self.size(), _callSync='off')
+        self._view.resize(self.size(), _callSync="off")
         return ret
-        
+
     def sizeHint(self):
         return QtCore.QSize(*self._sizeHint)
-        
+
     def remoteSceneChanged(self, data):
         w, h, size = data
         if self.shm is None or self.shm.size != size:
             if self.shm is not None:
                 self.shm.close()
             self.shm = mmap.mmap(self.shmFile.fileno(), size, access=mmap.ACCESS_READ)
-        self._img = QtGui.QImage(self.shm, w, h, QtGui.QImage.Format.Format_RGB32).copy()
+        self._img = QtGui.QImage(
+            self.shm, w, h, QtGui.QImage.Format.Format_RGB32
+        ).copy()
         self.update()
-        
+
     def paintEvent(self, ev):
         if self._img is None:
             return
@@ -208,33 +225,33 @@ class RemoteGraphicsView(QtWidgets.QWidget):
         p.end()
 
     def mousePressEvent(self, ev):
-        self._view.mousePressEvent(MouseEvent(ev), _callSync='off')
+        self._view.mousePressEvent(MouseEvent(ev), _callSync="off")
         ev.accept()
         return super().mousePressEvent(ev)
 
     def mouseReleaseEvent(self, ev):
-        self._view.mouseReleaseEvent(MouseEvent(ev), _callSync='off')
+        self._view.mouseReleaseEvent(MouseEvent(ev), _callSync="off")
         ev.accept()
         return super().mouseReleaseEvent(ev)
 
     def mouseMoveEvent(self, ev):
-        self._view.mouseMoveEvent(MouseEvent(ev), _callSync='off')
+        self._view.mouseMoveEvent(MouseEvent(ev), _callSync="off")
         ev.accept()
         return super().mouseMoveEvent(ev)
-        
+
     def wheelEvent(self, ev):
-        self._view.wheelEvent(WheelEvent(ev), _callSync='off')
+        self._view.wheelEvent(WheelEvent(ev), _callSync="off")
         ev.accept()
         return super().wheelEvent(ev)
 
     def enterEvent(self, ev):
-        self._view.enterEvent(EnterEvent(ev), _callSync='off')
+        self._view.enterEvent(EnterEvent(ev), _callSync="off")
         return super().enterEvent(ev)
-        
+
     def leaveEvent(self, ev):
-        self._view.leaveEvent(LeaveEvent(ev), _callSync='off')
+        self._view.leaveEvent(LeaveEvent(ev), _callSync="off")
         return super().leaveEvent(ev)
-        
+
     def remoteProcess(self):
         """Return the remote process handle. (see multiprocess.remoteproxy.RemoteEventHandler)"""
         return self._proc
@@ -247,42 +264,42 @@ class RemoteGraphicsView(QtWidgets.QWidget):
 
 class Renderer(GraphicsView):
     ## Created by the remote process to handle render requests
-    
+
     sceneRendered = QtCore.Signal(object)
-    
+
     def __init__(self, *args, **kwds):
         ## Create shared memory for rendered image
-        self.shmFile = tempfile.NamedTemporaryFile(prefix='pyqtgraph_shmem_')
+        self.shmFile = tempfile.NamedTemporaryFile(prefix="pyqtgraph_shmem_")
         size = mmap.PAGESIZE
-        self.shmFile.write(b'\x00' * size)
+        self.shmFile.write(b"\x00" * size)
         self.shmFile.flush()
         self.shm = mmap.mmap(self.shmFile.fileno(), size, access=mmap.ACCESS_WRITE)
         atexit.register(self.close)
-        
+
         GraphicsView.__init__(self, *args, **kwds)
         self.scene().changed.connect(self.update)
         self.img = None
         self.renderTimer = QtCore.QTimer()
         self.renderTimer.timeout.connect(self.renderView)
         self.renderTimer.start(16)
-        
+
     def close(self):
         self.shm.close()
         self.shmFile.close()
 
     def shmFileName(self):
         return self.shmFile.name
-        
+
     def update(self):
         self.img = None
         return super().update()
-        
+
     def resize(self, size):
         oldSize = self.size()
         super().resize(size)
         self.resizeEvent(QtGui.QResizeEvent(size, oldSize))
         self.update()
-        
+
     def renderView(self):
         if self.img is None:
             ## make sure shm is large enough and get its address
@@ -302,21 +319,23 @@ class Renderer(GraphicsView):
                     fd = self.shmFile.fileno()
                     os.ftruncate(fd, size)
                     self.shm = mmap.mmap(fd, size, access=mmap.ACCESS_WRITE)
-            
+
             ## render the scene directly to shared memory
 
             # see functions.py::ndarray_to_qimage() for rationale
-            if QT_LIB.startswith('PyQt'):
+            if QT_LIB.startswith("PyQt"):
                 # PyQt5, PyQt6 >= 6.0.1
                 img_ptr = int(Qt.sip.voidptr(self.shm))
             else:
                 # PySide2, PySide6
                 img_ptr = self.shm
 
-            self.img = QtGui.QImage(img_ptr, iwidth, iheight, QtGui.QImage.Format.Format_RGB32)
+            self.img = QtGui.QImage(
+                img_ptr, iwidth, iheight, QtGui.QImage.Format.Format_RGB32
+            )
             self.img.setDevicePixelRatio(dpr)
 
-            self.img.fill(0xffffffff)
+            self.img.fill(0xFFFFFFFF)
             p = QtGui.QPainter(self.img)
             self.render(p, self.viewRect(), self.rect())
             p.end()

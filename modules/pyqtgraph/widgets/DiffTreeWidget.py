@@ -4,7 +4,7 @@ from .. import functions as fn
 from ..Qt import QtWidgets
 from .DataTreeWidget import DataTreeWidget
 
-__all__ = ['DiffTreeWidget']
+__all__ = ["DiffTreeWidget"]
 
 
 class DiffTreeWidget(QtWidgets.QWidget):
@@ -12,6 +12,7 @@ class DiffTreeWidget(QtWidgets.QWidget):
     Widget for displaying differences between hierarchical python data structures
     (eg, nested dicts, lists, and arrays)
     """
+
     def __init__(self, parent=None, a=None, b=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.layout = QtWidgets.QHBoxLayout()
@@ -21,7 +22,7 @@ class DiffTreeWidget(QtWidgets.QWidget):
             self.layout.addWidget(t)
         if a is not None:
             self.setData(a, b)
-    
+
     def setData(self, a, b):
         """
         Set the data to be compared in this widget.
@@ -29,16 +30,16 @@ class DiffTreeWidget(QtWidgets.QWidget):
         self.data = (a, b)
         self.trees[0].setData(a)
         self.trees[1].setData(b)
-        
+
         return self.compare(a, b)
-        
+
     def compare(self, a, b, path=()):
         """
-        Compare data structure *a* to structure *b*. 
-        
-        Return True if the objects match completely. 
+        Compare data structure *a* to structure *b*.
+
+        Return True if the objects match completely.
         Otherwise, return a structure that describes the differences:
-        
+
             { 'type': bool
               'len': bool,
               'str': bool,
@@ -46,58 +47,62 @@ class DiffTreeWidget(QtWidgets.QWidget):
               'dtype': bool,
               'mask': array,
               }
-        
-                
+
+
         """
         bad = (255, 200, 200)
         # generate typestr, desc, childs for each object
         typeA, descA, childsA, _ = self.trees[0].parse(a)
         typeB, descB, childsB, _ = self.trees[1].parse(b)
-        
+
         if typeA != typeB:
             self.setColor(path, 1, bad)
         if descA != descB:
             self.setColor(path, 2, bad)
-            
+
         if isinstance(a, dict) and isinstance(b, dict):
             keysA = set(a.keys())
             keysB = set(b.keys())
             for key in keysA - keysB:
-                self.setColor(path+(key,), 0, bad, tree=0)
+                self.setColor(path + (key,), 0, bad, tree=0)
             for key in keysB - keysA:
-                self.setColor(path+(key,), 0, bad, tree=1)
+                self.setColor(path + (key,), 0, bad, tree=1)
             for key in keysA & keysB:
-                self.compare(a[key], b[key], path+(key,))
-            
+                self.compare(a[key], b[key], path + (key,))
+
         elif isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
             for i in range(max(len(a), len(b))):
                 if len(a) <= i:
-                    self.setColor(path+(i,), 0, bad, tree=1)
+                    self.setColor(path + (i,), 0, bad, tree=1)
                 elif len(b) <= i:
-                    self.setColor(path+(i,), 0, bad, tree=0)
+                    self.setColor(path + (i,), 0, bad, tree=0)
                 else:
-                    self.compare(a[i], b[i], path+(i,))
-                    
-        elif isinstance(a, np.ndarray) and isinstance(b, np.ndarray) and a.shape == b.shape:
+                    self.compare(a[i], b[i], path + (i,))
+
+        elif (
+            isinstance(a, np.ndarray)
+            and isinstance(b, np.ndarray)
+            and a.shape == b.shape
+        ):
             tableNodes = [tree.nodes[path].child(0) for tree in self.trees]
             if a.dtype.fields is None and b.dtype.fields is None:
                 eq = self.compareArrays(a, b)
                 if not np.all(eq):
                     for n in tableNodes:
                         n.setBackground(0, fn.mkBrush(bad))
-                #for i in np.argwhere(~eq):
-                    
+                # for i in np.argwhere(~eq):
+
             else:
                 if a.dtype == b.dtype:
-                    for i,k in enumerate(a.dtype.fields.keys()):
+                    for i, k in enumerate(a.dtype.fields.keys()):
                         eq = self.compareArrays(a[k], b[k])
                         if not np.all(eq):
                             for n in tableNodes:
                                 n.setBackground(0, fn.mkBrush(bad))
-                        #for j in np.argwhere(~eq):
-                    
+                        # for j in np.argwhere(~eq):
+
         # dict: compare keys, then values where keys match
-        # list: 
+        # list:
         # array: compare elementwise for same shape
 
     def compareArrays(self, a, b):
@@ -108,29 +113,29 @@ class DiffTreeWidget(QtWidgets.QWidget):
         mask = ~anans
         eq[mask] = np.allclose(a[mask], b[mask])
         return eq
-    
+
     def setColor(self, path, column, color, tree=None):
         brush = fn.mkBrush(color)
-        
+
         # Color only one tree if specified.
         if tree is None:
             trees = self.trees
         else:
             trees = [self.trees[tree]]
-        
+
         for tree in trees:
             item = tree.nodes[path]
             item.setBackground(column, brush)
-    
+
     def _compare(self, a, b):
         """
-        Compare data structure *a* to structure *b*. 
+        Compare data structure *a* to structure *b*.
         """
         # Check test structures are the same
         assert type(info) is type(expect)
-        if hasattr(info, '__len__'):
+        if hasattr(info, "__len__"):
             assert len(info) == len(expect)
-            
+
         if isinstance(info, dict):
             for k in info:
                 assert k in expect
@@ -157,5 +162,6 @@ class DiffTreeWidget(QtWidgets.QWidget):
             try:
                 assert info == expect
             except Exception:
-                raise NotImplementedError("Cannot compare objects of type %s" % type(info))
-    
+                raise NotImplementedError(
+                    "Cannot compare objects of type %s" % type(info)
+                )

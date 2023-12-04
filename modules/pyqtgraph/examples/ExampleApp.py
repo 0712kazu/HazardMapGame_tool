@@ -30,7 +30,7 @@ QTextCharFormat = QtGui.QTextCharFormat
 QSyntaxHighlighter = QtGui.QSyntaxHighlighter
 
 
-def charFormat(color, style='', background=None):
+def charFormat(color, style="", background=None):
     """
     Return a QTextCharFormat with the given attributes.
     """
@@ -42,9 +42,9 @@ def charFormat(color, style='', background=None):
 
     _format = QTextCharFormat()
     _format.setForeground(_color)
-    if 'bold' in style:
+    if "bold" in style:
         _format.setFontWeight(QFont.Weight.Bold)
-    if 'italic' in style:
+    if "italic" in style:
         _format.setFontItalic(True)
     if background is not None:
         _format.setBackground(pg.mkColor(background))
@@ -53,7 +53,6 @@ def charFormat(color, style='', background=None):
 
 
 class LightThemeColors:
-
     Red = "#B71C1C"
     Pink = "#FCE4EC"
     Purple = "#4A148C"
@@ -76,7 +75,6 @@ class LightThemeColors:
 
 
 class DarkThemeColors:
-
     Red = "#F44336"
     Pink = "#F48FB1"
     Purple = "#CE93D8"
@@ -99,94 +97,112 @@ class DarkThemeColors:
 
 
 LIGHT_STYLES = {
-    'keyword': charFormat(LightThemeColors.Blue, 'bold'),
-    'operator': charFormat(LightThemeColors.Red, 'bold'),
-    'brace': charFormat(LightThemeColors.Purple),
-    'defclass': charFormat(LightThemeColors.Indigo, 'bold'),
-    'string': charFormat(LightThemeColors.Amber),
-    'string2': charFormat(LightThemeColors.DeepPurple),
-    'comment': charFormat(LightThemeColors.Green, 'italic'),
-    'self': charFormat(LightThemeColors.Blue, 'bold'),
-    'numbers': charFormat(LightThemeColors.Teal),
+    "keyword": charFormat(LightThemeColors.Blue, "bold"),
+    "operator": charFormat(LightThemeColors.Red, "bold"),
+    "brace": charFormat(LightThemeColors.Purple),
+    "defclass": charFormat(LightThemeColors.Indigo, "bold"),
+    "string": charFormat(LightThemeColors.Amber),
+    "string2": charFormat(LightThemeColors.DeepPurple),
+    "comment": charFormat(LightThemeColors.Green, "italic"),
+    "self": charFormat(LightThemeColors.Blue, "bold"),
+    "numbers": charFormat(LightThemeColors.Teal),
 }
 
 
 DARK_STYLES = {
-    'keyword': charFormat(DarkThemeColors.Blue, 'bold'),
-    'operator': charFormat(DarkThemeColors.Red, 'bold'),
-    'brace': charFormat(DarkThemeColors.Purple),
-    'defclass': charFormat(DarkThemeColors.Indigo, 'bold'),
-    'string': charFormat(DarkThemeColors.Amber),
-    'string2': charFormat(DarkThemeColors.DeepPurple),
-    'comment': charFormat(DarkThemeColors.Green, 'italic'),
-    'self': charFormat(DarkThemeColors.Blue, 'bold'),
-    'numbers': charFormat(DarkThemeColors.Teal),
+    "keyword": charFormat(DarkThemeColors.Blue, "bold"),
+    "operator": charFormat(DarkThemeColors.Red, "bold"),
+    "brace": charFormat(DarkThemeColors.Purple),
+    "defclass": charFormat(DarkThemeColors.Indigo, "bold"),
+    "string": charFormat(DarkThemeColors.Amber),
+    "string2": charFormat(DarkThemeColors.DeepPurple),
+    "comment": charFormat(DarkThemeColors.Green, "italic"),
+    "self": charFormat(DarkThemeColors.Blue, "bold"),
+    "numbers": charFormat(DarkThemeColors.Teal),
 }
 
 
 class PythonHighlighter(QSyntaxHighlighter):
-    """Syntax highlighter for the Python language.
-    """
+    """Syntax highlighter for the Python language."""
+
     # Python keywords
     keywords = keyword.kwlist
 
     # Python operators
     operators = [
-        r'=',
+        r"=",
         # Comparison
-        r'==', r'!=', r'<', r'<=', r'>', r'>=',
+        r"==",
+        r"!=",
+        r"<",
+        r"<=",
+        r">",
+        r">=",
         # Arithmetic
-        r'\+', r"-", r'\*', r'/', r'//', r'%', r'\*\*',
+        r"\+",
+        r"-",
+        r"\*",
+        r"/",
+        r"//",
+        r"%",
+        r"\*\*",
         # In-place
-        r'\+=', r'-=', r'\*=', r'/=', r'\%=',
+        r"\+=",
+        r"-=",
+        r"\*=",
+        r"/=",
+        r"\%=",
         # Bitwise
-        r'\^', r'\|', r'&', r'~', r'>>', r'<<',
+        r"\^",
+        r"\|",
+        r"&",
+        r"~",
+        r">>",
+        r"<<",
     ]
 
     # Python braces
     braces = [
-        r'\{', r'\}', r'\(', r'\)', r'\[', r'\]',
+        r"\{",
+        r"\}",
+        r"\(",
+        r"\)",
+        r"\[",
+        r"\]",
     ]
 
     def __init__(self, document):
         super().__init__(document)
 
         # Multi-line strings (expression, flag, style)
-        self.tri_single = (QRegularExpression("'''"), 1, 'string2')
-        self.tri_double = (QRegularExpression('"""'), 2, 'string2')
+        self.tri_single = (QRegularExpression("'''"), 1, "string2")
+        self.tri_double = (QRegularExpression('"""'), 2, "string2")
 
         rules = []
 
         # Keyword, operator, and brace rules
-        rules += [(r'\b%s\b' % w, 0, 'keyword')
-                  for w in PythonHighlighter.keywords]
-        rules += [(o, 0, 'operator')
-                  for o in PythonHighlighter.operators]
-        rules += [(b, 0, 'brace')
-                  for b in PythonHighlighter.braces]
+        rules += [(r"\b%s\b" % w, 0, "keyword") for w in PythonHighlighter.keywords]
+        rules += [(o, 0, "operator") for o in PythonHighlighter.operators]
+        rules += [(b, 0, "brace") for b in PythonHighlighter.braces]
 
         # All other rules
         rules += [
             # 'self'
-            (r'\bself\b', 0, 'self'),
-
+            (r"\bself\b", 0, "self"),
             # 'def' followed by an identifier
-            (r'\bdef\b\s*(\w+)', 1, 'defclass'),
+            (r"\bdef\b\s*(\w+)", 1, "defclass"),
             # 'class' followed by an identifier
-            (r'\bclass\b\s*(\w+)', 1, 'defclass'),
-
+            (r"\bclass\b\s*(\w+)", 1, "defclass"),
             # Numeric literals
-            (r'\b[+-]?[0-9]+[lL]?\b', 0, 'numbers'),
-            (r'\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b', 0, 'numbers'),
-            (r'\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b', 0, 'numbers'),
-
+            (r"\b[+-]?[0-9]+[lL]?\b", 0, "numbers"),
+            (r"\b[+-]?0[xX][0-9A-Fa-f]+[lL]?\b", 0, "numbers"),
+            (r"\b[+-]?[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\b", 0, "numbers"),
             # Double-quoted string, possibly containing escape sequences
-            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, 'string'),
+            (r'"[^"\\]*(\\.[^"\\]*)*"', 0, "string"),
             # Single-quoted string, possibly containing escape sequences
-            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, 'string'),
-
+            (r"'[^'\\]*(\\.[^'\\]*)*'", 0, "string"),
             # From '#' until a newline
-            (r'#[^\n]*', 0, 'comment'),
+            (r"#[^\n]*", 0, "comment"),
         ]
         self.rules = rules
         self.searchText = None
@@ -194,11 +210,10 @@ class PythonHighlighter(QSyntaxHighlighter):
     @property
     def styles(self):
         app = QtWidgets.QApplication.instance()
-        return DARK_STYLES if app.property('darkMode') else LIGHT_STYLES
+        return DARK_STYLES if app.property("darkMode") else LIGHT_STYLES
 
     def highlightBlock(self, text):
-        """Apply syntax highlighting to the given block of text.
-        """
+        """Apply syntax highlighting to the given block of text."""
         # Do other syntax formatting
         rules = self.rules.copy()
         for expression, nth, format in rules:
@@ -220,12 +235,12 @@ class PythonHighlighter(QSyntaxHighlighter):
             in_multiline = self.match_multiline(text, *self.tri_double)
 
     def match_multiline(self, text, delimiter, in_state, style):
-        """Do highlighting of multi-line strings. 
-        
+        """Do highlighting of multi-line strings.
+
         =========== ==========================================================
-        delimiter   (QRegularExpression) for triple-single-quotes or 
+        delimiter   (QRegularExpression) for triple-single-quotes or
                     triple-double-quotes
-        in_state    (int) to represent the corresponding state changes when 
+        in_state    (int) to represent the corresponding state changes when
                     inside those strings. Returns True if we're still inside a
                     multi-line string when this function is finished.
         style       (str) representation of the kind of style to use
@@ -273,11 +288,12 @@ class PythonHighlighter(QSyntaxHighlighter):
     def applySearchHighlight(self, text):
         if not self.searchText:
             return
-        expr = f'(?i){self.searchText}'
+        expr = f"(?i){self.searchText}"
         palette: QtGui.QPalette = app.palette()
         color = palette.highlight().color()
-        fgndColor = palette.color(palette.ColorGroup.Current,
-                                  palette.ColorRole.Text).name()
+        fgndColor = palette.color(
+            palette.ColorGroup.Current, palette.ColorRole.Text
+        ).name()
         style = charFormat(fgndColor, background=color.name())
         for match in re.finditer(expr, text):
             start = match.start()
@@ -296,12 +312,12 @@ def unnestedDict(exDict):
     return out
 
 
-
 class ExampleLoader(QtWidgets.QMainWindow):
     # update qtLibCombo item order to match bindings in the UI file and recreate
     # the templates files if you change bindings.
-    bindings = {'PyQt6': 0, 'PySide6': 1, 'PyQt5': 2, 'PySide2': 3}
+    bindings = {"PyQt6": 0, "PySide6": 1, "PyQt5": 2, "PySide2": 3}
     modules = tuple(m.name for m in pkgutil.iter_modules())
+
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
         self.ui = ui_template.Ui_Form()
@@ -309,14 +325,14 @@ class ExampleLoader(QtWidgets.QMainWindow):
         self.setCentralWidget(self.cw)
         self.ui.setupUi(self.cw)
         self.setWindowTitle("PyQtGraph Examples")
-        self.codeBtn = QtWidgets.QPushButton('Run Edited Code')
+        self.codeBtn = QtWidgets.QPushButton("Run Edited Code")
         self.codeLayout = QtWidgets.QGridLayout()
         self.ui.codeView.setLayout(self.codeLayout)
         self.hl = PythonHighlighter(self.ui.codeView.document())
         app = QtWidgets.QApplication.instance()
         app.paletteChanged.connect(self.updateTheme)
         policy = QtWidgets.QSizePolicy.Policy.Expanding
-        self.codeLayout.addItem(QtWidgets.QSpacerItem(100,100, policy, policy), 0, 0)
+        self.codeLayout.addItem(QtWidgets.QSpacerItem(100, 100, policy, policy), 0, 0)
         self.codeLayout.addWidget(self.codeBtn, 1, 1)
         self.codeBtn.hide()
 
@@ -326,15 +342,14 @@ class ExampleLoader(QtWidgets.QMainWindow):
         self.ui.qtLibCombo.addItems(self.bindings.keys())
         self.ui.qtLibCombo.setCurrentIndex(self.bindings[QT_LIB])
 
-
         def onComboChanged(searchType):
             if self.curListener is not None:
                 self.curListener.disconnect()
             self.curListener = textFil.textChanged
             # In case the regex was invalid before switching to title search,
             # ensure the "invalid" color is reset
-            self.ui.exampleFilter.setStyleSheet('')
-            if searchType == 'Content Search':
+            self.ui.exampleFilter.setStyleSheet("")
+            if searchType == "Content Search":
                 self.curListener.connect(self.filterByContent)
             else:
                 self.hl.searchText = None
@@ -349,9 +364,9 @@ class ExampleLoader(QtWidgets.QMainWindow):
         self.populateTree(self.ui.exampleTree.invisibleRootItem(), utils.examples_)
         self.ui.exampleTree.expandAll()
 
-        self.resize(1000,500)
+        self.resize(1000, 500)
         self.show()
-        self.ui.splitter.setSizes([250,750])
+        self.ui.splitter.setSizes([250, 750])
 
         self.oldText = self.ui.codeView.toPlainText()
         self.ui.loadBtn.clicked.connect(self.loadFile)
@@ -361,12 +376,12 @@ class ExampleLoader(QtWidgets.QMainWindow):
         self.codeBtn.clicked.connect(self.runEditedCode)
         self.updateCodeViewTabWidth(self.ui.codeView.font())
 
-    def updateCodeViewTabWidth(self,font):
+    def updateCodeViewTabWidth(self, font):
         """
         Change the codeView tabStopDistance to 4 spaces based on the size of the current font
         """
         fm = QtGui.QFontMetrics(font)
-        tabWidth = fm.horizontalAdvance(' ' * 4)
+        tabWidth = fm.horizontalAdvance(" " * 4)
         # the default value is 80 pixels! that's more than 2x what we want.
         self.ui.codeView.setTabStopDistance(tabWidth)
 
@@ -379,7 +394,7 @@ class ExampleLoader(QtWidgets.QMainWindow):
                 item = self.ui.qtLibCombo.model().item(idx)
                 item.setData(disabledColor, QtCore.Qt.ItemDataRole.ForegroundRole)
                 item.setEnabled(False)
-                item.setToolTip(f'{item.text()} is not installed')
+                item.setToolTip(f"{item.text()} is not installed")
 
     def onTextChange(self):
         """
@@ -390,7 +405,7 @@ class ExampleLoader(QtWidgets.QMainWindow):
         newText = self.ui.codeView.toPlainText()
         if newText != self.oldText:
             self.oldText = newText
-            self.codeEdited() 
+            self.codeEdited()
 
     def filterByTitle(self, text):
         self.showExamplesByTitle(self.getMatchingTitles(text))
@@ -402,14 +417,16 @@ class ExampleLoader(QtWidgets.QMainWindow):
         validRegex = True
         try:
             re.compile(text)
-            self.ui.exampleFilter.setStyleSheet('')
+            self.ui.exampleFilter.setStyleSheet("")
         except re.error:
-            colors = DarkThemeColors if app.property('darkMode') else LightThemeColors
+            colors = DarkThemeColors if app.property("darkMode") else LightThemeColors
             errorColor = pg.mkColor(colors.Red)
             validRegex = False
             errorColor.setAlpha(100)
             # Tuple prints nicely :)
-            self.ui.exampleFilter.setStyleSheet(f'background: rgba{errorColor.getRgb()}')
+            self.ui.exampleFilter.setStyleSheet(
+                f"background: rgba{errorColor.getRgb()}"
+            )
         if not validRegex:
             return
         checkDict = unnestedDict(utils.examples_)
@@ -447,7 +464,7 @@ class ExampleLoader(QtWidgets.QMainWindow):
         item = treeIter.value()
         while item is not None:
             parent = item.parent()
-            show = (item.childCount() or item.text(0) in titles)
+            show = item.childCount() or item.text(0) in titles
             item.setHidden(not show)
 
             # If all children of a parent are gone, hide it
@@ -468,18 +485,18 @@ class ExampleLoader(QtWidgets.QMainWindow):
         intended for debug only, as it manage only the QPlainTextEdit
         """
         # first, a dark background
-        c = QtGui.QColor('#171717')
+        c = QtGui.QColor("#171717")
         p = self.ui.codeView.palette()
         p.setColor(QtGui.QPalette.ColorGroup.Active, QtGui.QPalette.ColorRole.Base, c)
         p.setColor(QtGui.QPalette.ColorGroup.Inactive, QtGui.QPalette.ColorRole.Base, c)
         self.ui.codeView.setPalette(p)
         # then, a light font
         f = QtGui.QTextCharFormat()
-        f.setForeground(QtGui.QColor('white'))
+        f.setForeground(QtGui.QColor("white"))
         self.ui.codeView.setCurrentCharFormat(f)
         # finally, override application automatic detection
         app = QtWidgets.QApplication.instance()
-        app.setProperty('darkMode', True)
+        app.setProperty("darkMode", True)
 
     def updateTheme(self):
         self.hl = PythonHighlighter(self.ui.codeView.document())
@@ -488,14 +505,16 @@ class ExampleLoader(QtWidgets.QMainWindow):
         bold_font = None
         for key, val in examples.items():
             item = QtWidgets.QTreeWidgetItem([key])
-            self.itemCache.append(item) # PyQt 4.9.6 no longer keeps references to these wrappers,
-                                        # so we need to make an explicit reference or else the .file
-                                        # attribute will disappear.
+            self.itemCache.append(
+                item
+            )  # PyQt 4.9.6 no longer keeps references to these wrappers,
+            # so we need to make an explicit reference or else the .file
+            # attribute will disappear.
             if isinstance(val, OrderedDict):
                 self.populateTree(item, val)
             elif isinstance(val, Namespace):
                 item.file = val.filename
-                if 'recommended' in val:
+                if "recommended" in val:
                     if bold_font is None:
                         bold_font = item.font(0)
                         bold_font.setBold(True)
@@ -506,7 +525,7 @@ class ExampleLoader(QtWidgets.QMainWindow):
 
     def currentFile(self):
         item = self.ui.exampleTree.currentItem()
-        if hasattr(item, 'file'):
+        if hasattr(item, "file"):
             return os.path.join(path, item.file)
         return None
 
@@ -517,10 +536,12 @@ class ExampleLoader(QtWidgets.QMainWindow):
         env = dict(os.environ, PYQTGRAPH_QT_LIB=qtLib)
         example_path = os.path.abspath(os.path.dirname(__file__))
         path = os.path.dirname(os.path.dirname(example_path))
-        env['PYTHONPATH'] = f'{path}'
+        env["PYTHONPATH"] = f"{path}"
         if edited:
-            proc = subprocess.Popen([sys.executable, '-'], stdin=subprocess.PIPE, cwd=example_path, env=env)
-            code = self.ui.codeView.toPlainText().encode('UTF-8')
+            proc = subprocess.Popen(
+                [sys.executable, "-"], stdin=subprocess.PIPE, cwd=example_path, env=env
+            )
+            code = self.ui.codeView.toPlainText().encode("UTF-8")
             proc.stdin.write(code)
             proc.stdin.close()
         else:
@@ -542,7 +563,7 @@ class ExampleLoader(QtWidgets.QMainWindow):
             self.ui.codeView.clear()
             return
         if os.path.isdir(filename):
-            filename = os.path.join(filename, '__main__.py')
+            filename = os.path.join(filename, "__main__.py")
         with open(filename, "r") as currentFile:
             text = currentFile.read()
         return text
@@ -566,14 +587,20 @@ class ExampleLoader(QtWidgets.QMainWindow):
             event.accept()
             return
 
-        if key not in [Key.Key_Plus, Key.Key_Minus, Key.Key_Underscore, Key.Key_Equal, Key.Key_0]:
+        if key not in [
+            Key.Key_Plus,
+            Key.Key_Minus,
+            Key.Key_Underscore,
+            Key.Key_Equal,
+            Key.Key_0,
+        ]:
             return
         font = self.ui.codeView.font()
         oldSize = font.pointSize()
         if key == Key.Key_Plus or key == Key.Key_Equal:
-            font.setPointSize(oldSize + max(oldSize*.15, 1))
+            font.setPointSize(oldSize + max(oldSize * 0.15, 1))
         elif key == Key.Key_Minus or key == Key.Key_Underscore:
-            newSize = oldSize - max(oldSize*.15, 1)
+            newSize = oldSize - max(oldSize * 0.15, 1)
             font.setPointSize(max(newSize, 1))
         elif key == Key.Key_0:
             # Reset to original size
@@ -582,13 +609,13 @@ class ExampleLoader(QtWidgets.QMainWindow):
         self.updateCodeViewTabWidth(font)
         event.accept()
 
+
 def main():
     app = pg.mkQApp()
     loader = ExampleLoader()
-    loader.ui.exampleTree.setCurrentIndex(
-        loader.ui.exampleTree.model().index(0,0)
-    )
+    loader.ui.exampleTree.setCurrentIndex(loader.ui.exampleTree.model().index(0, 0))
     pg.exec()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

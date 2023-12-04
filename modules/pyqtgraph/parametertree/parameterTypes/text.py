@@ -19,4 +19,5 @@ class TextParameterItem(WidgetParameterItem):
 
 class TextParameter(Parameter):
     """Editable string, displayed as large text box in the tree."""
+
     itemClass = TextParameterItem

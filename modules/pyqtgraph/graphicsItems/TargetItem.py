@@ -10,7 +10,8 @@ from .TextItem import TextItem
 from .UIGraphicsItem import UIGraphicsItem
 from .ViewBox import ViewBox
 
-__all__ = ['TargetItem', 'TargetLabel']
+__all__ = ["TargetItem", "TargetLabel"]
+
 
 class TargetItem(UIGraphicsItem):
     """Draws a draggable target symbol (circle plus crosshair).
@@ -259,7 +260,11 @@ class TargetItem(UIGraphicsItem):
         self.update()
 
     def hoverEvent(self, ev):
-        if self.movable and (not ev.isExit()) and ev.acceptDrags(QtCore.Qt.MouseButton.LeftButton):
+        if (
+            self.movable
+            and (not ev.isExit())
+            and ev.acceptDrags(QtCore.Qt.MouseButton.LeftButton)
+        ):
             self.setMouseHover(True)
         else:
             self.setMouseHover(False)
@@ -345,7 +350,7 @@ class TargetLabel(TextItem):
     anchor : tuple or list or QPointF or QPoint
         Position to rotate the TargetLabel about, and position to set the
         offset value to see :class:`~pyqtgraph.TextItem` for more information.
-    kwargs : dict 
+    kwargs : dict
         kwargs contains arguments that are passed onto
         :class:`~pyqtgraph.TextItem` constructor, excluding text parameter
     """

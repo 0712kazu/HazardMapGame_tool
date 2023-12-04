@@ -11,7 +11,7 @@ from .Qt import QT_LIB, QtCore, QtGui
 
 class Vector(QtGui.QVector3D):
     """Extension of QVector3D which adds a few helpful methods."""
-    
+
     def __init__(self, *args):
         """
         Handle additional constructions of a Vector
@@ -32,14 +32,20 @@ class Vector(QtGui.QVector3D):
         if len(args) == 1:
             if isinstance(args[0], QtCore.QSizeF):
                 initArgs = (float(args[0].width()), float(args[0].height()), 0)
-            elif isinstance(args[0], QtCore.QPoint) or isinstance(args[0], QtCore.QPointF):
+            elif isinstance(args[0], QtCore.QPoint) or isinstance(
+                args[0], QtCore.QPointF
+            ):
                 initArgs = (float(args[0].x()), float(args[0].y()), 0)
-            elif hasattr(args[0], '__getitem__') and not isinstance(args[0], QtGui.QVector3D):
+            elif hasattr(args[0], "__getitem__") and not isinstance(
+                args[0], QtGui.QVector3D
+            ):
                 vals = list(args[0])
                 if len(vals) == 2:
                     vals.append(0)
                 if len(vals) != 3:
-                    raise Exception('Cannot init Vector with sequence of length %d' % len(args[0]))
+                    raise Exception(
+                        "Cannot init Vector with sequence of length %d" % len(args[0])
+                    )
                 initArgs = vals
             elif isinstance(args[0], QtGui.QVector3D):
                 # PySide6 6.1 does not accept initialization from QVector3D
@@ -60,7 +66,7 @@ class Vector(QtGui.QVector3D):
             return self.z()
         else:
             raise IndexError("Point has no index %s" % str(i))
-        
+
     def __setitem__(self, i, x):
         if i == 0:
             return self.setX(x)
@@ -70,26 +76,26 @@ class Vector(QtGui.QVector3D):
             return self.setZ(x)
         else:
             raise IndexError("Point has no index %s" % str(i))
-        
+
     def __iter__(self):
-        yield(self.x())
-        yield(self.y())
-        yield(self.z())
+        yield (self.x())
+        yield (self.y())
+        yield (self.z())
 
     def angle(self, a):
         """Returns the angle in degrees between this vector and the vector a."""
         n1 = self.length()
         n2 = a.length()
-        if n1 == 0. or n2 == 0.:
+        if n1 == 0.0 or n2 == 0.0:
             return None
         ## Probably this should be done with arctan2 instead..
-        rads = acos(fn.clip_scalar(QtGui.QVector3D.dotProduct(self, a) / (n1 * n2), -1.0, 1.0)) ### in radians
-#        c = self.crossProduct(a)
-#        if c > 0:
-#            ang *= -1.
+        rads = acos(
+            fn.clip_scalar(QtGui.QVector3D.dotProduct(self, a) / (n1 * n2), -1.0, 1.0)
+        )  ### in radians
+        #        c = self.crossProduct(a)
+        #        if c > 0:
+        #            ang *= -1.
         return degrees(rads)
 
     def __abs__(self):
         return Vector(abs(self.x()), abs(self.y()), abs(self.z()))
-        
-        

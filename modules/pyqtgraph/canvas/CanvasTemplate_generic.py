@@ -31,7 +31,9 @@ class Ui_Form(object):
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.autoRangeBtn = QtWidgets.QPushButton(self.canvasCtrlWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Fixed
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(1)
         sizePolicy.setHeightForWidth(self.autoRangeBtn.sizePolicy().hasHeightForWidth())
@@ -49,7 +51,10 @@ class Ui_Form(object):
         self.horizontalLayout.addWidget(self.redirectCombo)
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 2)
         self.itemList = TreeWidget(self.canvasCtrlWidget)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding,
+            QtWidgets.QSizePolicy.Policy.Expanding,
+        )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(100)
         sizePolicy.setHeightForWidth(self.itemList.sizePolicy().hasHeightForWidth())
@@ -82,11 +87,15 @@ class Ui_Form(object):
         _translate = QtCore.QCoreApplication.translate
         Form.setWindowTitle(_translate("Form", "PyQtGraph"))
         self.autoRangeBtn.setText(_translate("Form", "Auto Range"))
-        self.redirectCheck.setToolTip(_translate("Form", "Check to display all local items in a remote canvas."))
+        self.redirectCheck.setToolTip(
+            _translate("Form", "Check to display all local items in a remote canvas.")
+        )
         self.redirectCheck.setText(_translate("Form", "Redirect"))
         self.resetTransformsBtn.setText(_translate("Form", "Reset Transforms"))
         self.mirrorSelectionBtn.setText(_translate("Form", "Mirror Selection"))
         self.reflectSelectionBtn.setText(_translate("Form", "MirrorXY"))
+
+
 from ..widgets.GraphicsView import GraphicsView
 from ..widgets.TreeWidget import TreeWidget
 from .CanvasManager import CanvasCombo

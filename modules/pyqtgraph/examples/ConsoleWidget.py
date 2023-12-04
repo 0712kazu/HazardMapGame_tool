@@ -14,7 +14,7 @@ app = pg.mkQApp()
 
 ## build an initial namespace for console commands to be executed in (this is optional;
 ## the user can always import these modules manually)
-namespace = {'pg': pg, 'np': np}
+namespace = {"pg": pg, "np": np}
 
 ## initial text to display in the console
 text = """
@@ -26,7 +26,7 @@ Go, play.
 c = pyqtgraph.console.ConsoleWidget(namespace=namespace, text=text)
 c.resize(800, 400)
 c.show()
-c.setWindowTitle('pyqtgraph example: ConsoleWidget')
+c.setWindowTitle("pyqtgraph example: ConsoleWidget")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pg.exec()
