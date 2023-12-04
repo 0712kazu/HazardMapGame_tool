@@ -1,8 +1,6 @@
-import os
-
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from qgis.core import QgsProject, QgsRectangle, QgsVectorLayer, QgsPointXY
-from qgis.gui import QtCore
+from qgis.core import QgsProject
+
 from qgis.utils import iface
 
 from converter import field_names
@@ -56,7 +54,7 @@ class HMGDataClassifier:
             return
 
         # Create a Pyqtgraph PlotWidget
-        ## Switch to using white background and black foreground
+        # Switch to using white background and black foreground
         pg.setConfigOption("background", "w")
         pg.setConfigOption("foreground", "k")
         self.plot_widget = pg.plot(title=chart_title)
