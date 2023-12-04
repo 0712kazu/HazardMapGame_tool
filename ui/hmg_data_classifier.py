@@ -38,7 +38,7 @@ class HMGDataClassifier:
     def show_chart_saigai(self):
         self._set_chart("災害危険", field_names.field_saigai)
 
-    def _set_chart(self, chart_title, target_field):
+    def _set_chart(self, chart_title: str, target_field: str) -> None:
         mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
 
         if target_field in mesh_score_layer.fields().names():
