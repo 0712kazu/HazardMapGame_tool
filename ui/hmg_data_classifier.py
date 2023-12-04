@@ -48,9 +48,8 @@ class HMGDataClassifier:
             y_values = sorted(field_values)
             x_values = list(range(1, len(field_values) + 1))
         else:
-            QMessageBox.information(
-                None, "エラー", f"対象レイヤに{target_field}の属性がありません。"
-            )
+            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            QMessageBox.information(None, "エラー", error_message)
             return
 
         # Create a Pyqtgraph PlotWidget
