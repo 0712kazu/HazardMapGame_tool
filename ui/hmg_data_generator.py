@@ -20,7 +20,7 @@ from converter.mesh_maker import (
 from maptool import POIMapTool
 
 
-class HGMDataGenerator:
+class HMGDataGenerator:
     def __init__(self, main: QDialog):
         self.main = main
         self.canvas = iface.mapCanvas()
@@ -28,7 +28,6 @@ class HGMDataGenerator:
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
         self.main.pushButton_mesh.clicked.connect(self.generate_mesh)
-        self.main.pushButton_cancel.clicked.connect(lambda: self.main.close())
         self.main.pushButton_cancel_2.clicked.connect(lambda: self.main.close())
         self.main.pushButton_processhmg.clicked.connect(self.process_hmg)
 

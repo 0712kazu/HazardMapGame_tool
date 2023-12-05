@@ -15,4 +15,4 @@ jobs:
       - name: Setup flake8 annotations
         uses: rbialon/flake8-annotations@v1
       - name: Lint with flake8
-        run: flake8 . --exclude=.venv --max-line-length=88
+        run: flake8 . --exclude=.venv,modules/ --max-line-length=88

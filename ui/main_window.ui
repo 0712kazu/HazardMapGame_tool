@@ -315,7 +315,7 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>HMGデータ作成</string>
+       <string>メッシュ作成</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="0">
@@ -367,7 +367,6 @@
               </property>
              </widget>
             </item>
-            
             <item row="0" column="1">
              <widget class="QComboBox" name="comboBox_pref"/>
             </item> 
@@ -610,42 +609,12 @@
               </property>
              </spacer>
             </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_mesh">
-              <property name="text">
-               <string>メッシュを作成</string>
-              </property>
-             </widget>
-            </item>
            </layout>
           </item>
          </layout>
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QGroupBox" name="groupBox_4">
-         <property name="title">
-          <string>HMGデータ作成</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QPushButton" name="pushButton_processhmg">
-            <property name="text">
-             <string>HMGデータの作成を開始する</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="3" column="0">
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="title">
-          <string>その他</string>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <spacer name="horizontalSpacer_3">
@@ -661,14 +630,14 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_run">
-           <property name="text">
-            <string>処理開始</string>
-           </property>
-          </widget>
-         </item>
+             <widget class="QPushButton" name="pushButton_mesh">
+              <property name="text">
+               <string>メッシュを作成</string>
+              </property>
+             </widget>
+            </item>
          <item>
-          <widget class="QPushButton" name="pushButton_cancel">
+          <widget class="QPushButton" name="pushButton_cancel_3">
            <property name="text">
             <string>閉じる</string>
            </property>
@@ -678,6 +647,388 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tab_class">
+      <attribute name="title">
+       <string>HMGデータ作成</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="1" column="0">
+        <!-- <widget class="QGroupBox" name="groupBox_hmgdatagenerate">
+         <property name="title">
+          <string>HMGデータ作成</string>
+         </property>
+         <layout class="QFormLayout" name="formLayout">
+          <item row="0" column="0"> -->
+           <widget class="QPushButton" name="pushButton_processhmg">
+            <property name="text">
+             <string>HMGデータの作成を開始する</string>
+            </property>
+           </widget>
+          </item>
+         <!-- </layout>
+        </widget> -->
+         <!-- </item> -->
+        <!-- CLASSIFICATION -->
+        <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_5">
+         <property name="title">
+          <string>分類設定</string>
+         </property>
+         <!-- title, max breaks, show graph button line -->
+         <layout class="QGridLayout" name="gridLayout_classifwidget">
+         <!-- Classification 2: Flood  -->
+            <item row="2" column="0">
+              <widget class="QLabel" name="label_classif_title_kozui">
+               <property name="text">
+                <string>洪水</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="9">
+              <widget class="QLabel" name="label_classif_max_kozui">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="2" column="10">
+              <widget class="QSpinBox" name="classif_nbmax_kozui"/>
+             </item>
+            <item row="2" column="11">
+             <widget class="QPushButton" name="classif_showgraph_kozui">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="3" column="0">
+              <widget class="QLabel" name="label_classif_values_kozui">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="3" column="1">
+              <widget class="QSpinBox" name="classif_percent_1_kozui"/>
+             </item>
+            <item row="3" column="2">
+              <widget class="QLabel" name="label_percent_1_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="3">
+              <widget class="QSpinBox" name="classif_percent_2_kozui"/>
+             </item>
+            <item row="3" column="4">
+              <widget class="QLabel" name="label_percent_2_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="5">
+              <widget class="QSpinBox" name="classif_percent_3_kozui"/>
+             </item>
+            <item row="3" column="6">
+              <widget class="QLabel" name="label_percent_3_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="7">
+              <widget class="QSpinBox" name="classif_percent_4_kozui"/>
+             </item>
+            <item row="3" column="8">
+              <widget class="QLabel" name="label_percent_4_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="9">
+              <widget class="QSpinBox" name="classif_percent_5_kozui"/>
+             </item>
+            <item row="3" column="10">
+              <widget class="QLabel" name="label_percent_5_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="11">
+              <widget class="QSpinBox" name="classif_percent_6_kozui"/>
+             </item>
+            <item row="3" column="12">
+              <widget class="QLabel" name="label_percent_6_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+        <!-- Classification 5: Landslip  -->
+            <item row="8" column="0">
+              <widget class="QLabel" name="label_classif_title_jisuberi">
+               <property name="text">
+                <string>地すべり</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="8" column="9">
+              <widget class="QLabel" name="label_classif_max_jisuberi">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="8" column="10">
+              <widget class="QSpinBox" name="classif_nbmax_jisuberi"/>
+             </item>
+            <item row="8" column="11">
+             <widget class="QPushButton" name="classif_showgraph_jisuberi">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="9" column="0">
+              <widget class="QLabel" name="label_classif_values_jisuberi">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="9" column="1">
+              <widget class="QSpinBox" name="classif_percent_1_jisuberi"/>
+             </item>
+            <item row="9" column="2">
+              <widget class="QLabel" name="label_percent_1_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="3">
+              <widget class="QSpinBox" name="classif_percent_2_jisuberi"/>
+             </item>
+            <item row="9" column="4">
+              <widget class="QLabel" name="label_percent_2_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="5">
+              <widget class="QSpinBox" name="classif_percent_3_jisuberi"/>
+             </item>
+            <item row="9" column="6">
+              <widget class="QLabel" name="label_percent_3_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="7">
+              <widget class="QSpinBox" name="classif_percent_4_jisuberi"/>
+             </item>
+            <item row="9" column="8">
+              <widget class="QLabel" name="label_percent_4_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="9">
+              <widget class="QSpinBox" name="classif_percent_5_jisuberi"/>
+             </item>
+            <item row="9" column="10">
+              <widget class="QLabel" name="label_percent_5_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="11">
+              <widget class="QSpinBox" name="classif_percent_6_jisuberi"/>
+             </item>
+            <item row="9" column="12">
+              <widget class="QLabel" name="label_percent_6_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+        <!-- Classification 6: Saigai risk  -->
+            <item row="10" column="0">
+              <widget class="QLabel" name="label_classif_title_saigai">
+               <property name="text">
+                <string>災害危険</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="10" column="9">
+              <widget class="QLabel" name="label_classif_max_saigai">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="10" column="10">
+              <widget class="QSpinBox" name="classif_nbmax_saigai"/>
+             </item>
+            <item row="10" column="11">
+             <widget class="QPushButton" name="classif_showgraph_saigai">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="11" column="0">
+              <widget class="QLabel" name="label_classif_values_saigai">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="11" column="1">
+              <widget class="QSpinBox" name="classif_percent_1_saigai"/>
+             </item>
+            <item row="11" column="2">
+              <widget class="QLabel" name="label_percent_1_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="3">
+              <widget class="QSpinBox" name="classif_percent_2_saigai"/>
+             </item>
+            <item row="11" column="4">
+              <widget class="QLabel" name="label_percent_2_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="5">
+              <widget class="QSpinBox" name="classif_percent_3_saigai"/>
+             </item>
+            <item row="11" column="6">
+              <widget class="QLabel" name="label_percent_3_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="7">
+              <widget class="QSpinBox" name="classif_percent_4_saigai"/>
+             </item>
+            <item row="11" column="8">
+              <widget class="QLabel" name="label_percent_4_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="9">
+              <widget class="QSpinBox" name="classif_percent_5_saigai"/>
+             </item>
+            <item row="11" column="10">
+              <widget class="QLabel" name="label_percent_5_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="11">
+              <widget class="QSpinBox" name="classif_percent_6_saigai"/>
+             </item>
+            <item row="11" column="12">
+              <widget class="QLabel" name="label_percent_6_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+          </layout>
+
+        </widget>
+       </item> 
+       <!-- LAUNCH / CLOSE BUTTONS -->
+         <item row="3" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>60</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+             <widget class="QPushButton" name="pushButton_classify">
+              <property name="text">
+               <string>分類を始める</string>
+              </property>
+             </widget>
+            </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_cancel">
+           <property name="text">
+            <string>閉じる</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+         </layout>
+       </widget>
     </widget>
    </item>
   </layout>
