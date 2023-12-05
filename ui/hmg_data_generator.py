@@ -55,6 +55,7 @@ class HGMDataGenerator:
 
         # initialize a1 scale
         self._on_city_changed()
+        self.main.a1_scale_widget.setScale(25000)
 
         # set log file
         self._set_log_csv_data()
@@ -110,6 +111,9 @@ class HGMDataGenerator:
                     self.main.lineEdit_y.setText(log["center_y"])
                     self.main.nb_mesh1.setValue(int(log["mesh_size_long"]))
                     self.main.nb_mesh2.setValue(int(log["mesh_size_short"]))
+                    self.main.a1_scale_widget.setScale(
+                        float(log["scale"].split(":")[1])
+                    )
                     # center map canvas  to centroid
                     iface.mapCanvas().zoomScale(120000)
                     iface.mapCanvas().setCenter(
@@ -165,7 +169,7 @@ class HGMDataGenerator:
                 "type": "point",
                 "pref": "",
                 "city": "",
-                "scale": "1:25000",
+                "scale": f"1:{round(self.main.a1_scale_widget.scale())}",
                 "orientation": self.main.comboBox_orientation.currentText(),
                 "center_x": self.main.lineEdit_x.text(),
                 "center_y": self.main.lineEdit_y.text(),
@@ -344,6 +348,7 @@ class HGMDataGenerator:
                 self.main.nb_mesh1.value(),
                 self.main.nb_mesh2.value(),
                 self.main.comboBox_orientation.currentText(),
+                self.main.a1_scale_widget.scale(),
             )
 
         # exclude offshore mesh (more than 90% of water)
