@@ -690,17 +690,17 @@
                 </property>
               </widget>
             </item>
-            <item row="2" column="9">
+            <item row="2" column="17">
               <widget class="QLabel" name="label_classif_max_kozui">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="2" column="10">
+            <item row="2" column="18">
               <widget class="QSpinBox" name="classif_nbmax_kozui"/>
              </item>
-            <item row="2" column="11">
+            <item row="2" column="19">
              <widget class="QPushButton" name="classif_showgraph_kozui">
               <property name="text">
                <string>画像作成</string>
@@ -781,6 +781,46 @@
                </property>
               </widget>
             </item>
+            <item row="3" column="13">
+              <widget class="QSpinBox" name="classif_percent_7_kozui"/>
+             </item>
+            <item row="3" column="14">
+              <widget class="QLabel" name="label_percent_7_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="15">
+              <widget class="QSpinBox" name="classif_percent_8_kozui"/>
+             </item>
+            <item row="3" column="16">
+              <widget class="QLabel" name="label_percent_8_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="17">
+              <widget class="QSpinBox" name="classif_percent_9_kozui"/>
+             </item>
+            <item row="3" column="18">
+              <widget class="QLabel" name="label_percent_9_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="19">
+              <widget class="QSpinBox" name="classif_percent_10_kozui"/>
+             </item>
+            <item row="3" column="20">
+              <widget class="QLabel" name="label_percent_10_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
         <!-- Classification 5: Landslip  -->
             <item row="8" column="0">
               <widget class="QLabel" name="label_classif_title_jisuberi">
@@ -795,17 +835,17 @@
                 </property>
               </widget>
             </item>
-            <item row="8" column="9">
+            <item row="8" column="17">
               <widget class="QLabel" name="label_classif_max_jisuberi">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="8" column="10">
+            <item row="8" column="18">
               <widget class="QSpinBox" name="classif_nbmax_jisuberi"/>
              </item>
-            <item row="8" column="11">
+            <item row="8" column="19">
              <widget class="QPushButton" name="classif_showgraph_jisuberi">
               <property name="text">
                <string>画像作成</string>
@@ -886,6 +926,46 @@
                </property>
               </widget>
             </item>
+            <item row="9" column="13">
+              <widget class="QSpinBox" name="classif_percent_7_jisuberi"/>
+             </item>
+            <item row="9" column="14">
+              <widget class="QLabel" name="label_percent_7_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="15">
+              <widget class="QSpinBox" name="classif_percent_8_jisuberi"/>
+             </item>
+            <item row="9" column="16">
+              <widget class="QLabel" name="label_percent_8_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="17">
+              <widget class="QSpinBox" name="classif_percent_9_jisuberi"/>
+             </item>
+            <item row="9" column="18">
+              <widget class="QLabel" name="label_percent_9_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="19">
+              <widget class="QSpinBox" name="classif_percent_10_jisuberi"/>
+             </item>
+            <item row="9" column="20">
+              <widget class="QLabel" name="label_percent_10_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
         <!-- Classification 6: Saigai risk  -->
             <item row="10" column="0">
               <widget class="QLabel" name="label_classif_title_saigai">
@@ -900,17 +980,17 @@
                 </property>
               </widget>
             </item>
-            <item row="10" column="9">
+            <item row="10" column="17">
               <widget class="QLabel" name="label_classif_max_saigai">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="10" column="10">
+            <item row="10" column="18">
               <widget class="QSpinBox" name="classif_nbmax_saigai"/>
              </item>
-            <item row="10" column="11">
+            <item row="10" column="19">
              <widget class="QPushButton" name="classif_showgraph_saigai">
               <property name="text">
                <string>画像作成</string>
@@ -986,6 +1066,46 @@
              </item>
             <item row="11" column="12">
               <widget class="QLabel" name="label_percent_6_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="13">
+              <widget class="QSpinBox" name="classif_percent_7_saigai"/>
+             </item>
+            <item row="11" column="14">
+              <widget class="QLabel" name="label_percent_7_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="15">
+              <widget class="QSpinBox" name="classif_percent_8_saigai"/>
+             </item>
+            <item row="11" column="16">
+              <widget class="QLabel" name="label_percent_8_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="17">
+              <widget class="QSpinBox" name="classif_percent_9_saigai"/>
+             </item>
+            <item row="11" column="18">
+              <widget class="QLabel" name="label_percent_9_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="19">
+              <widget class="QSpinBox" name="classif_percent_10_saigai"/>
+             </item>
+            <item row="11" column="20">
+              <widget class="QLabel" name="label_percent_10_saigai">
                <property name="text">
                 <string>%</string>
                </property>
