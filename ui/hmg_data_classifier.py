@@ -65,5 +65,25 @@ class HMGDataClassifier:
             size=5,
             pen=pg.mkPen(None),
             brush=pg.mkBrush(0, 0, 255),
+            name=chart_title,
         )
         self.plot_widget.addItem(scatter)
+        self.plot_widget.getPlotItem().getViewBox().setRange(yRange=[0, max(y_values)])
+
+        plot2 = pg.ViewBox()
+        self.plot_widget.scene().addItem(plot2)
+        self.plot_widget.hideAxis("right")
+        self.plot_widget.getAxis("right").linkToView(plot2)
+        self.plot_widget.getPlotItem().layout.addItem(plot2, 2, 1)
+        plot2.setXLink(self.plot_widget.getPlotItem())
+        plot2.setRange(yRange=[0, 100])
+
+        percent1 = self.plot_widget.plot([0, 96], [50, 50], pen="r", name="percent1")
+        plot2.addItem(percent1)
+        percent2 = self.plot_widget.plot([0, 96], [80, 80], pen="r", name="percent2")
+        plot2.addItem(percent2)
+
+        # Set axis labels
+        self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
+        self.plot_widget.setLabel("left", "体積", color="blue")
+        self.plot_widget.setLabel("right", "比率", color="red")
