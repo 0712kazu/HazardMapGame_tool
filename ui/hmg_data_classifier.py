@@ -19,16 +19,21 @@ class HMGDataClassifier:
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_classify.clicked.connect(self.classify_hmg_data)
 
-        # Connect graphs
-        self.main.classif_showgraph_kozui.clicked.connect(self.show_chart_kozui)
-        self.main.classif_showgraph_jisuberi.clicked.connect(self.show_chart_jisuberi)
-        self.main.classif_showgraph_saigai.clicked.connect(self.show_chart_saigai)
+        # self.main.classif_showgraph_kozui.clicked.connect(self.show_chart_kozui)
+        # self.main.classif_showgraph_jisuberi.clicked.connect(self.show_chart_jisuberi)
+        # self.main.classif_showgraph_saigai.clicked.connect(self.show_chart_saigai)
 
-        # Set max break values
         for hazard in self.hazards:
+            # Connect graphs
+            show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
+            show_graph_function = getattr(self, f"show_chart_{hazard}")
+            show_graph_button.clicked.connect(show_graph_function)
+
+            # Set max break values
             nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
             nbmax_box.setRange(1, 10)
             nbmax_box.setValue(10)
+            # nbmax_box.valueChanged.connect()
             for n in range(1, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
                 percentage_box.setRange(1, 100)
