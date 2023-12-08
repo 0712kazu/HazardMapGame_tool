@@ -19,10 +19,6 @@ class HMGDataClassifier:
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_classify.clicked.connect(self.classify_hmg_data)
 
-        # self.main.classif_showgraph_kozui.clicked.connect(self.show_chart_kozui)
-        # self.main.classif_showgraph_jisuberi.clicked.connect(self.show_chart_jisuberi)
-        # self.main.classif_showgraph_saigai.clicked.connect(self.show_chart_saigai)
-
         for hazard in self.hazards:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
@@ -30,16 +26,27 @@ class HMGDataClassifier:
             show_graph_button.clicked.connect(show_graph_function)
 
             # Set max break values
+            on_number_changed_function = getattr(self, f"on_number_changed_{hazard}")
             nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
             nbmax_box.setRange(1, 10)
             nbmax_box.setValue(10)
-            # nbmax_box.valueChanged.connect()
+            nbmax_box.valueChanged.connect(on_number_changed_function)
             for n in range(1, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
                 percentage_box.setRange(1, 100)
                 percentage_box.setValue(n * 10)
+                percentage_box.valueChanged.connect(on_number_changed_function)
 
     def classify_hmg_data(self):
+        return
+
+    def on_number_changed_kozui(self):
+        return
+
+    def on_number_changed_jisuberi(self):
+        return
+
+    def on_number_changed_saigai(self):
         return
 
     def show_chart_kozui(self):
