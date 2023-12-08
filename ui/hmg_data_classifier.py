@@ -13,6 +13,7 @@ class HMGDataClassifier:
         self.chart_dialog = None
         self.main = main
         self.canvas = iface.mapCanvas()
+        self.hazards = ["kozui", "jisuberi", "saigai"]
 
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
@@ -22,9 +23,16 @@ class HMGDataClassifier:
         self.main.classif_showgraph_kozui.clicked.connect(self.show_chart_kozui)
         self.main.classif_showgraph_jisuberi.clicked.connect(self.show_chart_jisuberi)
         self.main.classif_showgraph_saigai.clicked.connect(self.show_chart_saigai)
+
         # Set max break values
-        self.main.classif_nbmax_kozui.setRange(1, 6)
-        self.main.classif_nbmax_kozui.setValue(6)
+        for hazard in self.hazards:
+            nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+            nbmax_box.setRange(1, 10)
+            nbmax_box.setValue(10)
+            for n in range(1, 11):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percentage_box.setRange(1, 100)
+                percentage_box.setValue(n * 10)
 
     def classify_hmg_data(self):
         return
