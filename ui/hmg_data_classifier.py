@@ -31,9 +31,10 @@ class HMGDataClassifier:
             nbmax_box.setRange(1, 10)
             nbmax_box.setValue(10)
             nbmax_box.valueChanged.connect(on_number_changed_function)
+            # set box per 10% as default
             for n in range(1, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-                percentage_box.setRange(1, 100)
+                percentage_box.setRange(0, 100)
                 percentage_box.setValue(n * 10)
                 percentage_box.valueChanged.connect(on_number_changed_function)
 
@@ -41,25 +42,38 @@ class HMGDataClassifier:
         return
 
     def on_number_changed_kozui(self):
-        return
+        self._set_percentages("kozui")
 
     def on_number_changed_jisuberi(self):
-        return
+        self._set_percentages("jisuberi")
 
     def on_number_changed_saigai(self):
-        return
+        self._set_percentages("saigai")
+
+    def _set_percentages(self, hazard: str):
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+        for n in range(1, 11):
+            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+            if n > nbmax_box.value():
+                percentage_box.setValue(0)
+                percentage_box.setReadOnly(True)
+            else:
+                percentage_box.setReadOnly(False)
 
     def show_chart_kozui(self):
-        self._set_chart("洪水", field_names.field_kozui)
+        self._set_chart("洪水", "kozui")
 
     def show_chart_jisuberi(self):
-        self._set_chart("地すべり", field_names.field_jisuberi)
+        self._set_chart("地すべり", "jisuberi")
 
     def show_chart_saigai(self):
-        self._set_chart("災害危険", field_names.field_saigai)
+        self._set_chart("災害危険", "saigai")
 
-    def _set_chart(self, chart_title: str, target_field: str) -> None:
+    def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+
+        # get mesh_score target field name
+        target_field = getattr(field_names, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -90,6 +104,7 @@ class HMGDataClassifier:
         self.plot_widget.addItem(scatter)
         self.plot_widget.getPlotItem().getViewBox().setRange(yRange=[0, max(y_values)])
 
+        # set second chart for percentages
         plot2 = pg.ViewBox()
         self.plot_widget.scene().addItem(plot2)
         self.plot_widget.hideAxis("right")
@@ -98,10 +113,17 @@ class HMGDataClassifier:
         plot2.setXLink(self.plot_widget.getPlotItem())
         plot2.setRange(yRange=[0, 100])
 
-        percent1 = self.plot_widget.plot([0, 96], [50, 50], pen="r", name="percent1")
-        plot2.addItem(percent1)
-        percent2 = self.plot_widget.plot([0, 96], [80, 80], pen="r", name="percent2")
-        plot2.addItem(percent2)
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+        for n in range(1, nbmax_box.value() + 1):
+            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+            percent_value = percentage_box.value()
+            percent_line = self.plot_widget.plot(
+                [0, 96],
+                [percent_value, percent_value],
+                pen="r",
+                name=f"{chart_title}_比率_{n}",
+            )
+            plot2.addItem(percent_line)
 
         # Set axis labels
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
