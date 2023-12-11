@@ -9,7 +9,7 @@ from qgis.core import (
 
 def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
     # Set the symbol layer to the renderer
-    # breaks list format = [[0, 1000, "Yellow"], [1001, 9999999999, "Blue"]]
+    # breaks list format = [[0, 1000, "#FFFFFF"], [1001, 9999999999, "#0000FF"]]
 
     renderer = QgsGraduatedSymbolRenderer(target_field)
 

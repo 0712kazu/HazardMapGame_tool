@@ -108,19 +108,9 @@ class HMGDataClassifier:
         self.plot_widget.addItem(scatter)
         self.plot_widget.getPlotItem().getViewBox().setRange(yRange=[0, max(y_values)])
 
-        # set second chart for percentages
-        plot2 = pg.ViewBox()
-        self.plot_widget.scene().addItem(plot2)
-        self.plot_widget.hideAxis("right")
-        self.plot_widget.getAxis("right").linkToView(plot2)
-        self.plot_widget.getPlotItem().layout.addItem(plot2, 2, 1)
-        plot2.setXLink(self.plot_widget.getPlotItem())
-        plot2.setRange(yRange=[0, 100])
-
         # Set axis labels
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
         self.plot_widget.setLabel("left", "体積", color="blue")
-        self.plot_widget.setLabel("right", "比率", color="red")
 
         breaks = []
         break_min = 0
@@ -135,13 +125,19 @@ class HMGDataClassifier:
             # get color to show in graph and map
             color = get_color_from_range(n, nbmax_box.value())
 
-            # add break_max as plot
+            # add break_max line as plot
+            line_label = f"{percent_value}%"
             percent_line = self.plot_widget.plot(
                 [0, len(y_values)],
                 [break_max, break_max],
-                pen=color,
-                name=f"{chart_title}_比率_{n}",
+                pen=pg.mkPen(color, width=2),
+                name=line_label,
             )
+            # labeling
+            label_item = pg.TextItem(text=line_label, color=color)
+            self.plot_widget.addItem(label_item)
+            label_item.setPos(len(y_values), break_max)
+
             self.plot_widget.addItem(percent_line)
 
             # calculate break for maps
