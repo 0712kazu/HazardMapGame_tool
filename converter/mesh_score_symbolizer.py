@@ -38,9 +38,6 @@ def get_mesh_value_from_percentage(mesh_values: list, percent_value: float) -> f
     else:
         mesh_value = mesh_values[round(mesh_rank) - 1]
 
-    print("rank", mesh_rank)
-    print("rounded", round(mesh_rank) - 1)
-    print("mesh_value", mesh_value)
     return mesh_value
 
 

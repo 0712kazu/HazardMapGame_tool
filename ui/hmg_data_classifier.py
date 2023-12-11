@@ -117,32 +117,34 @@ class HMGDataClassifier:
         plot2.setXLink(self.plot_widget.getPlotItem())
         plot2.setRange(yRange=[0, 100])
 
-        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
-        for n in range(1, nbmax_box.value() + 1):
-            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percent_value = percentage_box.value()
-            percent_line = self.plot_widget.plot(
-                [0, 96],
-                [percent_value, percent_value],
-                pen="r",
-                name=f"{chart_title}_比率_{n}",
-            )
-            plot2.addItem(percent_line)
-
         # Set axis labels
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
         self.plot_widget.setLabel("left", "体積", color="blue")
         self.plot_widget.setLabel("right", "比率", color="red")
 
-        # calculate breaks for maps
         breaks = []
         break_min = 0
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         for n in range(1, nbmax_box.value() + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percent_value = percentage_box.value()
+
+            # get mesh value from percentage
             break_max = get_mesh_value_from_percentage(y_values, percent_value)
+
+            # get color to show in graph and map
             color = get_color_from_range(n, nbmax_box.value())
-            print([break_min, break_max, color])
+
+            # add break_max as plot
+            percent_line = self.plot_widget.plot(
+                [0, len(y_values)],
+                [break_max, break_max],
+                pen=color,
+                name=f"{chart_title}_比率_{n}",
+            )
+            self.plot_widget.addItem(percent_line)
+
+            # calculate break for maps
             breaks.append([break_min, break_max, color])
             break_min = break_max
 
