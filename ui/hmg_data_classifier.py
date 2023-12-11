@@ -4,7 +4,11 @@ from qgis.core import QgsProject
 from qgis.utils import iface
 
 from converter import field_names
-
+from converter.mesh_score_symbolizer import (
+    graduate_layer,
+    get_mesh_value_from_percentage,
+    get_color_from_range,
+)
 from modules import pyqtgraph as pg
 
 
@@ -129,3 +133,17 @@ class HMGDataClassifier:
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
         self.plot_widget.setLabel("left", "体積", color="blue")
         self.plot_widget.setLabel("right", "比率", color="red")
+
+        # calculate breaks for maps
+        breaks = []
+        break_min = 0
+        for n in range(1, nbmax_box.value() + 1):
+            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+            percent_value = percentage_box.value()
+            break_max = get_mesh_value_from_percentage(y_values, percent_value)
+            color = get_color_from_range(n, nbmax_box.value())
+            breaks.append([break_min, break_max, color])
+            break_min = break_max
+
+        # reflect to map
+        graduate_layer(mesh_score_layer, target_field, breaks)
