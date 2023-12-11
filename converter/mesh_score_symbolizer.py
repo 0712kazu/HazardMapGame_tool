@@ -15,7 +15,7 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
 
     for min, max, color in breaks:
         classificationRange = QgsClassificationRange(
-            f"{min} < {target_field}<{max}", min, max
+            f"{min} < {target_field} < {max}", min, max
         )
         properties = {
             "color": color,
@@ -32,7 +32,16 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
 
 
 def get_mesh_value_from_percentage(mesh_values: list, percent_value: float) -> float:
-    return len(mesh_values) * percent_value / 100
+    mesh_rank = len(mesh_values) * percent_value / 100
+    if round(mesh_rank) == 0:
+        mesh_value = mesh_values[0]
+    else:
+        mesh_value = mesh_values[round(mesh_rank) - 1]
+
+    print("rank", mesh_rank)
+    print("rounded", round(mesh_rank) - 1)
+    print("mesh_value", mesh_value)
+    return mesh_value
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:

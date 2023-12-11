@@ -142,6 +142,7 @@ class HMGDataClassifier:
             percent_value = percentage_box.value()
             break_max = get_mesh_value_from_percentage(y_values, percent_value)
             color = get_color_from_range(n, nbmax_box.value())
+            print([break_min, break_max, color])
             breaks.append([break_min, break_max, color])
             break_min = break_max
 
