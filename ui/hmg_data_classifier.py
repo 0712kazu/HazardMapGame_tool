@@ -45,9 +45,15 @@ class HMGDataClassifier:
                 percentage_box.valueChanged.connect(on_number_changed_function)
 
             # set classifications methods
+            # standard deviation
             stdev_button = getattr(self.main, f"radiobutton_stdev_{hazard}")
             stdev_function = getattr(self, f"classify_stdev_{hazard}")
             stdev_button.clicked.connect(stdev_function)
+
+            # custom button
+            custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
+            custom_button.setChecked(True)  # default button
+            custom_button.clicked.connect(on_number_changed_function)
 
     def classify_hmg_data(self):
         return
@@ -63,10 +69,14 @@ class HMGDataClassifier:
 
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+        custom_radio_btn = getattr(self.main, f"radiobutton_custom_{hazard}")
         for n in range(1, 11):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             if n > nbmax_box.value():
                 percentage_box.setValue(0)
+                percentage_box.setReadOnly(True)
+            elif custom_radio_btn.isChecked() is False:
+                # lock if it is not custom mode
                 percentage_box.setReadOnly(True)
             else:
                 percentage_box.setReadOnly(False)
@@ -107,7 +117,6 @@ class HMGDataClassifier:
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
         for n in range(1, 11):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setRange(0, 100)
             percentage_box.setValue(percentages_classes[n - 1])
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
