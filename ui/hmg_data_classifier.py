@@ -8,6 +8,7 @@ from converter.mesh_score_symbolizer import (
     graduate_layer,
     get_mesh_value_from_percentage,
     get_color_from_range,
+    classify_values_stdev,
 )
 from modules import pyqtgraph as pg
 
@@ -29,18 +30,24 @@ class HMGDataClassifier:
             show_graph_function = getattr(self, f"show_chart_{hazard}")
             show_graph_button.clicked.connect(show_graph_function)
 
-            # Set max break values
+            # Set max break values to 10 as default
             on_number_changed_function = getattr(self, f"on_number_changed_{hazard}")
             nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
             nbmax_box.setRange(1, 10)
             nbmax_box.setValue(10)
             nbmax_box.valueChanged.connect(on_number_changed_function)
-            # set box per 10% as default
+
+            # default percentages: 10 classes by 10%
             for n in range(1, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
                 percentage_box.setRange(0, 100)
                 percentage_box.setValue(n * 10)
                 percentage_box.valueChanged.connect(on_number_changed_function)
+
+            # set classifications methods
+            stdev_button = getattr(self.main, f"radiobutton_stdev_{hazard}")
+            stdev_function = getattr(self, f"classify_stdev_{hazard}")
+            stdev_button.clicked.connect(stdev_function)
 
     def classify_hmg_data(self):
         return
@@ -72,6 +79,36 @@ class HMGDataClassifier:
 
     def show_chart_saigai(self):
         self._set_chart("災害危険", "saigai")
+
+    def classify_stdev_kozui(self):
+        self._set_percentages_stdev("kozui")
+
+    def classify_stdev_jisuberi(self):
+        self._set_percentages_stdev("jisuberi")
+
+    def classify_stdev_saigai(self):
+        self._set_percentages_stdev("saigai")
+
+    def _set_percentages_stdev(self, hazard: str):
+        mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        # get mesh_score target field name
+        target_field = getattr(field_names, f"field_{hazard}")
+
+        if target_field in mesh_score_layer.fields().names():
+            field_values = [
+                feature[target_field] for feature in mesh_score_layer.getFeatures()
+            ]
+            y_values = sorted(field_values)
+        else:
+            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+        percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
+        for n in range(1, 11):
+            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+            percentage_box.setRange(0, 100)
+            percentage_box.setValue(percentages_classes[n - 1])
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
@@ -115,6 +152,7 @@ class HMGDataClassifier:
         breaks = []
         break_min = 0
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+
         for n in range(1, nbmax_box.value() + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percent_value = percentage_box.value()

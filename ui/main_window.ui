@@ -653,21 +653,12 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
        <item row="1" column="0">
-        <!-- <widget class="QGroupBox" name="groupBox_hmgdatagenerate">
-         <property name="title">
-          <string>HMGデータ作成</string>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0"> -->
            <widget class="QPushButton" name="pushButton_processhmg">
             <property name="text">
              <string>HMGデータの作成を開始する</string>
             </property>
            </widget>
           </item>
-         <!-- </layout>
-        </widget> -->
-         <!-- </item> -->
         <!-- CLASSIFICATION -->
         <item row="2" column="0">
         <widget class="QGroupBox" name="groupBox_5">
@@ -690,6 +681,38 @@
                 </property>
               </widget>
             </item>
+            <!-- classification methods -->
+            <item row="2" column="9">
+              <widget class="QRadioButton" name="radiobutton_stdev_kozui">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_kozui</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="2" column="11">
+              <widget class="QRadioButton" name="radiobutton_tcg_kozui">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_kozui</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="2" column="13">
+              <widget class="QRadioButton" name="radiobutton_custom_kozui">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_kozui</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
             <item row="2" column="17">
               <widget class="QLabel" name="label_classif_max_kozui">
                <property name="text">
@@ -700,6 +723,7 @@
             <item row="2" column="18">
               <widget class="QSpinBox" name="classif_nbmax_kozui"/>
              </item>
+             <!-- active button -->
             <item row="2" column="19">
              <widget class="QPushButton" name="classif_showgraph_kozui">
               <property name="text">
@@ -835,6 +859,38 @@
                 </property>
               </widget>
             </item>
+            <!-- classification methods -->
+            <item row="8" column="9">
+              <widget class="QRadioButton" name="radiobutton_stdev_jisuberi">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_jisuberi</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="8" column="11">
+              <widget class="QRadioButton" name="radiobutton_tcg_jisuberi">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_jisuberi</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="8" column="13">
+              <widget class="QRadioButton" name="radiobutton_custom_jisuberi">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_jisuberi</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks max -->
             <item row="8" column="17">
               <widget class="QLabel" name="label_classif_max_jisuberi">
                <property name="text">
@@ -980,6 +1036,38 @@
                 </property>
               </widget>
             </item>
+            <!-- classification methods -->
+            <item row="10" column="9">
+              <widget class="QRadioButton" name="radiobutton_stdev_saigai">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_saigai</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="10" column="11">
+              <widget class="QRadioButton" name="radiobutton_tcg_saigai">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_saigai</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="10" column="13">
+              <widget class="QRadioButton" name="radiobutton_custom_saigai">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_saigai</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
             <item row="10" column="17">
               <widget class="QLabel" name="label_classif_max_saigai">
                <property name="text">

@@ -6,6 +6,8 @@ from qgis.core import (
     QgsRendererRange,
 )
 
+import numpy as np
+
 
 def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
     # Set the symbol layer to the renderer
@@ -39,6 +41,46 @@ def get_mesh_value_from_percentage(mesh_values: list, percent_value: float) -> f
         mesh_value = mesh_values[round(mesh_rank) - 1]
 
     return mesh_value
+
+
+def classify_values_stdev(values: list, num_classes: int) -> list:
+    """
+    return classification in percentage values from given
+    values sample and a specific number of classes
+    input:
+    - values [0,0,24,255,484,1056...]
+    - num_classes: 6
+    output:
+    - class_percentages : [0,0,54,85,90,100] a list of percentages
+    """
+
+    # Calculate mean and standard deviation
+    mean_value = np.mean(values)
+    std_dev = np.std(values)
+
+    # Calculate class width
+    class_width = 2 * std_dev / num_classes
+
+    # Calculate class boundaries
+    class_boundaries = [
+        mean_value - std_dev + i * class_width for i in range(1, num_classes)
+    ]
+    class_boundaries.append(mean_value + std_dev)  # Add the upper boundary
+
+    # Classify values
+    classes = np.digitize(values, class_boundaries)
+
+    # Convert to total percentages
+    class_percentages = []
+    total_sample = 0
+    for i in range(1, num_classes):
+        nb_elements_in_class = classes.tolist().count(i)
+        total_sample += nb_elements_in_class
+        percentage = total_sample / len(values) * 100
+        class_percentages.append(percentage)
+    class_percentages.append(100)
+
+    return class_percentages
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
