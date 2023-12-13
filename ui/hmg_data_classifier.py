@@ -76,6 +76,20 @@ class HMGDataClassifier:
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         custom_radio_btn = getattr(self.main, f"radiobutton_custom_{hazard}")
+        stdev_radio_btn = getattr(self.main, f"radiobutton_stdev_{hazard}")
+        tcg_radio_btn = getattr(self.main, f"radiobutton_tcg_{hazard}")
+
+        if stdev_radio_btn.isChecked():
+            nbmax_box.setReadOnly(False)
+            self._set_percentages_stdev(hazard)
+
+        if tcg_radio_btn.isChecked():
+            nbmax_box.setReadOnly(True)
+            self._set_percentages_tcg(hazard)
+
+        if custom_radio_btn.isChecked():
+            nbmax_box.setReadOnly(False)
+
         for n in range(1, 11):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             if n > nbmax_box.value():
