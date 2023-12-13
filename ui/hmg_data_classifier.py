@@ -92,6 +92,9 @@ class HMGDataClassifier:
 
         for n in range(1, 11):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+
+            # lock box if box ID >=  designated max box
+            # and if classification method is not custom
             if n > nbmax_box.value():
                 percentage_box.setValue(0)
                 percentage_box.setReadOnly(True)
@@ -100,6 +103,14 @@ class HMGDataClassifier:
                 percentage_box.setReadOnly(True)
             else:
                 percentage_box.setReadOnly(False)
+
+            # set digits rules for custom classification
+            if custom_radio_btn.isChecked():
+                # set 100 as max value
+                if n == nbmax_box.value():
+                    percentage_box.setValue(100)
+                # TBC: make digit to be up to previous one
+                # TO DO: set nbmax_box = n when 100% is written (now bugging)
 
     def classify_stdev_kozui(self):
         self._set_percentages_stdev("kozui")
