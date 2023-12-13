@@ -83,6 +83,47 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     return class_percentages
 
 
+def classify_values_tcg(values: list) -> list:
+    # ①全てのマスのリスク値のトータル合計を求める
+    sum_all_values = sum(values)
+
+    # ②リスク値の小さい順番に、マスの順番を決める　※リスク値が同じ場合には、同じ順番を付ける
+    # ③順番にリスク値を合計して、トータル合計で割って、そこまでのリスク割合を求める
+    tcg_classes = []
+    total_values = 0.0
+    for value in values:
+        total_values += value
+        risk_rate = total_values / sum_all_values
+        # ④ランクを付けて行く
+        if risk_rate == 0:
+            rank = 0
+        elif risk_rate <= 0.1:
+            rank = 1
+        elif risk_rate <= 0.3:
+            rank = 2
+        elif risk_rate <= 0.5:
+            rank = 3
+        elif risk_rate <= 0.7:
+            rank = 4
+        elif risk_rate <= 0.9:
+            rank = 5
+        else:  # >0.9
+            rank = 6
+        tcg_classes.append(rank)
+
+    # Convert to total percentages
+    class_percentages = []
+    total_sample = 0
+    for i in range(0, 6):
+        nb_elements_in_class = tcg_classes.count(i)
+        total_sample += nb_elements_in_class
+        percentage = total_sample / len(values) * 100
+        class_percentages.append(percentage)
+    class_percentages.append(100)
+
+    return class_percentages
+
+
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
     if nb_breaks == 1:
         color = "#fd8d3c"

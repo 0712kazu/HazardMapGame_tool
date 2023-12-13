@@ -4,11 +4,12 @@ from qgis.core import QgsProject
 from qgis.utils import iface
 
 from converter import field_names
-from converter.mesh_score_symbolizer import (
+from converter.mesh_score_classifier import (
     graduate_layer,
     get_mesh_value_from_percentage,
     get_color_from_range,
     classify_values_stdev,
+    classify_values_tcg,
 )
 from modules import pyqtgraph as pg
 
@@ -50,6 +51,11 @@ class HMGDataClassifier:
             stdev_function = getattr(self, f"classify_stdev_{hazard}")
             stdev_button.clicked.connect(stdev_function)
 
+            # tcg classifier
+            tcg_button = getattr(self.main, f"radiobutton_tcg_{hazard}")
+            tcg_function = getattr(self, f"classify_tcg_{hazard}")
+            tcg_button.clicked.connect(tcg_function)
+
             # custom button
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
             custom_button.setChecked(True)  # default button
@@ -81,15 +87,6 @@ class HMGDataClassifier:
             else:
                 percentage_box.setReadOnly(False)
 
-    def show_chart_kozui(self):
-        self._set_chart("洪水", "kozui")
-
-    def show_chart_jisuberi(self):
-        self._set_chart("地すべり", "jisuberi")
-
-    def show_chart_saigai(self):
-        self._set_chart("災害危険", "saigai")
-
     def classify_stdev_kozui(self):
         self._set_percentages_stdev("kozui")
 
@@ -113,11 +110,58 @@ class HMGDataClassifier:
             error_message = f"対象レイヤに{target_field}の属性がありません。"
             QMessageBox.information(None, "エラー", error_message)
             return
+
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
         for n in range(1, nbmax_box.value() + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
+
+    def classify_tcg_kozui(self):
+        self._set_percentages_tcg("kozui")
+
+    def classify_tcg_jisuberi(self):
+        self._set_percentages_tcg("jisuberi")
+
+    def classify_tcg_saigai(self):
+        self._set_percentages_tcg("saigai")
+
+    def _set_percentages_tcg(self, hazard):
+        mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+
+        # get mesh_score target field name
+        target_field = getattr(field_names, f"field_{hazard}")
+
+        if target_field in mesh_score_layer.fields().names():
+            field_values = [
+                feature[target_field] for feature in mesh_score_layer.getFeatures()
+            ]
+            y_values = sorted(field_values)
+
+        else:
+            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        percentages_classes = classify_values_tcg(y_values)
+
+        # update UI
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+        nbmax_box.setValue(7)
+        nbmax_box.setReadOnly(True)
+
+        for n in range(1, 8):
+            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+            percentage_box.setValue(percentages_classes[n - 1])
+
+    def show_chart_kozui(self):
+        self._set_chart("洪水", "kozui")
+
+    def show_chart_jisuberi(self):
+        self._set_chart("地すべり", "jisuberi")
+
+    def show_chart_saigai(self):
+        self._set_chart("災害危険", "saigai")
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
