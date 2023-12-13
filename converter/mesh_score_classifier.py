@@ -20,7 +20,7 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
         # skip if it is 0,0 break
         if min == 0 and max == 0:
             continue
-        if min < constants.MAP_MIN_VALUE and color != "0,0,0,0":
+        if min < constants.MAP_MIN_VALUE and color != "transparent":
             min = constants.MAP_MIN_VALUE
         if max < constants.MAP_MIN_VALUE:
             max = constants.MAP_MIN_VALUE
@@ -28,8 +28,17 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
         classificationRange = QgsClassificationRange(
             f"{min} < {target_field} < {max}", min, max
         )
+        if color == "transparent":
+            color_txt = "0,0,0,0"
+        else:
+            # convert #FFFFFF to "255,255,255,135"
+            # with opacity as 135 value
+            hex_color = color.lstrip("#")
+            rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
+            rgbtext = ", ".join(map(str, rgb))
+            color_txt = rgbtext + ", 135"
         properties = {
-            "color": color,
+            "color": color_txt,
             "outline_color": "black",
             "outline_width": 0.1,
         }

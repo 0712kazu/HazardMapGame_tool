@@ -242,7 +242,7 @@ class HMGDataClassifier:
         # set default minimum class as 0.001
         # under minimum is set transparent
 
-        breaks = [[0, constants.MAP_MIN_VALUE, "0,0,0,0"]]
+        breaks = [[0, constants.MAP_MIN_VALUE, "transparent"]]
         break_min = 0
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
 
