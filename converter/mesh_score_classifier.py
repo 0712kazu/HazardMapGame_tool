@@ -7,6 +7,7 @@ from qgis.core import (
 )
 
 import numpy as np
+import constants
 
 
 def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
@@ -16,6 +17,14 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
     renderer = QgsGraduatedSymbolRenderer(target_field)
 
     for min, max, color in breaks:
+        # skip if it is 0,0 break
+        if min == 0 and max == 0:
+            continue
+        if min < constants.MAP_MIN_VALUE and color != "0,0,0,0":
+            min = constants.MAP_MIN_VALUE
+        if max < constants.MAP_MIN_VALUE:
+            max = constants.MAP_MIN_VALUE
+
         classificationRange = QgsClassificationRange(
             f"{min} < {target_field} < {max}", min, max
         )

@@ -11,6 +11,7 @@ from converter.mesh_score_classifier import (
     classify_values_stdev,
     classify_values_tcg,
 )
+import constants
 from modules import pyqtgraph as pg
 
 
@@ -238,7 +239,10 @@ class HMGDataClassifier:
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
         self.plot_widget.setLabel("left", "体積", color="blue")
 
-        breaks = []
+        # set default minimum class as 0.001
+        # under minimum is set transparent
+
+        breaks = [[0, constants.MAP_MIN_VALUE, "0,0,0,0"]]
         break_min = 0
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
 
