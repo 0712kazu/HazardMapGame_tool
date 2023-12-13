@@ -143,10 +143,21 @@ class HMGDataClassifier:
             QMessageBox.information(None, "エラー", error_message)
             return
 
+        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+
+        # test if all are equals
+        equal_values = y_values.count(y_values[0]) == len(y_values)
+        if equal_values:
+            nbmax_box.setValue(1)
+            nbmax_box.setReadOnly(True)
+            percentage_box = getattr(self.main, f"classif_percent_1_{hazard}")
+            percentage_box.setValue(100)
+            return
+
+        # classify if values are not equals
         percentages_classes = classify_values_tcg(y_values)
 
         # update UI
-        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         nbmax_box.setValue(7)
         nbmax_box.setReadOnly(True)
 

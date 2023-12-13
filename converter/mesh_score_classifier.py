@@ -108,7 +108,10 @@ def classify_values_tcg(values: list) -> list:
         elif risk_rate <= 0.9:
             rank = 5
         else:  # >0.9
-            rank = 6
+            if tcg_classes[-1] == 5:
+                rank = 6
+            else:
+                rank = 5
         tcg_classes.append(rank)
 
     # Convert to total percentages
