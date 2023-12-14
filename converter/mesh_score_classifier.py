@@ -38,7 +38,8 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
             # convert #FFFFFF to "255,255,255,135"
             # with opacity as 135 value
             hex_color = color.lstrip("#")
-            rgb = tuple(int(hex_color[i : i + 2], 16) for i in (0, 2, 4))
+            rgb = tuple(int(hex_color[i] + hex_color[i + 1], 16) for i in (0, 2, 4))
+
             rgbtext = ", ".join(map(str, rgb))
             color_txt = rgbtext + ", 135"
         properties = {
