@@ -17,7 +17,7 @@ from modules import pyqtgraph as pg
 
 class HMGDataClassifier:
     def __init__(self, main: QDialog):
-        self.chart_dialog = None
+        self.plot_widget = None
         self.main = main
         self.canvas = iface.mapCanvas()
         self.hazards = ["kozui", "jisuberi", "saigai"]
@@ -203,6 +203,11 @@ class HMGDataClassifier:
     def show_chart_saigai(self):
         self._set_chart("災害危険", "saigai")
 
+    def _handle_plot_close(self, event):
+        # Set the flag to indicate that the plot has been closed
+        self.plot_widget = None
+        event.accept()
+
     def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
 
@@ -220,11 +225,17 @@ class HMGDataClassifier:
             QMessageBox.information(None, "エラー", error_message)
             return
 
-        # Create a Pyqtgraph PlotWidget
-        # Switch to using white background and black foreground
-        pg.setConfigOption("background", "w")
-        pg.setConfigOption("foreground", "k")
-        self.plot_widget = pg.plot(title=chart_title)
+        if self.plot_widget:
+            # if plot exists, update
+            self.plot_widget.setTitle(chart_title)
+            self.plot_widget.clear()
+        else:
+            # If plot not exists Create a Pyqtgraph PlotWidget
+            # Switch to using white background and black foreground
+            pg.setConfigOption("background", "w")
+            pg.setConfigOption("foreground", "k")
+            self.plot_widget = pg.plot(title="HMGデータグラフ")
+            self.plot_widget.closeEvent = self._handle_plot_close
 
         # Add scatter plot to the Pyqtgraph PlotWidget
         scatter = pg.ScatterPlotItem(
