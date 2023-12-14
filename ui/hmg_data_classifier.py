@@ -67,12 +67,15 @@ class HMGDataClassifier:
 
     def on_number_changed_kozui(self):
         self._set_percentages("kozui")
+        self.show_chart_kozui()
 
     def on_number_changed_jisuberi(self):
         self._set_percentages("jisuberi")
+        self.show_chart_jisuberi()
 
     def on_number_changed_saigai(self):
         self._set_percentages("saigai")
+        self.show_chart_saigai()
 
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
