@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from qgis.core import QgsProject
+from qgis.core import QgsProject, QgsMapLayerProxyModel
 
 from qgis.utils import iface
 
@@ -21,6 +21,16 @@ class HMGDataClassifier:
         self.main = main
         self.canvas = iface.mapCanvas()
         self.hazards = ["kozui", "jisuberi", "saigai"]
+
+        # Target mesh layer にする
+        self.main.mesh_score_layer_combobox.setFilters(
+            QgsMapLayerProxyModel.PolygonLayer
+        )
+
+        if len(QgsProject.instance().mapLayersByName("mesh_score")) > 0:
+            self.main.mesh_score_layer_combobox.setLayer(
+                QgsProject.instance().mapLayersByName("mesh_score")[0]
+            )
 
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
@@ -126,7 +136,7 @@ class HMGDataClassifier:
         self._set_percentages_stdev("saigai")
 
     def _set_percentages_stdev(self, hazard: str):
-        mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
         # get mesh_score target field name
         target_field = getattr(field_names, f"field_{hazard}")
 
@@ -156,7 +166,7 @@ class HMGDataClassifier:
         self._set_percentages_tcg("saigai")
 
     def _set_percentages_tcg(self, hazard):
-        mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
         target_field = getattr(field_names, f"field_{hazard}")
@@ -209,7 +219,7 @@ class HMGDataClassifier:
         event.accept()
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
-        mesh_score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
         target_field = getattr(field_names, f"field_{hazard}")

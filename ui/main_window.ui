@@ -661,7 +661,7 @@
             </property>
            </widget>
            </item><item>
-            <widget class="QLabel" name="label">
+            <widget class="QLabel" name="label_mesh_layer">
             <property name="text">
               <string>HMGデータレイヤ</string>
             </property>
@@ -671,7 +671,7 @@
             </widget>
             </item>
             <item>
-             <widget class="QgsMapLayerComboBox" name="mMapLayerComboBox">
+             <widget class="QgsMapLayerComboBox" name="mesh_score_layer_combobox">
             <property name="currentText">
               <string/>
             </property>
