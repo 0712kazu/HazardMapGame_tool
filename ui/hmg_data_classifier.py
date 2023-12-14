@@ -29,7 +29,7 @@ class HMGDataClassifier:
         for hazard in self.hazards:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
-            show_graph_function = getattr(self, f"show_chart_{hazard}")
+            show_graph_function = getattr(self, f"on_number_changed_{hazard}")
             show_graph_button.clicked.connect(show_graph_function)
 
             # Set max break values to 10 as default
@@ -227,7 +227,6 @@ class HMGDataClassifier:
 
         if self.plot_widget:
             # if plot exists, update
-            self.plot_widget.setTitle(chart_title)
             self.plot_widget.clear()
         else:
             # If plot not exists Create a Pyqtgraph PlotWidget
@@ -252,6 +251,9 @@ class HMGDataClassifier:
         # Set axis labels
         self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
         self.plot_widget.setLabel("left", "体積", color="blue")
+
+        # set title
+        self.plot_widget.setTitle(chart_title)
 
         # set default minimum class as 0.001
         # under minimum is set transparent
