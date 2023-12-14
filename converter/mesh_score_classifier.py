@@ -4,7 +4,11 @@ from qgis.core import (
     QgsClassificationRange,
     QgsFillSymbol,
     QgsRendererRange,
+    QgsPalLayerSettings,
+    QgsTextFormat,
+    QgsVectorLayerSimpleLabeling,
 )
+from qgis.PyQt.QtGui import QFont
 
 import numpy as np
 import constants
@@ -48,6 +52,28 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
         renderer.addClassRange(rendererRange)
 
     layer.setRenderer(renderer)
+
+    # Add labels for values >= minimum
+    # Create label settings
+    label_settings = QgsPalLayerSettings()
+    expression = (
+        f'CASE WHEN "{target_field}" >= {constants.MAP_MIN_VALUE}'
+        f" THEN ROUND(\"{target_field}\",1) ELSE '' END"
+    )
+    label_settings.fieldName = expression
+    label_settings.isExpression = True
+
+    # Set font properties
+    text_format = QgsTextFormat()
+    text_format.setFont(QFont("Arial Narrow", 8))
+    text_format.setSize(8)
+
+    label_settings.setFormat(text_format)
+
+    # Apply label settings to the layer
+    layer.setLabeling(QgsVectorLayerSimpleLabeling(label_settings))
+    layer.setLabelsEnabled(True)
+
     layer.triggerRepaint()
 
 
