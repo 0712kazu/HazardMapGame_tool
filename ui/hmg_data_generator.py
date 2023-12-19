@@ -407,3 +407,8 @@ class HMGDataGenerator:
 
         mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)
+
+        # set for HMG classifier
+        score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        if score_layer:
+            self.main.mesh_score_layer_combobox.setLayer(score_layer)
