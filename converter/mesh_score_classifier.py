@@ -36,11 +36,11 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
             color_txt = "0,0,0,0"
         else:
             # convert #FFFFFF to "255,255,255,135"
-            # with opacity as 135 value
+            # with opacity as 200 value
             hex_color = color.lstrip("#")
             rgb = tuple(int(hex_color[i] + hex_color[i + 1], 16) for i in (0, 2, 4))
             rgbtext = ", ".join(map(str, rgb))
-            color_txt = rgbtext + ", 135"
+            color_txt = rgbtext + ", 200"
         properties = {
             "color": color_txt,
             "outline_color": "black",
@@ -211,13 +211,13 @@ def get_color_from_range(break_id: int, nb_breaks: int) -> str:
         }.get(break_id, "#00000")
     elif nb_breaks == 7:
         color = {
-            1: "#2166ac",
-            2: "#4393c3",
-            3: "#92c5de",
-            4: "#f7f7f7",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#d1e5f0",
             5: "#f4a582",
             6: "#d6604d",
-            7: "#b2182b",
+            7: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 8:
         color = {

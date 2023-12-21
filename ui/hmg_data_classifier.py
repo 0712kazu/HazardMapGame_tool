@@ -283,7 +283,7 @@ class HMGDataClassifier:
             color = get_color_from_range(n, nbmax_box.value())
 
             # add break_max line as plot
-            line_label = f"{percent_value}%"
+            line_label = f"{percent_value}% ({round(break_max,1)})"
             percent_line = self.plot_widget.plot(
                 [0, len(y_values)],
                 [break_max, break_max],
@@ -293,12 +293,12 @@ class HMGDataClassifier:
             # labeling
             label_item = pg.TextItem(text=line_label, color=color)
             self.plot_widget.addItem(label_item)
-            label_item.setPos(len(y_values), break_max)
+            label_item.setPos(0, break_max)
 
             self.plot_widget.addItem(percent_line)
 
             # calculate break for maps
-            breaks.append([break_min, break_max, color])
+            breaks.append([round(break_min, 1), round(break_max, 1), color])
             break_min = break_max
 
         # reflect to map
