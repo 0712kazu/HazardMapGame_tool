@@ -173,86 +173,86 @@ def classify_values_tcg(values: list) -> list:
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
     if nb_breaks == 1:
-        color = "#ffffbf"
+        color = "#fddbc7"
     elif nb_breaks == 2:
         color = {
-            1: "#91bfdb",
-            2: "#fc8d59",
+            1: "#0571b0",
+            2: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 3:
         color = {
-            1: "#91bfdb",
-            2: "#ffffbf",
-            3: "#fc8d59",
+            1: "#0571b0",
+            2: "#f7f7f7",
+            3: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 4:
         color = {
-            1: "#2c7bb6",
-            2: "#abd9e9",
-            3: "#fdae61",
-            4: "#d7191c",
+            1: "#0571b0",
+            2: "#92c5de",
+            3: "#f4a582",
+            4: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 5:
         color = {
-            1: "#2c7bb6",
-            2: "#abd9e9",
-            3: "#ffffbf",
-            4: "#fdae61",
-            5: "#d7191c",
+            1: "#0571b0",
+            2: "#92c5de",
+            3: "#f7f7f7",
+            4: "#f4a582",
+            5: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 6:
         color = {
-            1: "#4575b4",
-            2: "#91bfdb",
-            3: "#e0f3f8",
-            4: "#fee090",
-            5: "#fc8d59",
-            6: "#d73027",
+            1: "#2166ac",
+            2: "#67a9cf",
+            3: "#d1e5f0",
+            4: "#fddbc7",
+            5: "#ef8a62",
+            6: "#b2182b",
         }.get(break_id, "#00000")
     elif nb_breaks == 7:
         color = {
-            1: "#4575b4",
-            2: "#91bfdb",
-            3: "#e0f3f8",
-            4: "#ffffbf",
-            5: "#fee090",
-            6: "#fc8d59",
-            7: "#d73027",
+            1: "#2166ac",
+            2: "#4393c3",
+            3: "#92c5de",
+            4: "#f7f7f7",
+            5: "#f4a582",
+            6: "#d6604d",
+            7: "#b2182b",
         }.get(break_id, "#00000")
     elif nb_breaks == 8:
         color = {
-            1: "#4575b4",
-            2: "#74add1",
-            3: "#abd9e9",
-            4: "#e0f3f8",
-            5: "#fee090",
-            6: "#fdae61",
-            7: "#f46d43",
-            8: "#d73027",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#d1e5f0",
+            5: "#f4a582",
+            6: "#d6604d",
+            7: "#b2182b",
+            8: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 9:
         color = {
-            1: "#4575b4",
-            2: "#74add1",
-            3: "#abd9e9",
-            4: "#e0f3f8",
-            5: "#ffffbf",
-            6: "#fee090",
-            7: "#fdae61",
-            8: "#f46d43",
-            9: "#d73027",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#92c5de",
+            5: "#d1e5f0",
+            6: "#f4a582",
+            7: "#d6604d",
+            8: "#b2182b",
+            9: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 10:
         color = {
-            1: "#313695",
-            2: "#4575b4",
-            3: "#74add1",
-            4: "#abd9e9",
-            5: "#e0f3f8",
-            6: "#fee090",
-            7: "#fdae61",
-            8: "#f46d43",
-            9: "#d73027",
-            10: "#a50026",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#92c5de",
+            5: "#d1e5f0",
+            6: "#fddbc7",
+            7: "#f4a582",
+            8: "#d6604d",
+            9: "#b2182b",
+            10: "#67001f",
         }.get(break_id, "#00000")
     return color
