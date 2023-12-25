@@ -95,7 +95,8 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     - values [0,0,24,255,484,1056...]
     - num_classes: 6
     output:
-    - class_percentages : [0,0,54,85,90,100] a list of percentages
+    - class_percentages : [0,54,85,90,100] a list of percentages
+    -
     """
 
     # Calculate mean and standard deviation
@@ -124,7 +125,10 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
         class_percentages.append(percentage)
     class_percentages.append(100)
 
-    return class_percentages
+    # remove duplicate values
+    class_percentages = list(set(class_percentages))
+
+    return sorted(class_percentages)
 
 
 def classify_values_tcg(values: list) -> list:

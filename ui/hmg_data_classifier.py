@@ -152,7 +152,11 @@ class HMGDataClassifier:
 
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
-        for n in range(1, nbmax_box.value() + 1):
+
+        if len(percentages_classes) != nbmax_box.value():
+            nbmax_box.setValue(len(percentages_classes))
+        # for n in range(1, nbmax_box.value() + 1):
+        for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
 
