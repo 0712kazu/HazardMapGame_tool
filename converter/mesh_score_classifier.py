@@ -172,7 +172,10 @@ def classify_values_tcg(values: list) -> list:
         class_percentages.append(percentage)
     class_percentages.append(100)
 
-    return class_percentages
+    # remove duplicated values
+    class_percentages = list(set(class_percentages))
+
+    return sorted(class_percentages)
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
