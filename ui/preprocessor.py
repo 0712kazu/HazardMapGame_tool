@@ -61,7 +61,9 @@ class Preprocessor:
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
             error_message = "シームレスフォルダーが設定していません。"
-            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            QMessageBox.information(
+                None, "エラー", f"エラーが発生しました。\n\n{error_message}"
+            )
             return
         if self.main.QgsFileWidget_tatumaki.filePath():
             self.preprocess_tatumaki(
@@ -164,7 +166,9 @@ class Preprocessor:
         if len(shapefiles) != 1:
             error_message = "1 shapefile is required for shikuchoson\n"
             error_message += str(len(shapefiles)) + " shapefiles found."
-            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            QMessageBox.information(
+                None, "エラー", f"エラーが発生しました。\n\n{error_message}"
+            )
             return
 
         layer_name = os.path.splitext(os.path.basename(shapefiles[0]))[0]
@@ -193,7 +197,7 @@ class Preprocessor:
         sql += "FROM tmp_cities"
 
         cmd = (
-            f"ogr2ogr {os.path.join(output_directory,'shikuchoson.csv')} "
+            f"ogr2ogr {os.path.join(output_directory,'japan_cities.csv')} "
             f"{tmp_cities_file} "
             f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
             f"-f CSV "

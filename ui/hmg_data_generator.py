@@ -192,13 +192,13 @@ class HMGDataGenerator:
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
         seamless_shikuchoson = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "shikuchoson.csv"
+            self.main.FileWidgetSeamlessDir.filePath(), "japan_cities.csv"
         )
         if os.path.exists(seamless_shikuchoson):
             self.pref_city_csv = seamless_shikuchoson
         else:
             self.pref_city_csv = os.path.join(
-                os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
+                os.path.dirname(__file__), constants.data_dir, "japan_cities.csv"
             )
 
         # re-initialize pref-city list
