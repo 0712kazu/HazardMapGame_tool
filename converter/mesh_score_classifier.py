@@ -26,11 +26,17 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
             continue
         if min < constants.MAP_MIN_VALUE and color != "transparent":
             min = constants.MAP_MIN_VALUE
+            label_min = constants.MAP_MIN_VALUE
+        else:
+            label_min = round(min, 1)
         if max < constants.MAP_MIN_VALUE:
             max = constants.MAP_MIN_VALUE
+            label_max = constants.MAP_MIN_VALUE
+        else:
+            label_max = round(max, 1)
 
         classificationRange = QgsClassificationRange(
-            f"{min} < {target_field} <= {max}", min, max
+            f"{label_min} < {target_field} <= {label_max}", min, max
         )
         if color == "transparent":
             color_txt = "0,0,0,0"

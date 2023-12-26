@@ -304,7 +304,7 @@ class HMGDataClassifier:
             self.plot_widget.addItem(percent_line)
 
             # calculate break for maps
-            breaks.append([round(break_min, 1), round(break_max, 1), color])
+            breaks.append([break_min, break_max, color])
             break_min = break_max
 
         # reflect to map
