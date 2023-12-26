@@ -15,6 +15,11 @@ from constants import (
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
     SEAMLESS_FILE_TORNADO,
+    SEAMLESS_FILE_FLOOD,
+    SEAMLESS_FILE_LANDSLIP,
+    SEAMLESS_FILE_DISASTER,
+    SEAMLESS_FILE_CITIES,
+    SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
 )
 from utils import (
@@ -66,36 +71,54 @@ class Preprocessor:
                 None, "エラー", f"エラーが発生しました。\n\n{error_message}"
             )
             return
+
+        # process list
+        seamless_processed = []
         if self.main.QgsFileWidget_tatumaki.filePath():
             self.preprocess_tatumaki(
                 self.main.QgsFileWidget_tatumaki.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_TORNADO)
+
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_FLOOD)
+
         if self.main.QgsFileWidget_jisuberi.filePath():
             self.preprocess_jisuberi(
                 self.main.QgsFileWidget_jisuberi.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_LANDSLIP)
+
         if self.main.QgsFileWidget_saigai.filePath():
             self.preprocess_saigai(
                 self.main.QgsFileWidget_saigai.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_DISASTER)
+
         if self.main.QgsFileWidget_tochiriyou.filePath():
             self.preprocess_tochiriyou(
                 self.main.QgsFileWidget_tochiriyou.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_LANDUSE)
+
         if self.main.QgsFileWidget_shikuchoson.filePath():
             self.preprocess_shikuchoson(
                 self.main.QgsFileWidget_shikuchoson.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_CITIES)
+        message = "シムレスデータの作成が完了しました。\n"
+        for seamless_data in seamless_processed:
+            message += f"{seamless_data}\n"
+        QMessageBox.information(None, "完了", message)
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
