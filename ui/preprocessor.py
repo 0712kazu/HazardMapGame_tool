@@ -66,10 +66,9 @@ class Preprocessor:
 
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
-            error_message = "シームレスフォルダーが設定していません。"
-            QMessageBox.information(
-                None, "エラー", f"エラーが発生しました。\n\n{error_message}"
-            )
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "シームレスフォルダーが設定していません。"
+            QMessageBox.information(None, "エラー", error_message)
             return
 
         # process list
