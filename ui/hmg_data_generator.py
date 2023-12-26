@@ -192,13 +192,15 @@ class HMGDataGenerator:
     def _set_shikuchoson_csv_data(self):
         # Take csv file in data folder as default, and seamless data if provided
         seamless_shikuchoson = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "shikuchoson.csv"
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_CITIES
         )
         if os.path.exists(seamless_shikuchoson):
             self.pref_city_csv = seamless_shikuchoson
         else:
             self.pref_city_csv = os.path.join(
-                os.path.dirname(__file__), constants.data_dir, "shikuchoson.csv"
+                os.path.dirname(__file__),
+                constants.data_dir,
+                constants.SEAMLESS_FILE_CITIES,
             )
 
         # re-initialize pref-city list
@@ -352,7 +354,7 @@ class HMGDataGenerator:
 
         # exclude offshore mesh (more than 90% of water)
         landuse_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "tochiriyou_merged.gpkg"
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDUSE
         )
         if os.path.exists(landuse_path):
             landuse_lyr = QgsVectorLayer(
@@ -371,7 +373,7 @@ class HMGDataGenerator:
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
         kouzui_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "kouzui_merged.gpkg"
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_FLOOD
         )
         if os.path.exists(kouzui_path):
             kouzui_lyr = QgsVectorLayer(
@@ -382,7 +384,7 @@ class HMGDataGenerator:
             mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
 
         jisuberi_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "jisuberi_merged.gpkg"
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
         )
         if os.path.exists(jisuberi_path):
             jisuberi_lyr = QgsVectorLayer(
@@ -394,7 +396,7 @@ class HMGDataGenerator:
                 mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
 
         saigai_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), "saigai_merged.gpkg"
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_DISASTER
         )
         if os.path.exists(saigai_path):
             saigai_lyr = QgsVectorLayer(

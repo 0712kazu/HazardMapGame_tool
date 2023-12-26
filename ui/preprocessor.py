@@ -128,7 +128,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "tochiriyou_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_LANDUSE)
         )
 
         shutil.rmtree(extracted_dir)
@@ -138,7 +138,7 @@ class Preprocessor:
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-        merged_shapefiles = os.path.join(output_directory, "kouzui_merged.gpkg")
+        merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
 
         # merge all shp to gpkg
         ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
@@ -157,7 +157,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "jisuberi_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_LANDSLIP)
         )
 
         shutil.rmtree(extracted_dir)
@@ -175,7 +175,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "saigai_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_DISASTER)
         )
 
         shutil.rmtree(extracted_dir)
@@ -221,7 +221,7 @@ class Preprocessor:
         sql += "FROM tmp_cities"
 
         cmd = (
-            f"ogr2ogr {os.path.join(output_directory,'shikuchoson.csv')} "
+            f"ogr2ogr {os.path.join(output_directory,SEAMLESS_FILE_CITIES)} "
             f"{tmp_cities_file} "
             f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
             f"-f CSV "

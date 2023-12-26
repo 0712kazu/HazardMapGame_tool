@@ -8,11 +8,11 @@ INPUT_DIR_TOCHIRIYOU = "tochi_riyou"
 INPUT_DIR_SHIKUCHOSON = "shikuchoson"
 OUTPUT_DIR = "seamless_gpkg"
 
-SEAMLESS_FILE_TORNADO = "tornado_merged.gpkg"
-SEAMLESS_FILE_FLOOD = "kouzui_merged.gpkg"
-SEAMLESS_FILE_LANDSLIP = "jisuberi_merged.gpkg"
-SEAMLESS_FILE_DISASTER = "saigai_merged.gpkg"
-SEAMLESS_FILE_LANDUSE = "tochiriyou_merged.gpkg"
-SEAMLESS_FILE_CITIES = "shikuchoson.csv"
+SEAMLESS_FILE_TORNADO = "a30_tornado.gpkg"
+SEAMLESS_FILE_FLOOD = "a31_flood.gpkg"
+SEAMLESS_FILE_LANDSLIP = "a46_landslip.gpkg"
+SEAMLESS_FILE_DISASTER = "a48_disaster.gpkg"
+SEAMLESS_FILE_LANDUSE = "l03_landuse.gpkg"
+SEAMLESS_FILE_CITIES = "japan_cities.csv"
 
 MAP_MIN_VALUE = 0.001
