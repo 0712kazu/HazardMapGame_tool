@@ -206,7 +206,7 @@ class HMGDataClassifier:
         # update UI
         nbmax_box.setReadOnly(True)
 
-        for n in range(1, len(percentages_classes)):
+        for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
 
