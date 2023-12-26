@@ -14,6 +14,7 @@ from constants import (
     INPUT_DIR_SAIGAI,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
+    SEAMLESS_FILE_TORNADO,
     OUTPUT_DIR,
 )
 from utils import (
@@ -61,7 +62,9 @@ class Preprocessor:
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
             error_message = "シームレスフォルダーが設定していません。"
-            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            QMessageBox.information(
+                None, "エラー", f"エラーが発生しました。\n\n{error_message}"
+            )
             return
         if self.main.QgsFileWidget_tatumaki.filePath():
             self.preprocess_tatumaki(
@@ -164,7 +167,9 @@ class Preprocessor:
         if len(shapefiles) != 1:
             error_message = "1 shapefile is required for shikuchoson\n"
             error_message += str(len(shapefiles)) + " shapefiles found."
-            QMessageBox.information(None, "エラー", f"エラーが発生しました。\n\n{error_message}")
+            QMessageBox.information(
+                None, "エラー", f"エラーが発生しました。\n\n{error_message}"
+            )
             return
 
         layer_name = os.path.splitext(os.path.basename(shapefiles[0]))[0]
@@ -221,8 +226,24 @@ class Preprocessor:
                 shapefiles.append(shapefile)
 
         # merge all shp to gpkg
-        merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "tatumaki_merged.gpkg")
+        tmp_tornado_merged = os.path.join(extracted_dir, "tmp_" + SEAMLESS_FILE_TORNADO)
+        merge_shapefiles(shapefiles, tmp_tornado_merged)
+
+        # make 500m buffer
+        sql = "SELECT ST_Buffer(ST_Transform(geom, 32654), 500) as geometry "
+        sql += f"FROM tmp_{SEAMLESS_FILE_TORNADO.split('.')[0]}"
+
+        cmd = (
+            f"ogr2ogr {os.path.join(output_directory, SEAMLESS_FILE_TORNADO)} "
+            f"{tmp_tornado_merged} "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"-nln {SEAMLESS_FILE_TORNADO.split('.')[0]} "
+            f"-t_srs EPSG:3857 -f GPKG "
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
         )
 
         shutil.rmtree(extracted_dir)
