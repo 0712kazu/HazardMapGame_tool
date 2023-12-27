@@ -1,6 +1,1 @@
 title,paper_size,type,pref,city,scale,orientation,center_x,center_y,mesh_size_long,mesh_size_short
-鴨川市役所,A1,point,,,1:25000,横,15595738.453859491,4179392.373334345,12,8
-Test,A1,point,,,1:25000,横,15506266.612381127,4247764.127438722,12,8
-Sadoshima,A1,city,新潟県,佐渡市,1:105508,,,,12,8
-Sado 50000,A1,point,,,1:50000,縦,15406294.371444274,4583411.3500191085,12,8
-Urawa 15000,A1,point,,,1:15000,縦,15544958.315274375,4283289.549844455,12,8
