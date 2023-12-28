@@ -346,6 +346,23 @@
              <item row="1" column="1">
               <widget class="QComboBox" name="comboBox_meshprodlog"/>
              </item>
+             <item row="2" column="0">
+             <widget class="QLabel" name="label_10">
+              <property name="text">
+               <string>ログ名を指定して保存</string>
+              </property>
+             </widget>
+            </item>
+            <item row="2" column="1">
+             <widget class="QLineEdit" name="lineEdit_title"/>
+            </item>
+            <item row="2" column="2">
+             <widget class="QPushButton" name="pushButton_savelog">
+              <property name="text">
+               <string>履歴に保存する</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
           <item>
@@ -573,27 +590,45 @@
             </layout>
            </widget>
           </item>
+          <!-- inland adjustment -->
           <item>
-          <layout class="QGridLayout" name="gridLayout_produce">
-           <item row="0" column="0">
-             <widget class="QLabel" name="label_10">
-              <property name="text">
-               <string>ログ名</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLineEdit" name="lineEdit_title"/>
-            </item>
-            <item row="0" column="2">
-             <widget class="QPushButton" name="pushButton_savelog">
-              <property name="text">
-               <string>履歴に保存する</string>
-              </property>
-             </widget>
-            </item>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+              <item>
+              <widget class="QLabel" name="label">
+                <property name="maximumSize">
+                  <size>
+                    <width>60</width>
+                    <height>20</height>
+                  </size>
+                </property>
+                <property name="text">
+                <string>陸域率</string>
+                </property>
+              </widget>
+              </item>
+              <item>
+              <widget class="QDoubleSpinBox" name="spin_inland_percentage">
+                <property name="maximumSize">
+                  <size>
+                    <width>60</width>
+                    <height>20</height>
+                  </size>
+                </property>
+                <property name="maximum">
+                  <double>100.0</double>
+                </property>
+              </widget>
+              </item>
+              <item>
+              <widget class="QLabel" name="label_2">
+                <property name="text">
+                <string>% 未満を除外する</string>
+            </property>
+          </widget>
+              </item>
             </layout>
             </item>
+             <!-- break -->
             <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
             <item>

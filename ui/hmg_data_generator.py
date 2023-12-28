@@ -68,6 +68,9 @@ class HMGDataGenerator:
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
 
+        # default inland value
+        self.main.spin_inland_percentage.setValue(10)
+
     def _set_log_csv_data(self):
         # Take csv file in data folder as default, and CSV log data if provided
         if self.main.FileWidget_log.filePath():
