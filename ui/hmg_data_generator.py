@@ -365,7 +365,13 @@ class HMGDataGenerator:
                 "landuse_merged",
                 "ogr",
             )
-            mesh_lyr = exclude_offshore_mesh(mesh_lyr, landuse_lyr)
+            mesh_lyr = exclude_offshore_mesh(
+                mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
+            )
+        else:
+            message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
+            message += "マスに陸域率を100%に指定します。"
+            QMessageBox.information(None, "お知らせ", message)
 
         QgsProject.instance().addMapLayer(mesh_lyr)
         mesh_lyr.setName("mesh")

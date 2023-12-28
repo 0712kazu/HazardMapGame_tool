@@ -197,7 +197,7 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
 
 
 def exclude_offshore_mesh(
-    mesh_lyr: QgsVectorLayer, landuse_lyr: QgsVectorLayer
+    mesh_lyr: QgsVectorLayer, landuse_lyr: QgsVectorLayer, inland_percentage: float
 ) -> QgsVectorLayer:
     # clip landuse to only mesh area
     landuse_clipped = processing.run(
@@ -294,7 +294,7 @@ def exclude_offshore_mesh(
         "native:extractbyexpression",
         {
             "INPUT": mesh_inland_area,
-            "EXPRESSION": ' "inland_area" / $area >= 0.1',
+            "EXPRESSION": f' "inland_area" / $area >= {inland_percentage/100}',
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
