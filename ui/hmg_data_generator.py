@@ -394,7 +394,12 @@ class HMGDataGenerator:
         mesh_lyr.setName("mesh")
         mesh_lyr.setOpacity(0.5)
 
+        QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
+
     def process_hmg(self):
+        # list of hazard processed
+        hmg_processed = []
+
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
@@ -408,6 +413,7 @@ class HMGDataGenerator:
                 "ogr",
             )
             mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
+            hmg_processed.append(constants.field_kozui)
 
         jisuberi_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
@@ -420,6 +426,7 @@ class HMGDataGenerator:
             )
             if jisuberi_lyr:
                 mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_jisuberi)
 
         saigai_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_DISASTER
@@ -432,6 +439,7 @@ class HMGDataGenerator:
             )
             if saigai_lyr:
                 mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_saigai)
 
         mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)
@@ -440,3 +448,9 @@ class HMGDataGenerator:
         score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
         if score_layer:
             self.main.mesh_score_layer_combobox.setLayer(score_layer)
+
+        # message end
+        message = "HMGデータの作成が完了しました。\n計算した属性:\n"
+        for hazard_processed in hmg_processed:
+            message += f"{hazard_processed}\n"
+        QMessageBox.information(None, "完了", message)

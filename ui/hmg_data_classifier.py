@@ -3,7 +3,6 @@ from qgis.core import QgsProject, QgsMapLayerProxyModel
 
 from qgis.utils import iface
 
-# from converter import field_names
 from converter.mesh_score_classifier import (
     graduate_layer,
     get_mesh_value_from_percentage,
