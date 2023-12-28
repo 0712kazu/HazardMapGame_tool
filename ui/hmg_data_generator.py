@@ -17,6 +17,7 @@ from converter.mesh_maker import (
     generate_mesh_city,
     generate_mesh_point,
     exclude_offshore_mesh,
+    set_mesh_id,
 )
 from maptool import POIMapTool
 
@@ -385,6 +386,9 @@ class HMGDataGenerator:
                     "OUTPUT": "TEMPORARY_OUTPUT",
                 },
             )["OUTPUT"]
+
+        # set mesh_id with left to right then up to bottom order
+        set_mesh_id(mesh_lyr)
 
         QgsProject.instance().addMapLayer(mesh_lyr)
         mesh_lyr.setName("mesh")

@@ -9,6 +9,7 @@ from qgis.core import (
     QgsProject,
     QgsVectorLayer,
     QgsProcessing,
+    QgsFeatureRequest,
 )
 
 from qgis.utils import iface
@@ -314,3 +315,33 @@ def exclude_offshore_mesh(
     )["OUTPUT"]
 
     return offshore_excluded_meshes
+
+
+def set_mesh_id(layer: QgsVectorLayer) -> None:
+    """
+    edit layer id field as serial, with top desc order then left asc order.
+    top and left are coordinates of top/left mesh
+    output: same layer with id ordered from left to right, then up to bottom.
+    """
+    id_field_name = "id"
+    top_field_name = "top"
+    left_field_name = "left"
+
+    # Start editing the layer
+    layer.startEditing()
+
+    # Sort the features based on 'top' in descending order and 'left' in ascending order
+    request = (
+        QgsFeatureRequest()
+        .addOrderBy(top_field_name, ascending=False)
+        .addOrderBy(left_field_name, ascending=True)
+    )
+    features = layer.getFeatures(request)
+
+    # Update the 'id' field based on the sorting order
+    for idx, feature in enumerate(features, start=1):
+        feature.setAttribute(id_field_name, idx)
+        layer.updateFeature(feature)
+
+    # Stop editing and save changes
+    layer.commitChanges()
