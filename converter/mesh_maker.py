@@ -264,7 +264,7 @@ def exclude_offshore_mesh(
         "native:fieldcalculator",
         {
             "INPUT": inland_meshes_dissolved,
-            "FIELD_NAME": "inland_area",
+            "FIELD_NAME": "land_area",
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
@@ -281,7 +281,7 @@ def exclude_offshore_mesh(
             "FIELD": "id",
             "INPUT_2": inland_meshes_area,
             "FIELD_2": "id",
-            "FIELDS_TO_COPY": ["inland_area"],
+            "FIELDS_TO_COPY": ["land_area"],
             "METHOD": 1,
             "DISCARD_NONMATCHING": False,
             "PREFIX": "",
@@ -289,12 +289,26 @@ def exclude_offshore_mesh(
         },
     )["OUTPUT"]
 
-    # keep only mesh which have >= 10% of inland area
+    # calculate inland area rate
+    inland_rate_meshes_area = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_inland_area,
+            "FIELD_NAME": "land_rate",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": ' "land_area" / $area ',
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # keep only mesh which have >= xx% of inland area (Default 10%)
     offshore_excluded_meshes = processing.run(
         "native:extractbyexpression",
         {
-            "INPUT": mesh_inland_area,
-            "EXPRESSION": f' "inland_area" / $area >= {inland_percentage/100}',
+            "INPUT": inland_rate_meshes_area,
+            "EXPRESSION": f' "land_rate" >= {inland_percentage / 100}',
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]

@@ -1,3 +1,4 @@
+import processing
 import csv
 import os
 
@@ -372,6 +373,18 @@ class HMGDataGenerator:
             message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
             message += "マスに陸域率を100%に指定します。"
             QMessageBox.information(None, "お知らせ", message)
+            mesh_lyr = processing.run(
+                "native:fieldcalculator",
+                {
+                    "INPUT": mesh_lyr,
+                    "FIELD_NAME": "land_rate",
+                    "FIELD_TYPE": 0,
+                    "FIELD_LENGTH": 0,
+                    "FIELD_PRECISION": 0,
+                    "FORMULA": "1",
+                    "OUTPUT": "TEMPORARY_OUTPUT",
+                },
+            )["OUTPUT"]
 
         QgsProject.instance().addMapLayer(mesh_lyr)
         mesh_lyr.setName("mesh")
