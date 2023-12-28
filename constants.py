@@ -15,4 +15,11 @@ SEAMLESS_FILE_DISASTER = "a48_disaster.gpkg"
 SEAMLESS_FILE_LANDUSE = "l03_landuse.gpkg"
 SEAMLESS_FILE_CITIES = "japan_cities.csv"
 
+# risk score field names
+# to be as 8 characters to fit to shapefiles with suffixes
+field_tatumaki = "tornado"
+field_kozui = "flood"
+field_jisuberi = "landslip"
+field_saigai = "disaster"
+
 MAP_MIN_VALUE = 0.001

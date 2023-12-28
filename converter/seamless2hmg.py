@@ -12,7 +12,7 @@ from qgis.gui import QgisInterface
 
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
-from converter import field_names
+import constants
 
 
 def _sum_surfaces_intersect_meshes(
@@ -136,6 +136,21 @@ def _sum_surfaces_intersect_meshes(
     return seamless_sum_mesh
 
 
+def _adjust_inland_score(layer: QgsVectorLayer, hazard_field: str) -> QgsVectorLayer:
+    return processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": layer,
+            "FIELD_NAME": hazard_field,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": f' "{hazard_field}"  /  "land_rate" ',
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+
 def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
     kouzui_v1_fields = ["A31_001"]
     kouzui_v2_fields = [
@@ -190,7 +205,7 @@ def seamless2hmg_kosui(
     waku_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
     qgis_iface: QgisInterface,
-):
+) -> QgsVectorLayer:
     # Progression bar
     qgis_iface.messageBar().clearWidgets()
     progressMessageBar = qgis_iface.messageBar()
@@ -320,28 +335,40 @@ def seamless2hmg_kosui(
         {
             "INPUT": kozui_max_sum,
             "FIELD": "depth_max_sum",
-            "NEW_NAME": field_names.field_kozui,
+            "NEW_NAME": constants.field_kozui,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
         feedback=f,
     )["OUTPUT"]
 
-    return kozui_mesh
+    inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
+
+    return inland_calculated_mesh
 
 
 def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
-):
-    return _sum_surfaces_intersect_meshes(
-        jisuberi_lyr, mesh_lyr, field_names.field_jisuberi
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        jisuberi_lyr, mesh_lyr, constants.field_jisuberi
     )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_jisuberi
+    )
+
+    return inland_calculated_mesh
 
 
 def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
-):
-    return _sum_surfaces_intersect_meshes(
-        saigai_lyr, mesh_lyr, field_names.field_saigai
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        saigai_lyr, mesh_lyr, constants.field_saigai
     )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_saigai
+    )
+
+    return inland_calculated_mesh
