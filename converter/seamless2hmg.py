@@ -277,7 +277,7 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
 
     # 20m間隔ポイントを作成
-    pnt_lyr = processing.run(
+    pnt_lyr_raw = processing.run(
         "native:creategrid",
         {
             "TYPE": 0,
@@ -293,8 +293,20 @@ def seamless2hmg_kosui(
 
     # 空間Indexを作成
     print("Creating spatial index...")
-    for lyr in [kozui_standard, pnt_lyr, mesh_lyr]:
+    for lyr in [kozui_standard, pnt_lyr_raw, mesh_lyr]:
         processing.run("native:createspatialindex", {"INPUT": lyr})
+
+    # Get only points intersects flood polygons
+    pnt_lyr = processing.run(
+        "native:clip",
+        {
+            "INPUT": pnt_lyr_raw,
+            "OVERLAY": kozui_cliped_fixed,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
 
     print("ポイントに最大浸水深を結合...")
     max_dep_pnt = processing.run(
@@ -330,7 +342,7 @@ def seamless2hmg_kosui(
     qgis_iface.messageBar().clearWidgets()
 
     print("属性名を変更...")
-    kozui_mesh = processing.run(
+    kozui_renamed = processing.run(
         "native:renametablefield",
         {
             "INPUT": kozui_max_sum,
@@ -339,6 +351,21 @@ def seamless2hmg_kosui(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
         feedback=f,
+    )["OUTPUT"]
+
+    # populate null values with 0
+    seamless_sql = f'CASE WHEN "{constants.field_kozui}" > 0 THEN "{constants.field_kozui}" ELSE 0 END'
+    kozui_mesh = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": kozui_renamed,
+            "FIELD_NAME": constants.field_kozui,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": seamless_sql,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
     )["OUTPUT"]
 
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
