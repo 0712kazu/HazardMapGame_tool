@@ -1,5 +1,5 @@
 import processing
-from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QProgressBar, QMessageBox
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
@@ -233,6 +233,25 @@ def seamless2hmg_kosui(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    # Handle when there is no cliped features
+    if kozui_cliped.featureCount() == 0:
+        kozui_mesh = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD_NAME": constants.field_kozui,
+                "FIELD_TYPE": 0,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": "0",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        QMessageBox.information(
+            None, "お知らせ", "対象領域に洪水ポリゴンがありません。"
+        )
+        return kozui_mesh
 
     kozui_cliped_fixed = processing.run(
         "native:fixgeometries",
