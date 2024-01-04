@@ -262,7 +262,7 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    kozui_cliped_fixed.setName("kozui_cliped")
+    kozui_cliped_fixed.setName("tmp_kozui_cliped")
 
     QgsProject.instance().addMapLayer(kozui_cliped_fixed)
 
@@ -342,6 +342,7 @@ def seamless2hmg_kosui(
         feedback=f,
     )["OUTPUT"]
     qgis_iface.messageBar().clearWidgets()
+    max_dep_pnt.setName("tmp_point_cliped")
     QgsProject.instance().addMapLayer(max_dep_pnt)
 
     print("メッシュごとの最大浸水深合計を計算...")
@@ -388,6 +389,13 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
 
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
+
+    # remove temporary layers
+    tmp_kozui_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_kozui_cliped")[0]
+    QgsProject.instance().removeMapLayer(tmp_kozui_cliped_lyr.id())
+
+    tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
+    QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
 
     return inland_calculated_mesh
 
