@@ -259,9 +259,8 @@ def seamless2hmg_kosui(
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
-        QMessageBox.information(
-            None, "お知らせ", "対象領域に洪水ポリゴンがありません。"
-        )
+        message = "対象領域に洪水ポリゴンがありません。"
+        QMessageBox.information(None, "お知らせ", message)
         return kozui_mesh
 
     kozui_cliped_fixed = processing.run(

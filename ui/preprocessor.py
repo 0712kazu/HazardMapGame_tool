@@ -121,9 +121,8 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            QMessageBox.information(
-                None, "お知らせ", "No shapefile in 土地利用 directory."
-            )
+            message = "No shapefile in 土地利用 directory."
+            QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
         # merge all shp to gpkg
