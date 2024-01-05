@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 
-from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 
