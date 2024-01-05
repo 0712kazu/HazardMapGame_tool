@@ -155,9 +155,8 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            QMessageBox.information(
-                None, "お知らせ", "No shapefile in 地すべり directory."
-            )
+            message = "No shapefile in 地すべり directory."
+            QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
         # get only polygon shapefiles
@@ -179,9 +178,8 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            QMessageBox.information(
-                None, "お知らせ", "No shapefile in 災害危険 directory."
-            )
+            message = "No shapefile in 災害危険 directory."
+            QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
 
@@ -268,9 +266,8 @@ class Preprocessor:
                 shapefiles.append(shapefile)
 
         if len(shapefiles) == 0:
-            QMessageBox.information(
-                None, "お知らせ", "No point shapefile in 竜巻 directory"
-            )
+            message = "No point shapefile in 竜巻 directory"
+            QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
 
