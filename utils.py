@@ -43,7 +43,11 @@ def _rename(info: zipfile.ZipInfo) -> None:
     """ヘルパー: `ZipInfo` の中身をデコードし直す"""
     LANG_ENC_FLAG = 0x800
     encoding = "utf-8" if info.flag_bits & LANG_ENC_FLAG else "cp437"
-    info.filename = info.filename.encode(encoding).decode("cp932")
+    try:
+        info.filename = info.filename.encode(encoding).decode("cp932")
+    except:
+        # Wrong byte included in filename (eg: 0x91)
+        print(f"Unable to decode {info.filename}")
 
 
 def add_vlayer_from_file(path: str, layername: str):
