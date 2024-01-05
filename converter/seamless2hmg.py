@@ -219,8 +219,9 @@ def seamless2hmg_kosui(
     f = QgsProcessingFeedback()
     f.progressChanged.connect(progress_changed)
 
-    kozui_cliped = processing.run(
-        "native:clip",
+    # extract intersected polygons to avoid clip intersect error
+    kozui_extract = processing.run(
+        "native:extractbylocation",
         {
             "INPUT": QgsProcessingFeatureSourceDefinition(
                 kozui_lyr.source(),
@@ -229,6 +230,16 @@ def seamless2hmg_kosui(
                 flags=qpfsd.FlagOverrideDefaultGeometryCheck,
                 geometryCheck=QgsFeatureRequest.GeometryNoCheck,
             ),
+            "PREDICATE": [0],
+            "INTERSECT": waku_lyr,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    kozui_cliped = processing.run(
+        "native:clip",
+        {
+            "INPUT": kozui_extract,
             "OVERLAY": waku_lyr,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
