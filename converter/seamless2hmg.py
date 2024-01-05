@@ -385,7 +385,8 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
 
     # populate null values with 0
-    seamless_sql = f'CASE WHEN "{constants.field_kozui}" > 0 THEN "{constants.field_kozui}" ELSE 0 END'
+    seamless_sql = f'CASE WHEN "{constants.field_kozui}" > 0'
+    seamless_sql += f' THEN "{constants.field_kozui}" ELSE 0 END'
     kozui_mesh = processing.run(
         "native:fieldcalculator",
         {
