@@ -19,7 +19,7 @@ class HMGDataClassifier:
         self.plot_widget = None
         self.main = main
         self.canvas = iface.mapCanvas()
-        self.hazards = ["kozui", "jisuberi", "saigai"]
+        self.hazards = ["tornado", "kozui", "jisuberi", "saigai"]
 
         # Target mesh layer にする
         self.main.mesh_score_layer_combobox.setFilters(
@@ -74,6 +74,10 @@ class HMGDataClassifier:
     def classify_hmg_data(self):
         return
 
+    def on_number_changed_tornado(self):
+        self._set_percentages("tornado")
+        self.show_chart_tornado()
+
     def on_number_changed_kozui(self):
         self._set_percentages("kozui")
         self.show_chart_kozui()
@@ -125,6 +129,9 @@ class HMGDataClassifier:
                 # TBC: make digit to be up to previous one
                 # TO DO: set nbmax_box = n when 100% is written (now bugging)
 
+    def classify_stdev_tornado(self):
+        self._set_percentages_stdev("tornado")
+
     def classify_stdev_kozui(self):
         self._set_percentages_stdev("kozui")
 
@@ -158,6 +165,9 @@ class HMGDataClassifier:
         for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
+
+    def classify_tcg_tornado(self):
+        self._set_percentages_tcg("tornado")
 
     def classify_tcg_kozui(self):
         self._set_percentages_tcg("kozui")
@@ -208,6 +218,9 @@ class HMGDataClassifier:
         for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
+
+    def show_chart_tornado(self):
+        self._set_chart("竜巻", "tornado")
 
     def show_chart_kozui(self):
         self._set_chart("洪水", "kozui")

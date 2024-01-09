@@ -437,3 +437,17 @@ def seamless2hmg_saigai(
     )
 
     return inland_calculated_mesh
+
+
+def seamless2hmg_tornado(
+    tornado_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        tornado_lyr, mesh_lyr, constants.field_tornado
+    )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_tornado
+    )
+
+    return inland_calculated_mesh
