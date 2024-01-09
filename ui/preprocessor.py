@@ -276,7 +276,7 @@ class Preprocessor:
         merge_shapefiles(shapefiles, tmp_tornado_merged)
 
         # make 500m buffer
-        sql = "SELECT ST_Buffer(ST_Transform(geom, 32654), 500) as geometry "
+        sql = "SELECT ST_Union(ST_Buffer(ST_Transform(geom, 32654), 500)) as geometry "
         sql += f"FROM tmp_{SEAMLESS_FILE_TORNADO.split('.')[0]}"
 
         cmd = (
