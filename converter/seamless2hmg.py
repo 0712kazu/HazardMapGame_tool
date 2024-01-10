@@ -61,7 +61,7 @@ def _sum_surfaces_intersect_meshes(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": " $area ",
+            "FORMULA": " area(@geometry) ",
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
