@@ -152,7 +152,11 @@ class HMGDataClassifier:
 
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
-        for n in range(1, nbmax_box.value() + 1):
+
+        if len(percentages_classes) != nbmax_box.value():
+            nbmax_box.setValue(len(percentages_classes))
+
+        for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
 
@@ -196,11 +200,13 @@ class HMGDataClassifier:
         # classify if values are not equals
         percentages_classes = classify_values_tcg(y_values)
 
+        if len(percentages_classes) != nbmax_box.value():
+            nbmax_box.setValue(len(percentages_classes))
+
         # update UI
-        nbmax_box.setValue(7)
         nbmax_box.setReadOnly(True)
 
-        for n in range(1, 8):
+        for n in range(1, len(percentages_classes) + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n - 1])
 
@@ -283,7 +289,7 @@ class HMGDataClassifier:
             color = get_color_from_range(n, nbmax_box.value())
 
             # add break_max line as plot
-            line_label = f"{percent_value}%"
+            line_label = f"{percent_value}% ({round(break_max,1)})"
             percent_line = self.plot_widget.plot(
                 [0, len(y_values)],
                 [break_max, break_max],
@@ -293,7 +299,7 @@ class HMGDataClassifier:
             # labeling
             label_item = pg.TextItem(text=line_label, color=color)
             self.plot_widget.addItem(label_item)
-            label_item.setPos(len(y_values), break_max)
+            label_item.setPos(0, break_max)
 
             self.plot_widget.addItem(percent_line)
 

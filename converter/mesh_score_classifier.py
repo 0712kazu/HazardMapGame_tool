@@ -26,21 +26,27 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
             continue
         if min < constants.MAP_MIN_VALUE and color != "transparent":
             min = constants.MAP_MIN_VALUE
+            label_min = constants.MAP_MIN_VALUE
+        else:
+            label_min = round(min, 1)
         if max < constants.MAP_MIN_VALUE:
             max = constants.MAP_MIN_VALUE
+            label_max = constants.MAP_MIN_VALUE
+        else:
+            label_max = round(max, 1)
 
         classificationRange = QgsClassificationRange(
-            f"{min} < {target_field} < {max}", min, max
+            f"{label_min} < {target_field} <= {label_max}", min, max
         )
         if color == "transparent":
             color_txt = "0,0,0,0"
         else:
             # convert #FFFFFF to "255,255,255,135"
-            # with opacity as 135 value
+            # with opacity as 200 value
             hex_color = color.lstrip("#")
             rgb = tuple(int(hex_color[i] + hex_color[i + 1], 16) for i in (0, 2, 4))
             rgbtext = ", ".join(map(str, rgb))
-            color_txt = rgbtext + ", 135"
+            color_txt = rgbtext + ", 200"
         properties = {
             "color": color_txt,
             "outline_color": "black",
@@ -95,7 +101,8 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     - values [0,0,24,255,484,1056...]
     - num_classes: 6
     output:
-    - class_percentages : [0,0,54,85,90,100] a list of percentages
+    - class_percentages : [0,54,85,90,100] a list of percentages
+    -
     """
 
     # Calculate mean and standard deviation
@@ -124,7 +131,10 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
         class_percentages.append(percentage)
     class_percentages.append(100)
 
-    return class_percentages
+    # remove duplicate values
+    class_percentages = list(set(class_percentages))
+
+    return sorted(class_percentages)
 
 
 def classify_values_tcg(values: list) -> list:
@@ -168,91 +178,94 @@ def classify_values_tcg(values: list) -> list:
         class_percentages.append(percentage)
     class_percentages.append(100)
 
-    return class_percentages
+    # remove duplicated values
+    class_percentages = list(set(class_percentages))
+
+    return sorted(class_percentages)
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
     if nb_breaks == 1:
-        color = "#fd8d3c"
+        color = "#fddbc7"
     elif nb_breaks == 2:
         color = {
-            1: "#ffffb2",
-            2: "#bd0026",
+            1: "#0571b0",
+            2: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 3:
         color = {
-            1: "#ffffb2",
-            2: "#fd8d3c",
-            3: "#bd0026",
+            1: "#0571b0",
+            2: "#f7f7f7",
+            3: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 4:
         color = {
-            1: "#ffffb2",
-            2: "#feb751",
-            3: "#f45629",
-            4: "#bd0026",
+            1: "#0571b0",
+            2: "#92c5de",
+            3: "#f4a582",
+            4: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 5:
         color = {
-            1: "#ffffb2",
-            2: "#fecc5c",
-            3: "#fd8d3c",
-            4: "#f03b20",
-            5: "#bd0026",
+            1: "#0571b0",
+            2: "#92c5de",
+            3: "#f7f7f7",
+            4: "#f4a582",
+            5: "#ca0020",
         }.get(break_id, "#00000")
     elif nb_breaks == 6:
         color = {
-            1: "#ffffb2",
-            2: "#fed66d",
-            3: "#fda649",
-            4: "#f86c31",
-            5: "#e62f21",
-            6: "#bd0026",
+            1: "#2166ac",
+            2: "#67a9cf",
+            3: "#d1e5f0",
+            4: "#fddbc7",
+            5: "#ef8a62",
+            6: "#b2182b",
         }.get(break_id, "#00000")
     elif nb_breaks == 7:
         color = {
-            1: "#ffffb2",
-            2: "#fedd79",
-            3: "#feb751",
-            4: "#fd8d3c",
-            5: "#f45629",
-            6: "#df2722",
-            7: "#bd0026",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#d1e5f0",
+            5: "#f4a582",
+            6: "#d6604d",
+            7: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 8:
         color = {
-            1: "#ffffb2",
-            2: "#fee281",
-            3: "#fec357",
-            4: "#fd9f45",
-            5: "#f97634",
-            6: "#f24724",
-            7: "#da2223",
-            8: "#bd0026",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#d1e5f0",
+            5: "#f4a582",
+            6: "#d6604d",
+            7: "#b2182b",
+            8: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 9:
         color = {
-            1: "#ffffb2",
-            2: "#ffe687",
-            3: "#fecc5c",
-            4: "#fead4c",
-            5: "#fd8d3c",
-            6: "#f7642e",
-            7: "#f03b20",
-            8: "#d71e23",
-            9: "#bd0026",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#92c5de",
+            5: "#d1e5f0",
+            6: "#f4a582",
+            7: "#d6604d",
+            8: "#b2182b",
+            9: "#67001f",
         }.get(break_id, "#00000")
     elif nb_breaks == 10:
         color = {
-            1: "#ffffb2",
-            2: "#ffe88c",
-            3: "#fed266",
-            4: "#feb751",
-            5: "#fd9b43",
-            6: "#fa7b36",
-            7: "#f45629",
-            8: "#ea3421",
-            9: "#d41a23",
-            10: "#bd0026",
+            1: "#053061",
+            2: "#2166ac",
+            3: "#4393c3",
+            4: "#92c5de",
+            5: "#d1e5f0",
+            6: "#fddbc7",
+            7: "#f4a582",
+            8: "#d6604d",
+            9: "#b2182b",
+            10: "#67001f",
         }.get(break_id, "#00000")
     return color
