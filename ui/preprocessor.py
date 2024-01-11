@@ -14,6 +14,12 @@ from constants import (
     INPUT_DIR_SAIGAI,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
+    SEAMLESS_FILE_TORNADO,
+    SEAMLESS_FILE_FLOOD,
+    SEAMLESS_FILE_LANDSLIP,
+    SEAMLESS_FILE_DISASTER,
+    SEAMLESS_FILE_CITIES,
+    SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
 )
 from utils import (
@@ -65,36 +71,53 @@ class Preprocessor:
             QMessageBox.information(None, "エラー", error_message)
             return
 
+        # process list
+        seamless_processed = []
         if self.main.QgsFileWidget_tatumaki.filePath():
             self.preprocess_tatumaki(
                 self.main.QgsFileWidget_tatumaki.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_TORNADO)
+
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_FLOOD)
+
         if self.main.QgsFileWidget_jisuberi.filePath():
             self.preprocess_jisuberi(
                 self.main.QgsFileWidget_jisuberi.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_LANDSLIP)
+
         if self.main.QgsFileWidget_saigai.filePath():
             self.preprocess_saigai(
                 self.main.QgsFileWidget_saigai.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_DISASTER)
+
         if self.main.QgsFileWidget_tochiriyou.filePath():
             self.preprocess_tochiriyou(
                 self.main.QgsFileWidget_tochiriyou.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_LANDUSE)
+
         if self.main.QgsFileWidget_shikuchoson.filePath():
             self.preprocess_shikuchoson(
                 self.main.QgsFileWidget_shikuchoson.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
+            seamless_processed.append(SEAMLESS_FILE_CITIES)
+        message = "シムレスデータの作成が完了しました。\n"
+        for seamless_data in seamless_processed:
+            message += f"{seamless_data}\n"
+        QMessageBox.information(None, "完了", message)
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
@@ -104,7 +127,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "tochiriyou_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_LANDUSE)
         )
 
         shutil.rmtree(extracted_dir)
@@ -114,7 +137,7 @@ class Preprocessor:
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-        merged_shapefiles = os.path.join(output_directory, "kouzui_merged.gpkg")
+        merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
 
         # merge all shp to gpkg
         ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
@@ -133,7 +156,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "jisuberi_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_LANDSLIP)
         )
 
         shutil.rmtree(extracted_dir)
@@ -151,7 +174,7 @@ class Preprocessor:
 
         # merge all shp to gpkg
         merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "saigai_merged.gpkg")
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_DISASTER)
         )
 
         shutil.rmtree(extracted_dir)
@@ -196,7 +219,7 @@ class Preprocessor:
         sql += "FROM tmp_cities"
 
         cmd = (
-            f"ogr2ogr {os.path.join(output_directory,'japan_cities.csv')} "
+            f"ogr2ogr {os.path.join(output_directory,SEAMLESS_FILE_CITIES)} "
             f"{tmp_cities_file} "
             f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
             f"-f CSV "
@@ -224,8 +247,24 @@ class Preprocessor:
                 shapefiles.append(shapefile)
 
         # merge all shp to gpkg
-        merge_shapefiles(
-            shapefiles, os.path.join(output_directory, "tatumaki_merged.gpkg")
+        tmp_tornado_merged = os.path.join(extracted_dir, "tmp_" + SEAMLESS_FILE_TORNADO)
+        merge_shapefiles(shapefiles, tmp_tornado_merged)
+
+        # make 500m buffer
+        sql = "SELECT ST_Buffer(ST_Transform(geom, 32654), 500) as geometry "
+        sql += f"FROM tmp_{SEAMLESS_FILE_TORNADO.split('.')[0]}"
+
+        cmd = (
+            f"ogr2ogr {os.path.join(output_directory, SEAMLESS_FILE_TORNADO)} "
+            f"{tmp_tornado_merged} "
+            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
+            f"-nln {SEAMLESS_FILE_TORNADO.split('.')[0]} "
+            f"-t_srs EPSG:3857 -f GPKG "
+        )
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
         )
 
         shutil.rmtree(extracted_dir)
