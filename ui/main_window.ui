@@ -1722,9 +1722,9 @@
           </spacer>
          </item>
          <item>
-             <widget class="QPushButton" name="pushButton_classify">
+             <widget class="QPushButton" name="pushButton_tcg_classify">
               <property name="text">
-               <string>分類を始める</string>
+               <string>TCG方式の点数化を始める</string>
               </property>
              </widget>
             </item>

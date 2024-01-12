@@ -1,5 +1,11 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from qgis.core import QgsProject, QgsMapLayerProxyModel
+from PyQt5.QtCore import QVariant
+from qgis.core import (
+    QgsProject,
+    QgsMapLayerProxyModel,
+    QgsField,
+    QgsFeatureRequest,
+)
 
 from qgis.utils import iface
 
@@ -9,6 +15,7 @@ from converter.mesh_score_classifier import (
     get_color_from_range,
     classify_values_stdev,
     classify_values_tcg,
+    get_tcg_ranks,
 )
 import constants
 from modules import pyqtgraph as pg
@@ -33,7 +40,7 @@ class HMGDataClassifier:
 
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
-        self.main.pushButton_classify.clicked.connect(self.classify_hmg_data)
+        self.main.pushButton_tcg_classify.clicked.connect(self.classify_data_tcg)
 
         for hazard in self.hazards:
             # Connect graphs
@@ -70,9 +77,6 @@ class HMGDataClassifier:
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
             custom_button.setChecked(True)  # default button
             custom_button.clicked.connect(on_number_changed_function)
-
-    def classify_hmg_data(self):
-        return
 
     def on_number_changed_tornado(self):
         self._set_percentages("tornado")
@@ -321,3 +325,56 @@ class HMGDataClassifier:
 
         # reflect to map
         graduate_layer(mesh_score_layer, target_field, breaks)
+
+    def classify_data_tcg(self):
+        # list of added fields
+        tcg_rank_fields_added = []
+
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
+
+        for hazard in self.hazards:
+            # get mesh_score target field name
+            target_field = getattr(constants, f"field_{hazard}")
+
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
+            else:
+                continue
+            # get ranks from values
+            tcg_ranks = get_tcg_ranks(y_values)
+            print(tcg_ranks)
+            tcg_rank_field = f"t_{target_field}"
+
+            # add tcg rank field if not exists
+            if tcg_rank_field not in mesh_score_layer.fields().names():
+                mesh_score_layer.startEditing()
+                mesh_score_layer.addAttribute(QgsField(tcg_rank_field, QVariant.Int))
+                mesh_score_layer.commitChanges()
+
+            # calculate tcg rank
+            mesh_score_layer.startEditing()
+            # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
+            # associated tcg_ranks : [0,1,2,4,4,6]
+            # Sort the features based on hazard score ascending order
+            request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
+            features = mesh_score_layer.getFeatures(request)
+
+            # Update the tcg rank field based on the sorting order
+            for index, feature in enumerate(features):
+                feature.setAttribute(tcg_rank_field, tcg_ranks[index])
+                print(tcg_ranks[index])
+                mesh_score_layer.updateFeature(feature)
+
+            # Stop editing and save changes
+            mesh_score_layer.commitChanges()
+
+            tcg_rank_fields_added.append(tcg_rank_field)
+
+        # message end
+        message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
+        for tcg_field in tcg_rank_fields_added:
+            message += f"{tcg_field}\n"
+        QMessageBox.information(None, "完了", message)
