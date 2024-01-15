@@ -9,6 +9,7 @@ from qgis.core import (
     QgsProject,
     QgsVectorLayer,
     QgsProcessing,
+    QgsFeatureRequest,
 )
 
 from qgis.utils import iface
@@ -197,7 +198,7 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
 
 
 def exclude_offshore_mesh(
-    mesh_lyr: QgsVectorLayer, landuse_lyr: QgsVectorLayer
+    mesh_lyr: QgsVectorLayer, landuse_lyr: QgsVectorLayer, inland_percentage: float
 ) -> QgsVectorLayer:
     # clip landuse to only mesh area
     landuse_clipped = processing.run(
@@ -264,7 +265,7 @@ def exclude_offshore_mesh(
         "native:fieldcalculator",
         {
             "INPUT": inland_meshes_dissolved,
-            "FIELD_NAME": "inland_area",
+            "FIELD_NAME": "land_area",
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
@@ -281,7 +282,7 @@ def exclude_offshore_mesh(
             "FIELD": "id",
             "INPUT_2": inland_meshes_area,
             "FIELD_2": "id",
-            "FIELDS_TO_COPY": ["inland_area"],
+            "FIELDS_TO_COPY": ["land_area"],
             "METHOD": 1,
             "DISCARD_NONMATCHING": False,
             "PREFIX": "",
@@ -289,14 +290,58 @@ def exclude_offshore_mesh(
         },
     )["OUTPUT"]
 
-    # keep only mesh which have >= 10% of inland area
+    # calculate inland area rate
+    inland_rate_meshes_area = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_inland_area,
+            "FIELD_NAME": "land_rate",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": ' "land_area" / $area ',
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # keep only mesh which have >= xx% of inland area (Default 10%)
     offshore_excluded_meshes = processing.run(
         "native:extractbyexpression",
         {
-            "INPUT": mesh_inland_area,
-            "EXPRESSION": ' "inland_area" / $area >= 0.1',
+            "INPUT": inland_rate_meshes_area,
+            "EXPRESSION": f' "land_rate" >= {inland_percentage / 100}',
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
 
     return offshore_excluded_meshes
+
+
+def set_mesh_id(layer: QgsVectorLayer) -> None:
+    """
+    edit layer id field as serial, with top desc order then left asc order.
+    top and left are coordinates of top/left mesh
+    output: same layer with id ordered from left to right, then up to bottom.
+    """
+    id_field_name = "id"
+    top_field_name = "top"
+    left_field_name = "left"
+
+    # Start editing the layer
+    layer.startEditing()
+
+    # Sort the features based on 'top' in descending order and 'left' in ascending order
+    request = (
+        QgsFeatureRequest()
+        .addOrderBy(top_field_name, ascending=False)
+        .addOrderBy(left_field_name, ascending=True)
+    )
+    features = layer.getFeatures(request)
+
+    # Update the 'id' field based on the sorting order
+    for idx, feature in enumerate(features, start=1):
+        feature.setAttribute(id_field_name, idx)
+        layer.updateFeature(feature)
+
+    # Stop editing and save changes
+    layer.commitChanges()

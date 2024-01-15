@@ -1,5 +1,5 @@
 import processing
-from PyQt5.QtWidgets import QProgressBar
+from PyQt5.QtWidgets import QProgressBar, QMessageBox
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
@@ -12,7 +12,7 @@ from qgis.gui import QgisInterface
 
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
-from converter import field_names
+import constants
 
 
 def _sum_surfaces_intersect_meshes(
@@ -136,6 +136,21 @@ def _sum_surfaces_intersect_meshes(
     return seamless_sum_mesh
 
 
+def _adjust_inland_score(layer: QgsVectorLayer, hazard_field: str) -> QgsVectorLayer:
+    return processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": layer,
+            "FIELD_NAME": hazard_field,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": f' "{hazard_field}"  /  "land_rate" ',
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+
 def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
     kouzui_v1_fields = ["A31_001"]
     kouzui_v2_fields = [
@@ -190,7 +205,7 @@ def seamless2hmg_kosui(
     waku_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
     qgis_iface: QgisInterface,
-):
+) -> QgsVectorLayer:
     # Progression bar
     qgis_iface.messageBar().clearWidgets()
     progressMessageBar = qgis_iface.messageBar()
@@ -204,8 +219,9 @@ def seamless2hmg_kosui(
     f = QgsProcessingFeedback()
     f.progressChanged.connect(progress_changed)
 
-    kozui_cliped = processing.run(
-        "native:clip",
+    # extract intersected polygons to avoid clip intersect error
+    kozui_extract = processing.run(
+        "native:extractbylocation",
         {
             "INPUT": QgsProcessingFeatureSourceDefinition(
                 kozui_lyr.source(),
@@ -214,10 +230,38 @@ def seamless2hmg_kosui(
                 flags=qpfsd.FlagOverrideDefaultGeometryCheck,
                 geometryCheck=QgsFeatureRequest.GeometryNoCheck,
             ),
+            "PREDICATE": [0],
+            "INTERSECT": waku_lyr,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    kozui_cliped = processing.run(
+        "native:clip",
+        {
+            "INPUT": kozui_extract,
             "OVERLAY": waku_lyr,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    # Handle when there is no cliped features
+    if kozui_cliped.featureCount() == 0:
+        kozui_mesh = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD_NAME": constants.field_kozui,
+                "FIELD_TYPE": 0,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": "0",
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        message = "対象領域に洪水ポリゴンがありません。"
+        QMessageBox.information(None, "お知らせ", message)
+        return kozui_mesh
 
     kozui_cliped_fixed = processing.run(
         "native:fixgeometries",
@@ -228,7 +272,7 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    kozui_cliped_fixed.setName("kozui_cliped")
+    kozui_cliped_fixed.setName("tmp_kozui_cliped")
 
     QgsProject.instance().addMapLayer(kozui_cliped_fixed)
 
@@ -262,7 +306,7 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
 
     # 20m間隔ポイントを作成
-    pnt_lyr = processing.run(
+    pnt_lyr_raw = processing.run(
         "native:creategrid",
         {
             "TYPE": 0,
@@ -278,8 +322,20 @@ def seamless2hmg_kosui(
 
     # 空間Indexを作成
     print("Creating spatial index...")
-    for lyr in [kozui_standard, pnt_lyr, mesh_lyr]:
+    for lyr in [kozui_standard, pnt_lyr_raw, mesh_lyr]:
         processing.run("native:createspatialindex", {"INPUT": lyr})
+
+    # Get only points intersects flood polygons
+    pnt_lyr = processing.run(
+        "native:clip",
+        {
+            "INPUT": pnt_lyr_raw,
+            "OVERLAY": kozui_cliped_fixed,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
 
     print("ポイントに最大浸水深を結合...")
     max_dep_pnt = processing.run(
@@ -296,6 +352,7 @@ def seamless2hmg_kosui(
         feedback=f,
     )["OUTPUT"]
     qgis_iface.messageBar().clearWidgets()
+    max_dep_pnt.setName("tmp_point_cliped")
     QgsProject.instance().addMapLayer(max_dep_pnt)
 
     print("メッシュごとの最大浸水深合計を計算...")
@@ -315,33 +372,68 @@ def seamless2hmg_kosui(
     qgis_iface.messageBar().clearWidgets()
 
     print("属性名を変更...")
-    kozui_mesh = processing.run(
+    kozui_renamed = processing.run(
         "native:renametablefield",
         {
             "INPUT": kozui_max_sum,
             "FIELD": "depth_max_sum",
-            "NEW_NAME": field_names.field_kozui,
+            "NEW_NAME": constants.field_kozui,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
         feedback=f,
     )["OUTPUT"]
 
-    return kozui_mesh
+    # populate null values with 0
+    seamless_sql = f'CASE WHEN "{constants.field_kozui}" > 0'
+    seamless_sql += f' THEN "{constants.field_kozui}" ELSE 0 END'
+    kozui_mesh = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": kozui_renamed,
+            "FIELD_NAME": constants.field_kozui,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": seamless_sql,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
+
+    # remove temporary layers
+    tmp_kozui_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_kozui_cliped")[0]
+    QgsProject.instance().removeMapLayer(tmp_kozui_cliped_lyr.id())
+
+    tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
+    QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
+
+    return inland_calculated_mesh
 
 
 def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
-):
-    return _sum_surfaces_intersect_meshes(
-        jisuberi_lyr, mesh_lyr, field_names.field_jisuberi
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        jisuberi_lyr, mesh_lyr, constants.field_jisuberi
     )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_jisuberi
+    )
+
+    return inland_calculated_mesh
 
 
 def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer,
     mesh_lyr: QgsVectorLayer,
-):
-    return _sum_surfaces_intersect_meshes(
-        saigai_lyr, mesh_lyr, field_names.field_saigai
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        saigai_lyr, mesh_lyr, constants.field_saigai
     )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_saigai
+    )
+
+    return inland_calculated_mesh

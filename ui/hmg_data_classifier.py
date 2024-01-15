@@ -3,7 +3,6 @@ from qgis.core import QgsProject, QgsMapLayerProxyModel
 
 from qgis.utils import iface
 
-from converter import field_names
 from converter.mesh_score_classifier import (
     graduate_layer,
     get_mesh_value_from_percentage,
@@ -138,7 +137,7 @@ class HMGDataClassifier:
     def _set_percentages_stdev(self, hazard: str):
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
         # get mesh_score target field name
-        target_field = getattr(field_names, f"field_{hazard}")
+        target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -173,7 +172,7 @@ class HMGDataClassifier:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
-        target_field = getattr(field_names, f"field_{hazard}")
+        target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -228,7 +227,7 @@ class HMGDataClassifier:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
-        target_field = getattr(field_names, f"field_{hazard}")
+        target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [

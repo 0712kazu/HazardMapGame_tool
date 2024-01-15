@@ -43,7 +43,11 @@ def _rename(info: zipfile.ZipInfo) -> None:
     """ヘルパー: `ZipInfo` の中身をデコードし直す"""
     LANG_ENC_FLAG = 0x800
     encoding = "utf-8" if info.flag_bits & LANG_ENC_FLAG else "cp437"
-    info.filename = info.filename.encode(encoding).decode("cp932")
+    try:
+        info.filename = info.filename.encode(encoding).decode("cp932")
+    except UnicodeDecodeError as e:
+        # Wrong byte included in filename (eg: 0x91)
+        print(f"Unable to decode {info.filename}\n{e}")
 
 
 def add_vlayer_from_file(path: str, layername: str):
@@ -61,8 +65,10 @@ def geom_type_from_shp(input_shp: str) -> str:
         return geometry.GetGeometryName()
 
 
-def merge_shapefiles(shapefiles: list, output_path: str):
-    """merge all shapefiles given in a file path list into a single geopackage file"""
+def merge_shapefiles(shapefiles: list, output_path: str, addfields=""):
+    """merge all shapefiles given in a file path list into a single geopackage file
+    addfields option is fill with '-addfields' if desired. default NULL.
+    """
     layer_name = os.path.splitext(os.path.basename(output_path))[0]
     cmd = (
         f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln {layer_name} -f GPKG "
@@ -78,7 +84,8 @@ def merge_shapefiles(shapefiles: list, output_path: str):
     for shp in shapefiles[1:]:
         cmd = (
             f"ogr2ogr -lco ENCODING=cp932"
-            f" -oo ENCODING=cp932 -nln {layer_name} -f GPKG -append -update"
+            f" -oo ENCODING=cp932 -nln {layer_name} -f GPKG"
+            f" -append {addfields} -update"
             f" {output_path} {shp}"
         )
         subprocess.run(

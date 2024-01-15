@@ -3,7 +3,6 @@ import os
 import shutil
 import subprocess
 
-from osgeo_utils.ogrmerge import process as ogr_merge
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 
@@ -41,6 +40,8 @@ class Preprocessor:
             self.load_elements_files_from_dir
         )
 
+        self.seamless_processed = []
+
     def load_elements_files_from_dir(self):
         """
         指定されたフォルダから複数のファイルを探し見つけたらFileWidgetに反映する
@@ -72,50 +73,45 @@ class Preprocessor:
             return
 
         # process list
-        seamless_processed = []
+        self.seamless_processed = []
         if self.main.QgsFileWidget_tatumaki.filePath():
             self.preprocess_tatumaki(
                 self.main.QgsFileWidget_tatumaki.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_TORNADO)
 
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_FLOOD)
 
         if self.main.QgsFileWidget_jisuberi.filePath():
             self.preprocess_jisuberi(
                 self.main.QgsFileWidget_jisuberi.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_LANDSLIP)
 
         if self.main.QgsFileWidget_saigai.filePath():
             self.preprocess_saigai(
                 self.main.QgsFileWidget_saigai.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_DISASTER)
 
         if self.main.QgsFileWidget_tochiriyou.filePath():
             self.preprocess_tochiriyou(
                 self.main.QgsFileWidget_tochiriyou.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_LANDUSE)
 
         if self.main.QgsFileWidget_shikuchoson.filePath():
             self.preprocess_shikuchoson(
                 self.main.QgsFileWidget_shikuchoson.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
-            seamless_processed.append(SEAMLESS_FILE_CITIES)
+
         message = "シムレスデータの作成が完了しました。\n"
-        for seamless_data in seamless_processed:
+        for seamless_data in self.seamless_processed:
             message += f"{seamless_data}\n"
         QMessageBox.information(None, "完了", message)
 
@@ -124,31 +120,45 @@ class Preprocessor:
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-
+        if len(shapefiles) == 0:
+            message = "No shapefile in 土地利用 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
         # merge all shp to gpkg
         merge_shapefiles(
             shapefiles, os.path.join(output_directory, SEAMLESS_FILE_LANDUSE)
         )
 
         shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_LANDUSE)
 
     def preprocess_kozui(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
+        if len(shapefiles) == 0:
+            QMessageBox.information(None, "お知らせ", "No shapefile in 洪水 directory.")
+            shutil.rmtree(extracted_dir)
+            return
         merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
 
         # merge all shp to gpkg
-        ogr_merge(["-o", merged_shapefiles, "-single", "-f", "GPKG"] + shapefiles)
+        merge_shapefiles(shapefiles, merged_shapefiles, "-addfields")
         shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_FLOOD)
 
     def preprocess_jisuberi(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
-
+        if len(shapefiles) == 0:
+            message = "No shapefile in 地すべり directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
         # get only polygon shapefiles
         for shapefile in shapefiles:
             if geom_type_from_shp(shapefile) != "POLYGON":
@@ -160,12 +170,18 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_LANDSLIP)
 
     def preprocess_saigai(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
+        if len(shapefiles) == 0:
+            message = "No shapefile in 災害危険 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
 
         # get only polygon shapefiles
         for shapefile in shapefiles:
@@ -178,6 +194,7 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_DISASTER)
 
     def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
@@ -191,6 +208,7 @@ class Preprocessor:
             error_message += "1 shapefile is required for shikuchoson\n"
             error_message += str(len(shapefiles)) + " shapefiles found."
             QMessageBox.information(None, "エラー", error_message)
+            shutil.rmtree(extracted_dir)
             return
 
         layer_name = os.path.splitext(os.path.basename(shapefiles[0]))[0]
@@ -232,6 +250,7 @@ class Preprocessor:
 
         # remove tmp files
         os.remove(tmp_cities_file)
+        self.seamless_processed.append(SEAMLESS_FILE_CITIES)
 
     def preprocess_tatumaki(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
@@ -245,6 +264,12 @@ class Preprocessor:
         for shapefile in extracted_shapefiles:
             if geom_type_from_shp(shapefile) == "POINT":
                 shapefiles.append(shapefile)
+
+        if len(shapefiles) == 0:
+            message = "No point shapefile in 竜巻 directory"
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
 
         # merge all shp to gpkg
         tmp_tornado_merged = os.path.join(extracted_dir, "tmp_" + SEAMLESS_FILE_TORNADO)
@@ -268,3 +293,5 @@ class Preprocessor:
         )
 
         shutil.rmtree(extracted_dir)
+
+        self.seamless_processed.append(SEAMLESS_FILE_TORNADO)

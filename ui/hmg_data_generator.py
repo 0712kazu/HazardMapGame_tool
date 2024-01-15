@@ -1,3 +1,4 @@
+import processing
 import csv
 import os
 
@@ -16,6 +17,7 @@ from converter.mesh_maker import (
     generate_mesh_city,
     generate_mesh_point,
     exclude_offshore_mesh,
+    set_mesh_id,
 )
 from maptool import POIMapTool
 
@@ -67,6 +69,9 @@ class HMGDataGenerator:
         self.main.nb_mesh1.setValue(12)
         self.main.nb_mesh2.setRange(1, 8)
         self.main.nb_mesh2.setValue(8)
+
+        # default inland value
+        self.main.spin_inland_percentage.setValue(10)
 
     def _set_log_csv_data(self):
         # Take csv file in data folder as default, and CSV log data if provided
@@ -362,13 +367,39 @@ class HMGDataGenerator:
                 "landuse_merged",
                 "ogr",
             )
-            mesh_lyr = exclude_offshore_mesh(mesh_lyr, landuse_lyr)
+            mesh_lyr = exclude_offshore_mesh(
+                mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
+            )
+        else:
+            message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
+            message += "マスに陸域率を100%に指定します。"
+            QMessageBox.information(None, "お知らせ", message)
+            mesh_lyr = processing.run(
+                "native:fieldcalculator",
+                {
+                    "INPUT": mesh_lyr,
+                    "FIELD_NAME": "land_rate",
+                    "FIELD_TYPE": 0,
+                    "FIELD_LENGTH": 0,
+                    "FIELD_PRECISION": 0,
+                    "FORMULA": "1",
+                    "OUTPUT": "TEMPORARY_OUTPUT",
+                },
+            )["OUTPUT"]
+
+        # set mesh_id with left to right then up to bottom order
+        set_mesh_id(mesh_lyr)
 
         QgsProject.instance().addMapLayer(mesh_lyr)
         mesh_lyr.setName("mesh")
         mesh_lyr.setOpacity(0.5)
 
+        QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
+
     def process_hmg(self):
+        # list of hazard processed
+        hmg_processed = []
+
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
@@ -382,6 +413,7 @@ class HMGDataGenerator:
                 "ogr",
             )
             mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
+            hmg_processed.append(constants.field_kozui)
 
         jisuberi_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
@@ -394,6 +426,7 @@ class HMGDataGenerator:
             )
             if jisuberi_lyr:
                 mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_jisuberi)
 
         saigai_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_DISASTER
@@ -406,6 +439,7 @@ class HMGDataGenerator:
             )
             if saigai_lyr:
                 mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_saigai)
 
         mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)
@@ -414,3 +448,9 @@ class HMGDataGenerator:
         score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
         if score_layer:
             self.main.mesh_score_layer_combobox.setLayer(score_layer)
+
+        # message end
+        message = "HMGデータの作成が完了しました。\n計算した属性:\n"
+        for hazard_processed in hmg_processed:
+            message += f"{hazard_processed}\n"
+        QMessageBox.information(None, "完了", message)
