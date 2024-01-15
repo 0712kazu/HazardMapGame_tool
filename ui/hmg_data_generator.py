@@ -12,6 +12,7 @@ from converter.seamless2hmg import (
     seamless2hmg_kosui,
     seamless2hmg_jisuberi,
     seamless2hmg_saigai,
+    seamless2hmg_tornado,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -403,6 +404,21 @@ class HMGDataGenerator:
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
+        # 竜巻
+        tornado_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_TORNADO
+        )
+        if os.path.exists(tornado_path):
+            tornado_lyr = QgsVectorLayer(
+                tornado_path,
+                "tornado_merged",
+                "ogr",
+            )
+            if tornado_lyr:
+                mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_tornado)
+
+        # 洪水
         kouzui_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_FLOOD
         )
@@ -415,6 +431,7 @@ class HMGDataGenerator:
             mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
             hmg_processed.append(constants.field_kozui)
 
+        # 地すべり
         jisuberi_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
         )
@@ -428,6 +445,7 @@ class HMGDataGenerator:
                 mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
                 hmg_processed.append(constants.field_jisuberi)
 
+        # 災害危険
         saigai_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_DISASTER
         )

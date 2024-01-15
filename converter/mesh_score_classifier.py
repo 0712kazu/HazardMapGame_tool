@@ -138,6 +138,30 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
 
 
 def classify_values_tcg(values: list) -> list:
+    """get tcg classification as percentage"""
+    tcg_classes = get_tcg_ranks(values)
+
+    # Convert to total percentages
+    class_percentages = []
+    total_sample = 0
+    for i in range(0, 6):
+        nb_elements_in_class = tcg_classes.count(i)
+        total_sample += nb_elements_in_class
+        percentage = total_sample / len(values) * 100
+        class_percentages.append(percentage)
+    class_percentages.append(100)
+
+    # remove duplicated values
+    class_percentages = list(set(class_percentages))
+
+    return sorted(class_percentages)
+
+
+def get_tcg_ranks(values: list) -> list:
+    """Return a list of TCG rank associated to input values
+    input :[0,10,255,3598,3699,8555]
+    output : [0,1,2,4,4,6]
+    """
     # ①全てのマスのリスク値のトータル合計を求める
     sum_all_values = sum(values)
 
@@ -167,21 +191,7 @@ def classify_values_tcg(values: list) -> list:
             else:
                 rank = 5
         tcg_classes.append(rank)
-
-    # Convert to total percentages
-    class_percentages = []
-    total_sample = 0
-    for i in range(0, 6):
-        nb_elements_in_class = tcg_classes.count(i)
-        total_sample += nb_elements_in_class
-        percentage = total_sample / len(values) * 100
-        class_percentages.append(percentage)
-    class_percentages.append(100)
-
-    # remove duplicated values
-    class_percentages = list(set(class_percentages))
-
-    return sorted(class_percentages)
+    return tcg_classes
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
