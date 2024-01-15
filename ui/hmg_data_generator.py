@@ -445,7 +445,7 @@ class HMGDataGenerator:
             )
             if sediments_lyr:
                 print(sediments_lyr)
-                mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr)
+                mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_sediments)
 
         # 地すべり

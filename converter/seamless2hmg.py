@@ -451,11 +451,26 @@ def seamless2hmg_tornado(
 
 
 def seamless2hmg_sediments(
-    sediments_lyr: QgsVectorLayer,
-    mesh_lyr: QgsVectorLayer,
+    sediments_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    sediments_clipped = processing.run(
+        "native:clip",
+        {
+            "INPUT": QgsProcessingFeatureSourceDefinition(
+                sediments_lyr.source(),
+                selectedFeaturesOnly=False,
+                featureLimit=-1,
+                flags=qpfsd.FlagOverrideDefaultGeometryCheck,
+                geometryCheck=QgsFeatureRequest.GeometryNoCheck,
+            ),
+            "OVERLAY": waku_lyr,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        sediments_lyr, mesh_lyr, constants.field_sediments
+        sediments_clipped, mesh_lyr, constants.field_sediments
     )
     inland_calculated_mesh = _adjust_inland_score(
         sum_surface_mesh, constants.field_sediments
