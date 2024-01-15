@@ -448,3 +448,17 @@ def seamless2hmg_tornado(
     )
 
     return sum_surface_mesh
+
+
+def seamless2hmg_sediments(
+    sediments_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        sediments_lyr, mesh_lyr, constants.field_sediments
+    )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_sediments
+    )
+
+    return inland_calculated_mesh

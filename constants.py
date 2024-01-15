@@ -21,6 +21,7 @@ SEAMLESS_FILE_CITIES = "japan_cities.csv"
 # to be as 8 characters to fit to shapefiles with suffixes
 field_tornado = "tornado"
 field_kozui = "flood"
+field_sediments = "sediment"
 field_jisuberi = "landslip"
 field_saigai = "disaster"
 

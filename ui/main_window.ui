@@ -1219,6 +1219,254 @@
                </property>
               </widget>
             </item>
+        <!-- Classification 3: Sediments  -->
+            <item row="4" column="0">
+              <widget class="QLabel" name="label_classif_title_sediments">
+               <property name="text">
+                <string>土砂</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <!-- classification methods -->
+            <item row="4" column="17">
+              <widget class="QRadioButton" name="radiobutton_stdev_sediments">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_sediments</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="4" column="20">
+              <widget class="QRadioButton" name="radiobutton_tcg_sediments">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_sediments</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="4" column="23">
+              <widget class="QRadioButton" name="radiobutton_custom_sediments">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_sediments</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
+            <item row="4" column="25">
+              <widget class="QLabel" name="label_classif_max_sediments">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="4" column="26">
+              <widget class="QSpinBox" name="classif_nbmax_sediments"/>
+             </item>
+             <!-- active button -->
+            <item row="4" column="29">
+             <widget class="QPushButton" name="classif_showgraph_sediments">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="5" column="0">
+              <widget class="QLabel" name="label_classif_values_sediments">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="5" column="1">
+              <widget class="QLabel" name="label_percent_n1_sediments">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="2">
+              <widget class="QDoubleSpinBox" name="classif_percent_1_sediments"/>
+             </item>
+            <item row="5" column="3">
+              <widget class="QLabel" name="label_percent_1_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="4">
+              <widget class="QLabel" name="label_percent_n2_sediments">
+               <property name="text">
+                <string>2</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="5">
+              <widget class="QDoubleSpinBox" name="classif_percent_2_sediments"/>
+             </item>
+            <item row="5" column="6">
+              <widget class="QLabel" name="label_percent_2_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="7">
+              <widget class="QLabel" name="label_percent_n3_sediments">
+               <property name="text">
+                <string>3</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="8">
+              <widget class="QDoubleSpinBox" name="classif_percent_3_sediments"/>
+             </item>
+            <item row="5" column="9">
+              <widget class="QLabel" name="label_percent_3_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="10">
+              <widget class="QLabel" name="label_percent_n4_sediments">
+               <property name="text">
+                <string>4</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="11">
+              <widget class="QDoubleSpinBox" name="classif_percent_4_sediments"/>
+             </item>
+            <item row="5" column="12">
+              <widget class="QLabel" name="label_percent_4_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="13">
+              <widget class="QLabel" name="label_percent_n5_sediments">
+               <property name="text">
+                <string>5</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="14">
+              <widget class="QDoubleSpinBox" name="classif_percent_5_sediments"/>
+             </item>
+            <item row="5" column="15">
+              <widget class="QLabel" name="label_percent_5_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="16">
+              <widget class="QLabel" name="label_percent_n6_sediments">
+               <property name="text">
+                <string>6</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="17">
+              <widget class="QDoubleSpinBox" name="classif_percent_6_sediments"/>
+             </item>
+            <item row="5" column="18">
+              <widget class="QLabel" name="label_percent_6_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="19">
+              <widget class="QLabel" name="label_percent_n7_sediments">
+               <property name="text">
+                <string>7</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="20">
+              <widget class="QDoubleSpinBox" name="classif_percent_7_sediments"/>
+             </item>
+            <item row="5" column="21">
+              <widget class="QLabel" name="label_percent_7_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="22">
+              <widget class="QLabel" name="label_percent_n8_sediments">
+               <property name="text">
+                <string>8</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="23">
+              <widget class="QDoubleSpinBox" name="classif_percent_8_sediments"/>
+             </item>
+            <item row="5" column="24">
+              <widget class="QLabel" name="label_percent_8_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="25">
+              <widget class="QLabel" name="label_percent_n9_sediments">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="26">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_sediments"/>
+             </item>
+            <item row="5" column="27">
+              <widget class="QLabel" name="label_percent_9_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="28">
+              <widget class="QLabel" name="label_percent_n10_sediments">
+               <property name="text">
+                <string>10</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_10_sediments"/>
+             </item>
+            <item row="5" column="30">
+              <widget class="QLabel" name="label_percent_10_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
         <!-- Classification 5: Landslip  -->
             <item row="8" column="0">
               <widget class="QLabel" name="label_classif_title_jisuberi">
@@ -1465,6 +1713,20 @@
                <property name="text">
                 <string>%</string>
                </property>
+              </widget>
+            </item>
+          <!-- Classification 6: Disaster  -->
+            <item row="10" column="0">
+              <widget class="QLabel" name="label_classif_title_saigai">
+               <property name="text">
+                <string>災害危険</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
               </widget>
             </item>
          <!-- classification methods -->

@@ -13,6 +13,7 @@ from converter.seamless2hmg import (
     seamless2hmg_jisuberi,
     seamless2hmg_saigai,
     seamless2hmg_tornado,
+    seamless2hmg_sediments,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -431,6 +432,22 @@ class HMGDataGenerator:
             mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
             hmg_processed.append(constants.field_kozui)
 
+        # 土砂
+        sediments_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            constants.SEAMLESS_FILE_SEDIMENTS,
+        )
+        if os.path.exists(sediments_path):
+            sediments_lyr = QgsVectorLayer(
+                sediments_path,
+                "sediments_merged",
+                "ogr",
+            )
+            if sediments_lyr:
+                print(sediments_lyr)
+                mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr)
+                hmg_processed.append(constants.field_sediments)
+
         # 地すべり
         jisuberi_path = os.path.join(
             self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
@@ -459,6 +476,7 @@ class HMGDataGenerator:
                 mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr)
                 hmg_processed.append(constants.field_saigai)
 
+        # Add final mesh score layer to map
         mesh_lyr.setName("mesh_score")
         QgsProject.instance().addMapLayer(mesh_lyr)
 
