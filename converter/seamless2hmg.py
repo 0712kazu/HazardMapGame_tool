@@ -495,3 +495,20 @@ def seamless2hmg_sediments(
     )
 
     return inland_calculated_mesh
+
+
+def seamless2hmg_tsunami(
+    tsunami_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    tsunami_clipped = _clip_with_valid_geometries(tsunami_lyr, waku_lyr)
+
+    # TO DO: Add rank to tsunami_clipped
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        tsunami_clipped, mesh_lyr, constants.field_tsunami
+    )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_tsunami
+    )
+
+    return inland_calculated_mesh
