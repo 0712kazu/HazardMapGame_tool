@@ -61,7 +61,7 @@ def _sum_surfaces_intersect_meshes(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": " $area ",
+            "FORMULA": " area(@geometry) ",
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
@@ -437,3 +437,14 @@ def seamless2hmg_saigai(
     )
 
     return inland_calculated_mesh
+
+
+def seamless2hmg_tornado(
+    tornado_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+) -> QgsVectorLayer:
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        tornado_lyr, mesh_lyr, constants.field_tornado
+    )
+
+    return sum_surface_mesh

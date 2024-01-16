@@ -269,7 +269,7 @@ def exclude_offshore_mesh(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": " $area ",
+            "FORMULA": " area(@geometry) ",
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
@@ -291,6 +291,8 @@ def exclude_offshore_mesh(
     )["OUTPUT"]
 
     # calculate inland area rate
+    formula = ' CASE WHEN "land_area" >= area(@geometry) THEN 1 '
+    formula += 'ELSE "land_area" / area(@geometry) END '
     inland_rate_meshes_area = processing.run(
         "native:fieldcalculator",
         {
@@ -299,7 +301,7 @@ def exclude_offshore_mesh(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": ' "land_area" / $area ',
+            "FORMULA": formula,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
