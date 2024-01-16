@@ -416,7 +416,7 @@ class HMGDataGenerator:
                 "ogr",
             )
             if tornado_lyr:
-                mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr)
+                mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_tornado)
 
         # 洪水
@@ -459,7 +459,7 @@ class HMGDataGenerator:
                 "ogr",
             )
             if jisuberi_lyr:
-                mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr)
+                mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_jisuberi)
 
         # 災害危険
@@ -473,7 +473,7 @@ class HMGDataGenerator:
                 "ogr",
             )
             if saigai_lyr:
-                mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr)
+                mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_saigai)
 
         # Add final mesh score layer to map

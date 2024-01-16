@@ -58,11 +58,22 @@ def _sum_surfaces_intersect_meshes(
         },
     )["OUTPUT"]
 
+    # Dissolve to avoid overlay polygon
+    seamless_dissolved = processing.run(
+        "native:dissolve",
+        {
+            "INPUT": seamless_reprojected,
+            "FIELD": [],
+            "SEPARATE_DISJOINT": False,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
     # intersect with mesh
     seamless_mesh_intersect = processing.run(
         "native:intersection",
         {
-            "INPUT": seamless_reprojected,
+            "INPUT": seamless_dissolved,
             "OVERLAY": mesh_lyr,
             "INPUT_FIELDS": [],
             "OVERLAY_FIELDS": ["id"],
@@ -256,7 +267,14 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    kozui_cliped = _clip_with_valid_geometries(kozui_extract, waku_lyr)
+    kozui_cliped = processing.run(
+        "native:clip",
+        {
+            "INPUT": kozui_extract,
+            "OVERLAY": waku_lyr,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
 
     # Handle when there is no cliped features
     if kozui_cliped.featureCount() == 0:
