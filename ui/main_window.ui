@@ -131,32 +131,25 @@
           <string>ハザードデータレイヤ</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="5" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_saigai">
+          <item row="0" column="0">
+            <widget class="QLabel" name="label_18">
+              <property name="text">
+              <string>竜巻</string>
+              </property>
+            </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_tatumaki">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>
            </widget>
           </item>
-          <item row="7" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_4">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>避難施設</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_11">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
+          <item row="1" column="0">
+            <widget class="QLabel" name="label_14">
+              <property name="text">
+              <string>洪水</string>
+              </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -166,10 +159,24 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_14">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>洪水</string>
+             <string>土砂</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_sediments">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>津波</string>
             </property>
            </widget>
           </item>
@@ -177,6 +184,13 @@
            <widget class="QgsFileWidget" name="QgsFileWidget_tsunami">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>地すべり</string>
             </property>
            </widget>
           </item>
@@ -200,38 +214,17 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_saigai">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>高潮</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>地震</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_sediments">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_12">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>竜巻</string>
             </property>
            </widget>
           </item>
@@ -242,31 +235,17 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_tatumaki">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>地震</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_4">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>土砂</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>地すべり</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>津波</string>
             </property>
            </widget>
           </item>
@@ -274,6 +253,27 @@
            <widget class="QLabel" name="label_22">
             <property name="text">
              <string>傾斜度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_11">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>避難施設</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_12">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
             </property>
            </widget>
           </item>
