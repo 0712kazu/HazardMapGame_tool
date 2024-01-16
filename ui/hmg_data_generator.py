@@ -14,6 +14,7 @@ from converter.seamless2hmg import (
     seamless2hmg_saigai,
     seamless2hmg_tornado,
     seamless2hmg_sediments,
+    seamless2hmg_tsunami,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -444,9 +445,23 @@ class HMGDataGenerator:
                 "ogr",
             )
             if sediments_lyr:
-                print(sediments_lyr)
                 mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_sediments)
+
+        # 津波
+        tsunami_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            constants.SEAMLESS_FILE_TSUNAMI,
+        )
+        if os.path.exists(tsunami_path):
+            tsunami_lyr = QgsVectorLayer(
+                tsunami_path,
+                "tsunami_merged",
+                "ogr",
+            )
+            if tsunami_lyr:
+                mesh_lyr = seamless2hmg_tsunami(tsunami_lyr, mesh_lyr, waku_lyr)
+                hmg_processed.append(constants.field_tsunami)
 
         # 地すべり
         jisuberi_path = os.path.join(

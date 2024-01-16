@@ -59,11 +59,15 @@ def _sum_surfaces_intersect_meshes(
     )["OUTPUT"]
 
     # Dissolve to avoid overlay polygon
+    dissolve_field = []
+    if calculate_field == constants.field_tsunami:
+        dissolve_field = ["h_tsunami"]
+
     seamless_dissolved = processing.run(
         "native:dissolve",
         {
             "INPUT": seamless_reprojected,
-            "FIELD": [],
+            "FIELD": dissolve_field,
             "SEPARATE_DISJOINT": False,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
@@ -84,6 +88,12 @@ def _sum_surfaces_intersect_meshes(
     )["OUTPUT"]
 
     # calculate area of intersect polygon
+    area_formula = " area(@geometry) "
+
+    if calculate_field == constants.field_tsunami:
+        # for tsunami, multiply with tsunami rank
+        area_formula = " area(@geometry) * h_tsunami"
+
     seamless_mesh_intersect_area = processing.run(
         "native:fieldcalculator",
         {
@@ -92,7 +102,7 @@ def _sum_surfaces_intersect_meshes(
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
-            "FORMULA": " area(@geometry) ",
+            "FORMULA": area_formula,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
@@ -497,16 +507,76 @@ def seamless2hmg_sediments(
     return inland_calculated_mesh
 
 
+def _make_tsunami_rank_sql() -> str:
+    height = "A40_003"
+    sql = "CASE "
+    sql += f"WHEN \"{height}\" = '～ 0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.01m以上 ～ 0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.01m以上 0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.01m以上～0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.3m以上 ～ 0.5m未満' THEN 0.4 "
+    sql += f"WHEN \"{height}\" = '0.3m以上 0.5m未満' THEN 0.4 "
+    sql += f"WHEN \"{height}\" = '0.3m以上 ～ 1m未満' THEN 0.6 "
+    sql += f"WHEN \"{height}\" = '0.3m以上～1m未満' THEN 0.6 "
+    sql += f"WHEN \"{height}\" = '0.5m以上 ～ 1m未満' THEN 0.7 "
+    sql += f"WHEN \"{height}\" = '0.5m以上 1.0m未満' THEN 0.7 "
+    sql += f"WHEN \"{height}\" = '1m以上 ～ 2m未満' THEN 1.5 "
+    sql += f"WHEN \"{height}\" = '1m以上～2m未満' THEN 1.5 "
+    sql += f"WHEN \"{height}\" = '1.0m以上 3.0m未満' THEN 2 "
+    sql += f"WHEN \"{height}\" = '1m以上 ～ 3m未満' THEN 2 "
+    sql += f"WHEN \"{height}\" = '2m以上 ～ 3m未満' THEN 2.5 "
+    sql += f"WHEN \"{height}\" = '2m以上～3m未満' THEN 2.5 "
+    sql += f"WHEN \"{height}\" = '2m以上 ～ 4m未満' THEN 3 "
+    sql += f"WHEN \"{height}\" = '2m以上 ～ 5m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3m以上 ～ 4m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3m以上～4m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3.0m以上 5.0m未満' THEN 4 "
+    sql += f"WHEN \"{height}\" = '3m以上 ～ 5m未満' THEN 4 "
+    sql += f"WHEN \"{height}\" = '4m以上 ～ 5m未満' THEN 4.5 "
+    sql += f"WHEN \"{height}\" = '4m以上～5m未満' THEN 4.5 "
+    sql += f"WHEN \"{height}\" = '4m以上' THEN 6 "
+    sql += f"WHEN \"{height}\" = '5.0m以上 10.0m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '5m以上' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '5m以上 ～ 10m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '5m以上～10m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '10m以上 ～ 15m未満' THEN 12.5 "
+    sql += f"WHEN \"{height}\" = '10.0m以上 20.0m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '10m以上' THEN 15 "
+    sql += f"WHEN \"{height}\" = '10m以上 ～ 20m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '10m以上～20m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '15m以上 ～ 20m未満' THEN 17.5 "
+    sql += f"WHEN \"{height}\" = '20.0m以上' THEN 30 "
+    sql += f"WHEN \"{height}\" = '20m以上' THEN 30 "
+    sql += f"WHEN \"{height}\" = '20m以上 ～ 50m未満' THEN 35 "
+    sql += "ELSE 0 END"
+    return sql
+
+
 def seamless2hmg_tsunami(
     tsunami_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     # extract intersected polygons to avoid clip intersect error
     tsunami_clipped = _clip_with_valid_geometries(tsunami_lyr, waku_lyr)
 
-    # TO DO: Add rank to tsunami_clipped
+    # calculate tsunami rank according to height
+    tsunami_ranked = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": tsunami_clipped,
+            "FIELD_NAME": "h_tsunami",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": _make_tsunami_rank_sql(),
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        tsunami_clipped, mesh_lyr, constants.field_tsunami
+        tsunami_ranked, mesh_lyr, constants.field_tsunami
     )
+
     inland_calculated_mesh = _adjust_inland_score(
         sum_surface_mesh, constants.field_tsunami
     )
