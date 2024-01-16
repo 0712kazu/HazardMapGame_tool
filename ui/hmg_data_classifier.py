@@ -26,7 +26,14 @@ class HMGDataClassifier:
         self.plot_widget = None
         self.main = main
         self.canvas = iface.mapCanvas()
-        self.hazards = ["tornado", "kozui", "jisuberi", "saigai", "sediments"]
+        self.hazards = [
+            "tornado",
+            "kozui",
+            "sediments",
+            "tsunami",
+            "jisuberi",
+            "saigai",
+        ]
 
         # Target mesh layer にする
         self.main.mesh_score_layer_combobox.setFilters(
@@ -90,6 +97,10 @@ class HMGDataClassifier:
         self._set_percentages("sediments")
         self.show_chart_sediments()
 
+    def on_number_changed_tsunami(self):
+        self._set_percentages("tsunami")
+        self.show_chart_tsunami()
+
     def on_number_changed_jisuberi(self):
         self._set_percentages("jisuberi")
         self.show_chart_jisuberi()
@@ -146,6 +157,9 @@ class HMGDataClassifier:
     def classify_stdev_sediments(self):
         self._set_percentages_stdev("sediments")
 
+    def classify_stdev_tsunami(self):
+        self._set_percentages_stdev("tsunami")
+
     def classify_stdev_jisuberi(self):
         self._set_percentages_stdev("jisuberi")
 
@@ -185,6 +199,9 @@ class HMGDataClassifier:
 
     def classify_tcg_sediments(self):
         self._set_percentages_tcg("sediments")
+
+    def classify_tcg_tsunami(self):
+        self._set_percentages_tcg("tsunami")
 
     def classify_tcg_jisuberi(self):
         self._set_percentages_tcg("jisuberi")
@@ -241,6 +258,9 @@ class HMGDataClassifier:
 
     def show_chart_sediments(self):
         self._set_chart("土砂", "sediments")
+
+    def show_chart_tsunami(self):
+        self._set_chart("津波", "tsunami")
 
     def show_chart_jisuberi(self):
         self._set_chart("地すべり", "jisuberi")
