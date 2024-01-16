@@ -15,6 +15,26 @@ from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 import constants
 
 
+def _clip_with_valid_geometries(
+    input_layer: QgsVectorLayer, overlay_layer: QgsVectorLayer
+) -> QgsVectorLayer:
+    clipped = processing.run(
+        "native:clip",
+        {
+            "INPUT": QgsProcessingFeatureSourceDefinition(
+                input_layer.source(),
+                selectedFeaturesOnly=False,
+                featureLimit=-1,
+                flags=qpfsd.FlagOverrideDefaultGeometryCheck,
+                geometryCheck=QgsFeatureRequest.GeometryNoCheck,
+            ),
+            "OVERLAY": overlay_layer,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+    return clipped
+
+
 def _sum_surfaces_intersect_meshes(
     seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
 ) -> QgsVectorLayer:
@@ -38,11 +58,22 @@ def _sum_surfaces_intersect_meshes(
         },
     )["OUTPUT"]
 
+    # Dissolve to avoid overlay polygon
+    seamless_dissolved = processing.run(
+        "native:dissolve",
+        {
+            "INPUT": seamless_reprojected,
+            "FIELD": [],
+            "SEPARATE_DISJOINT": False,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
     # intersect with mesh
     seamless_mesh_intersect = processing.run(
         "native:intersection",
         {
-            "INPUT": seamless_reprojected,
+            "INPUT": seamless_dissolved,
             "OVERLAY": mesh_lyr,
             "INPUT_FIELDS": [],
             "OVERLAY_FIELDS": ["id"],
@@ -412,11 +443,11 @@ def seamless2hmg_kosui(
 
 
 def seamless2hmg_jisuberi(
-    jisuberi_lyr: QgsVectorLayer,
-    mesh_lyr: QgsVectorLayer,
+    jisuberi_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
+    jisuberi_clipped = _clip_with_valid_geometries(jisuberi_lyr, waku_lyr)
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        jisuberi_lyr, mesh_lyr, constants.field_jisuberi
+        jisuberi_clipped, mesh_lyr, constants.field_jisuberi
     )
     inland_calculated_mesh = _adjust_inland_score(
         sum_surface_mesh, constants.field_jisuberi
@@ -426,11 +457,11 @@ def seamless2hmg_jisuberi(
 
 
 def seamless2hmg_saigai(
-    saigai_lyr: QgsVectorLayer,
-    mesh_lyr: QgsVectorLayer,
+    saigai_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
+    saigai_clipped = _clip_with_valid_geometries(saigai_lyr, waku_lyr)
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        saigai_lyr, mesh_lyr, constants.field_saigai
+        saigai_clipped, mesh_lyr, constants.field_saigai
     )
     inland_calculated_mesh = _adjust_inland_score(
         sum_surface_mesh, constants.field_saigai
@@ -440,11 +471,27 @@ def seamless2hmg_saigai(
 
 
 def seamless2hmg_tornado(
-    tornado_lyr: QgsVectorLayer,
-    mesh_lyr: QgsVectorLayer,
+    tornado_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
+    tornado_clipped = _clip_with_valid_geometries(tornado_lyr, waku_lyr)
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        tornado_lyr, mesh_lyr, constants.field_tornado
+        tornado_clipped, mesh_lyr, constants.field_tornado
     )
 
     return sum_surface_mesh
+
+
+def seamless2hmg_sediments(
+    sediments_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    sediments_clipped = _clip_with_valid_geometries(sediments_lyr, waku_lyr)
+
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        sediments_clipped, mesh_lyr, constants.field_sediments
+    )
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_sediments
+    )
+
+    return inland_calculated_mesh

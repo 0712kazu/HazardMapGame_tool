@@ -2,6 +2,7 @@ data_dir = "../data"
 
 INPUT_DIR_TATUMAKI = "tatsumaki"
 INPUT_DIR_KOZUI = "kozui"
+INPUT_DIR_SEDIMENTS = "dosha"
 INPUT_DIR_JISUBERI = "zisuberi_boushi"
 INPUT_DIR_SAIGAI = "saigai_kikenchiku"
 INPUT_DIR_TOCHIRIYOU = "tochi_riyou"
@@ -10,6 +11,7 @@ OUTPUT_DIR = "seamless_gpkg"
 
 SEAMLESS_FILE_TORNADO = "a30_tornado.gpkg"
 SEAMLESS_FILE_FLOOD = "a31_flood.gpkg"
+SEAMLESS_FILE_SEDIMENTS = "a33_sediments.gpkg"
 SEAMLESS_FILE_LANDSLIP = "a46_landslip.gpkg"
 SEAMLESS_FILE_DISASTER = "a48_disaster.gpkg"
 SEAMLESS_FILE_LANDUSE = "l03_landuse.gpkg"
@@ -19,6 +21,7 @@ SEAMLESS_FILE_CITIES = "japan_cities.csv"
 # to be as 8 characters to fit to shapefiles with suffixes
 field_tornado = "tornado"
 field_kozui = "flood"
+field_sediments = "sediment"
 field_jisuberi = "landslip"
 field_saigai = "disaster"
 

@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 from constants import (
     INPUT_DIR_TATUMAKI,
     INPUT_DIR_KOZUI,
+    INPUT_DIR_SEDIMENTS,
     INPUT_DIR_JISUBERI,
     INPUT_DIR_SAIGAI,
     INPUT_DIR_TOCHIRIYOU,
@@ -16,6 +17,7 @@ from constants import (
     SEAMLESS_FILE_TORNADO,
     SEAMLESS_FILE_FLOOD,
     SEAMLESS_FILE_LANDSLIP,
+    SEAMLESS_FILE_SEDIMENTS,
     SEAMLESS_FILE_DISASTER,
     SEAMLESS_FILE_CITIES,
     SEAMLESS_FILE_LANDUSE,
@@ -51,6 +53,7 @@ class Preprocessor:
         for folder_name, filewidget in (
             (INPUT_DIR_TATUMAKI, self.main.QgsFileWidget_tatumaki),
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
+            (INPUT_DIR_SEDIMENTS, self.main.QgsFileWidget_sediments),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
@@ -83,6 +86,12 @@ class Preprocessor:
         if self.main.QgsFileWidget_kozui.filePath():
             self.preprocess_kozui(
                 self.main.QgsFileWidget_kozui.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+
+        if self.main.QgsFileWidget_sediments.filePath():
+            self.preprocess_sediments(
+                self.main.QgsFileWidget_sediments.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
@@ -148,6 +157,29 @@ class Preprocessor:
         merge_shapefiles(shapefiles, merged_shapefiles, "-addfields")
         shutil.rmtree(extracted_dir)
         self.seamless_processed.append(SEAMLESS_FILE_FLOOD)
+
+    def preprocess_sediments(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
+        if len(shapefiles) == 0:
+            message = "No shapefile in 土砂 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
+        # get only polygon shapefiles
+        for shapefile in shapefiles:
+            if geom_type_from_shp(shapefile) != "POLYGON":
+                shapefiles.remove(shapefile)
+
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_SEDIMENTS)
+        )
+
+        shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_SEDIMENTS)
 
     def preprocess_jisuberi(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
