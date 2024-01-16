@@ -82,10 +82,6 @@ class HMGDataClassifier:
         self._set_percentages("tornado")
         self.show_chart_tornado()
 
-    def on_number_changed_tornado(self):
-        self._set_percentages("tornado")
-        self.show_chart_tornado()
-
     def on_number_changed_kozui(self):
         self._set_percentages("kozui")
         self.show_chart_kozui()
