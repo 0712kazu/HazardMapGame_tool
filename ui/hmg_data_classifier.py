@@ -18,6 +18,7 @@ from converter.mesh_score_classifier import (
     get_tcg_ranks,
 )
 import constants
+from utils import add_to_map
 from modules import pyqtgraph as pg
 
 
@@ -358,6 +359,18 @@ class HMGDataClassifier:
 
         # reflect to map
         graduate_layer(mesh_score_layer, target_field, breaks)
+
+        # reflect to hazard mesh layer
+        # create if not exists
+        if not QgsProject.instance().mapLayersByName(f"mesh_score_{target_field}"):
+            add_layer = mesh_score_layer.clone()
+            add_to_map(add_layer, f"mesh_score_{target_field}")
+
+        hazard_mesh_layer = QgsProject.instance().mapLayersByName(
+            f"mesh_score_{target_field}"
+        )[0]
+
+        graduate_layer(hazard_mesh_layer, target_field, breaks)
 
     def classify_data_tcg(self):
         # list of added fields
