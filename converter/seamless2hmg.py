@@ -13,6 +13,7 @@ from qgis.gui import QgisInterface
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 import constants
+from utils import add_to_map
 
 
 def _clip_with_valid_geometries(
@@ -33,11 +34,6 @@ def _clip_with_valid_geometries(
         },
     )["OUTPUT"]
     return clipped
-
-
-def _add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
-    layer.setName(layer_name)
-    QgsProject.instance().addMapLayer(layer)
 
 
 def _sum_surfaces_intersect_meshes(
@@ -318,7 +314,7 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    _add_to_map(kozui_cliped_fixed, f"seamless_{constants.field_kozui}")
+    add_to_map(kozui_cliped_fixed, f"seamless_{constants.field_kozui}")
     # kozui_cliped_fixed.setName("tmp_kozui_cliped")
 
     # QgsProject.instance().addMapLayer(kozui_cliped_fixed)
@@ -462,7 +458,7 @@ def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     jisuberi_clipped = _clip_with_valid_geometries(jisuberi_lyr, waku_lyr)
-    _add_to_map(jisuberi_clipped, f"seamless_{constants.field_jisuberi}")
+    add_to_map(jisuberi_clipped, f"seamless_{constants.field_jisuberi}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         jisuberi_clipped, mesh_lyr, constants.field_jisuberi
@@ -478,7 +474,7 @@ def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     saigai_clipped = _clip_with_valid_geometries(saigai_lyr, waku_lyr)
-    _add_to_map(saigai_clipped, f"seamless_{constants.field_saigai}")
+    add_to_map(saigai_clipped, f"seamless_{constants.field_saigai}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         saigai_clipped, mesh_lyr, constants.field_saigai
@@ -494,7 +490,7 @@ def seamless2hmg_tornado(
     tornado_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     tornado_clipped = _clip_with_valid_geometries(tornado_lyr, waku_lyr)
-    _add_to_map(tornado_clipped, f"seamless_{constants.field_tornado}")
+    add_to_map(tornado_clipped, f"seamless_{constants.field_tornado}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         tornado_clipped, mesh_lyr, constants.field_tornado
@@ -508,7 +504,7 @@ def seamless2hmg_sediments(
 ) -> QgsVectorLayer:
     # extract intersected polygons to avoid clip intersect error
     sediments_clipped = _clip_with_valid_geometries(sediments_lyr, waku_lyr)
-    _add_to_map(sediments_clipped, f"seamless_{constants.field_sediments}")
+    add_to_map(sediments_clipped, f"seamless_{constants.field_sediments}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         sediments_clipped, mesh_lyr, constants.field_sediments
@@ -586,7 +582,7 @@ def seamless2hmg_tsunami(
         },
     )["OUTPUT"]
 
-    _add_to_map(tsunami_ranked, f"seamless_{constants.field_tsunami}")
+    add_to_map(tsunami_ranked, f"seamless_{constants.field_tsunami}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         tsunami_ranked, mesh_lyr, constants.field_tsunami
