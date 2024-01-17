@@ -35,6 +35,11 @@ def _clip_with_valid_geometries(
     return clipped
 
 
+def _add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
+    layer.setName(layer_name)
+    QgsProject.instance().addMapLayer(layer)
+
+
 def _sum_surfaces_intersect_meshes(
     seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
 ) -> QgsVectorLayer:
@@ -313,9 +318,10 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    kozui_cliped_fixed.setName("tmp_kozui_cliped")
+    _add_to_map(kozui_cliped_fixed, "seamless_flood")
+    # kozui_cliped_fixed.setName("tmp_kozui_cliped")
 
-    QgsProject.instance().addMapLayer(kozui_cliped_fixed)
+    # QgsProject.instance().addMapLayer(kozui_cliped_fixed)
 
     # 標準化
     kozui_standard = processing.run(
@@ -443,8 +449,8 @@ def seamless2hmg_kosui(
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
 
     # remove temporary layers
-    tmp_kozui_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_kozui_cliped")[0]
-    QgsProject.instance().removeMapLayer(tmp_kozui_cliped_lyr.id())
+    # tmp_kozui_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_kozui_cliped")[0]
+    # QgsProject.instance().removeMapLayer(tmp_kozui_cliped_lyr.id())
 
     tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
     QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
@@ -456,6 +462,8 @@ def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     jisuberi_clipped = _clip_with_valid_geometries(jisuberi_lyr, waku_lyr)
+    _add_to_map(jisuberi_clipped, "seamless_landslip")
+
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         jisuberi_clipped, mesh_lyr, constants.field_jisuberi
     )
@@ -470,6 +478,8 @@ def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     saigai_clipped = _clip_with_valid_geometries(saigai_lyr, waku_lyr)
+    _add_to_map(saigai_clipped, "seamless_saigai")
+
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         saigai_clipped, mesh_lyr, constants.field_saigai
     )
@@ -484,6 +494,8 @@ def seamless2hmg_tornado(
     tornado_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     tornado_clipped = _clip_with_valid_geometries(tornado_lyr, waku_lyr)
+    _add_to_map(tornado_clipped, "seamless_tornado")
+
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         tornado_clipped, mesh_lyr, constants.field_tornado
     )
@@ -496,6 +508,7 @@ def seamless2hmg_sediments(
 ) -> QgsVectorLayer:
     # extract intersected polygons to avoid clip intersect error
     sediments_clipped = _clip_with_valid_geometries(sediments_lyr, waku_lyr)
+    _add_to_map(sediments_clipped, "seamless_sediments")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         sediments_clipped, mesh_lyr, constants.field_sediments
@@ -572,6 +585,8 @@ def seamless2hmg_tsunami(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    _add_to_map(tsunami_ranked, "seamless_tsunami")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
         tsunami_ranked, mesh_lyr, constants.field_tsunami
