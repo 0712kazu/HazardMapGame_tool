@@ -445,9 +445,6 @@ def seamless2hmg_kosui(
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
 
     # remove temporary layers
-    # tmp_kozui_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_kozui_cliped")[0]
-    # QgsProject.instance().removeMapLayer(tmp_kozui_cliped_lyr.id())
-
     tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
     QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
 
