@@ -129,11 +129,12 @@ class HMGDataClassifier:
             nbmax_box.setReadOnly(False)
 
         for n in range(0, 11):
+            print(n)
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
 
             # lock box if box ID >=  designated max box
             # and if classification method is not custom
-            if n >= nbmax_box.value():
+            if n > nbmax_box.value():
                 percentage_box.setValue(0)
                 percentage_box.setReadOnly(True)
             elif custom_radio_btn.isChecked() is False:
@@ -185,13 +186,14 @@ class HMGDataClassifier:
 
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
+        print(percentages_classes)
 
         if len(percentages_classes) != nbmax_box.value():
             nbmax_box.setValue(len(percentages_classes))
 
         for n in range(0, len(percentages_classes)):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setValue(percentages_classes[n - 1])
+            percentage_box.setValue(percentages_classes[n])
 
     def classify_tcg_tornado(self):
         self._set_percentages_tcg("tornado")
@@ -242,8 +244,8 @@ class HMGDataClassifier:
         # classify if values are not equals
         percentages_classes = classify_values_tcg(y_values)
 
-        if len(percentages_classes) != nbmax_box.value():
-            nbmax_box.setValue(len(percentages_classes))
+        if len(percentages_classes) - 1 != nbmax_box.value():
+            nbmax_box.setValue(len(percentages_classes) - 1)
 
         # update UI
         nbmax_box.setReadOnly(True)
@@ -329,7 +331,7 @@ class HMGDataClassifier:
         break_min = 0
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
 
-        for n in range(0, nbmax_box.value()):
+        for n in range(0, nbmax_box.value() + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percent_value = percentage_box.value()
 
@@ -337,7 +339,7 @@ class HMGDataClassifier:
             break_max = get_mesh_value_from_percentage(y_values, percent_value)
 
             # get color to show in graph and map
-            color = get_color_from_range(n + 1, nbmax_box.value())
+            color = get_color_from_range(n + 1, nbmax_box.value() + 1)
 
             # add break_max line as plot
             line_label = f"{percent_value}% ({round(break_max,1)})"
