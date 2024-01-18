@@ -738,7 +738,7 @@
               </widget>
             </item>
             <!-- classification methods -->
-            <item row="0" column="17">
+            <item row="0" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_tornado">
               <property name="text">
                 <string>標準偏差</string>
@@ -748,7 +748,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="0" column="20">
+            <item row="0" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_tornado">
               <property name="text">
                 <string>TCG方式</string>
@@ -758,7 +758,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="0" column="23">
+            <item row="0" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_tornado">
               <property name="text">
                 <string>カスタム</string>
@@ -769,18 +769,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="0" column="25">
+            <item row="0" column="10">
               <widget class="QLabel" name="label_classif_max_tornado">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="0" column="26">
+            <item row="0" column="11">
               <widget class="QSpinBox" name="classif_nbmax_tornado"/>
              </item>
              <!-- active button -->
-            <item row="0" column="29">
+            <item row="0" column="14">
              <widget class="QPushButton" name="classif_showgraph_tornado">
               <property name="text">
                <string>画像作成</string>
@@ -802,169 +802,186 @@
               </widget>
             </item>
             <item row="1" column="1">
-              <widget class="QLabel" name="label_percent_n1_tornado">
+              <widget class="QLabel" name="label_percent_n0_tornado">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="1" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_tornado"/>
              </item>
             <item row="1" column="3">
-              <widget class="QLabel" name="label_percent_1_tornado">
+              <widget class="QLabel" name="label_percent_0_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="4">
-              <widget class="QLabel" name="label_percent_n2_tornado">
+              <widget class="QLabel" name="label_percent_n1_tornado">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="1" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_tornado"/>
              </item>
             <item row="1" column="6">
-              <widget class="QLabel" name="label_percent_2_tornado">
+              <widget class="QLabel" name="label_percent_1_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="7">
-              <widget class="QLabel" name="label_percent_n3_tornado">
+              <widget class="QLabel" name="label_percent_n2_tornado">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="1" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_tornado"/>
              </item>
             <item row="1" column="9">
-              <widget class="QLabel" name="label_percent_3_tornado">
+              <widget class="QLabel" name="label_percent_2_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="10">
-              <widget class="QLabel" name="label_percent_n4_tornado">
+              <widget class="QLabel" name="label_percent_n3_tornado">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="1" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_tornado"/>
              </item>
             <item row="1" column="12">
-              <widget class="QLabel" name="label_percent_4_tornado">
+              <widget class="QLabel" name="label_percent_3_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="13">
-              <widget class="QLabel" name="label_percent_n5_tornado">
+              <widget class="QLabel" name="label_percent_n4_tornado">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="1" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_tornado"/>
              </item>
             <item row="1" column="15">
-              <widget class="QLabel" name="label_percent_5_tornado">
+              <widget class="QLabel" name="label_percent_4_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="16">
-              <widget class="QLabel" name="label_percent_n6_tornado">
+              <widget class="QLabel" name="label_percent_n5_tornado">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="1" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_tornado"/>
              </item>
             <item row="1" column="18">
-              <widget class="QLabel" name="label_percent_6_tornado">
+              <widget class="QLabel" name="label_percent_5_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="19">
-              <widget class="QLabel" name="label_percent_n7_tornado">
+              <widget class="QLabel" name="label_percent_n6_tornado">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="1" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_tornado"/>
              </item>
             <item row="1" column="21">
-              <widget class="QLabel" name="label_percent_7_tornado">
+              <widget class="QLabel" name="label_percent_6_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="22">
-              <widget class="QLabel" name="label_percent_n8_tornado">
+              <widget class="QLabel" name="label_percent_n7_tornado">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="1" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_tornado"/>
              </item>
             <item row="1" column="24">
-              <widget class="QLabel" name="label_percent_8_tornado">
+              <widget class="QLabel" name="label_percent_7_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="25">
-              <widget class="QLabel" name="label_percent_n9_tornado">
+              <widget class="QLabel" name="label_percent_n8_tornado">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="1" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_tornado"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_tornado"/>
              </item>
             <item row="1" column="27">
-              <widget class="QLabel" name="label_percent_9_tornado">
+              <widget class="QLabel" name="label_percent_8_tornado">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="1" column="28">
+              <widget class="QLabel" name="label_percent_n9_tornado">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="1" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_tornado"/>
+             </item>
+            <item row="1" column="30">
+              <widget class="QLabel" name="label_percent_9_tornado">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="1" column="31">
               <widget class="QLabel" name="label_percent_n10_tornado">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="1" column="29">
+            <item row="1" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_tornado"/>
              </item>
-            <item row="1" column="30">
+            <item row="1" column="33">
               <widget class="QLabel" name="label_percent_10_tornado">
                <property name="text">
                 <string>%</string>
@@ -986,7 +1003,7 @@
               </widget>
             </item>
             <!-- classification methods -->
-            <item row="2" column="17">
+            <item row="2" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_kozui">
               <property name="text">
                 <string>標準偏差</string>
@@ -996,7 +1013,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="2" column="20">
+            <item row="2" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_kozui">
               <property name="text">
                 <string>TCG方式</string>
@@ -1006,7 +1023,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="2" column="23">
+            <item row="2" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_kozui">
               <property name="text">
                 <string>カスタム</string>
@@ -1017,18 +1034,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="2" column="25">
+            <item row="2" column="10">
               <widget class="QLabel" name="label_classif_max_kozui">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="2" column="26">
+            <item row="2" column="11">
               <widget class="QSpinBox" name="classif_nbmax_kozui"/>
              </item>
              <!-- active button -->
-            <item row="2" column="29">
+            <item row="2" column="14">
              <widget class="QPushButton" name="classif_showgraph_kozui">
               <property name="text">
                <string>画像作成</string>
@@ -1050,169 +1067,186 @@
               </widget>
             </item>
             <item row="3" column="1">
-              <widget class="QLabel" name="label_percent_n1_kozui">
+              <widget class="QLabel" name="label_percent_n0_kozui">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="3" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_kozui"/>
              </item>
             <item row="3" column="3">
-              <widget class="QLabel" name="label_percent_1_kozui">
+              <widget class="QLabel" name="label_percent_0_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="4">
-              <widget class="QLabel" name="label_percent_n2_kozui">
+              <widget class="QLabel" name="label_percent_n1_kozui">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="3" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_kozui"/>
              </item>
             <item row="3" column="6">
-              <widget class="QLabel" name="label_percent_2_kozui">
+              <widget class="QLabel" name="label_percent_1_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="7">
-              <widget class="QLabel" name="label_percent_n3_kozui">
+              <widget class="QLabel" name="label_percent_n2_kozui">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="3" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_kozui"/>
              </item>
             <item row="3" column="9">
-              <widget class="QLabel" name="label_percent_3_kozui">
+              <widget class="QLabel" name="label_percent_2_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="10">
-              <widget class="QLabel" name="label_percent_n4_kozui">
+              <widget class="QLabel" name="label_percent_n3_kozui">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="3" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_kozui"/>
              </item>
             <item row="3" column="12">
-              <widget class="QLabel" name="label_percent_4_kozui">
+              <widget class="QLabel" name="label_percent_3_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="13">
-              <widget class="QLabel" name="label_percent_n5_kozui">
+              <widget class="QLabel" name="label_percent_n4_kozui">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="3" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_kozui"/>
              </item>
             <item row="3" column="15">
-              <widget class="QLabel" name="label_percent_5_kozui">
+              <widget class="QLabel" name="label_percent_4_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="16">
-              <widget class="QLabel" name="label_percent_n6_kozui">
+              <widget class="QLabel" name="label_percent_n5_kozui">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="3" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_kozui"/>
              </item>
             <item row="3" column="18">
-              <widget class="QLabel" name="label_percent_6_kozui">
+              <widget class="QLabel" name="label_percent_5_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="19">
-              <widget class="QLabel" name="label_percent_n7_kozui">
+              <widget class="QLabel" name="label_percent_n6_kozui">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="3" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_kozui"/>
              </item>
             <item row="3" column="21">
-              <widget class="QLabel" name="label_percent_7_kozui">
+              <widget class="QLabel" name="label_percent_6_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="22">
-              <widget class="QLabel" name="label_percent_n8_kozui">
+              <widget class="QLabel" name="label_percent_n7_kozui">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="3" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_kozui"/>
              </item>
             <item row="3" column="24">
-              <widget class="QLabel" name="label_percent_8_kozui">
+              <widget class="QLabel" name="label_percent_7_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="25">
-              <widget class="QLabel" name="label_percent_n9_kozui">
+              <widget class="QLabel" name="label_percent_n8_kozui">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="3" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_kozui"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_kozui"/>
              </item>
             <item row="3" column="27">
-              <widget class="QLabel" name="label_percent_9_kozui">
+              <widget class="QLabel" name="label_percent_8_kozui">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="3" column="28">
+              <widget class="QLabel" name="label_percent_n9_kozui">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_kozui"/>
+             </item>
+            <item row="3" column="30">
+              <widget class="QLabel" name="label_percent_9_kozui">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="3" column="31">
               <widget class="QLabel" name="label_percent_n10_kozui">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="3" column="29">
+            <item row="3" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_kozui"/>
              </item>
-            <item row="3" column="30">
+            <item row="3" column="33">
               <widget class="QLabel" name="label_percent_10_kozui">
                <property name="text">
                 <string>%</string>
@@ -1234,7 +1268,7 @@
               </widget>
             </item>
             <!-- classification methods -->
-            <item row="4" column="17">
+            <item row="4" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_sediments">
               <property name="text">
                 <string>標準偏差</string>
@@ -1244,7 +1278,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="4" column="20">
+            <item row="4" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_sediments">
               <property name="text">
                 <string>TCG方式</string>
@@ -1254,7 +1288,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="4" column="23">
+            <item row="4" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_sediments">
               <property name="text">
                 <string>カスタム</string>
@@ -1265,18 +1299,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="4" column="25">
+            <item row="4" column="10">
               <widget class="QLabel" name="label_classif_max_sediments">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="4" column="26">
+            <item row="4" column="11">
               <widget class="QSpinBox" name="classif_nbmax_sediments"/>
              </item>
              <!-- active button -->
-            <item row="4" column="29">
+            <item row="4" column="14">
              <widget class="QPushButton" name="classif_showgraph_sediments">
               <property name="text">
                <string>画像作成</string>
@@ -1298,169 +1332,186 @@
               </widget>
             </item>
             <item row="5" column="1">
-              <widget class="QLabel" name="label_percent_n1_sediments">
+              <widget class="QLabel" name="label_percent_n0_sediments">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="5" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_sediments"/>
              </item>
             <item row="5" column="3">
-              <widget class="QLabel" name="label_percent_1_sediments">
+              <widget class="QLabel" name="label_percent_0_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="4">
-              <widget class="QLabel" name="label_percent_n2_sediments">
+              <widget class="QLabel" name="label_percent_n1_sediments">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="5" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_sediments"/>
              </item>
             <item row="5" column="6">
-              <widget class="QLabel" name="label_percent_2_sediments">
+              <widget class="QLabel" name="label_percent_1_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="7">
-              <widget class="QLabel" name="label_percent_n3_sediments">
+              <widget class="QLabel" name="label_percent_n2_sediments">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="5" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_sediments"/>
              </item>
             <item row="5" column="9">
-              <widget class="QLabel" name="label_percent_3_sediments">
+              <widget class="QLabel" name="label_percent_2_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="10">
-              <widget class="QLabel" name="label_percent_n4_sediments">
+              <widget class="QLabel" name="label_percent_n3_sediments">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="5" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_sediments"/>
              </item>
             <item row="5" column="12">
-              <widget class="QLabel" name="label_percent_4_sediments">
+              <widget class="QLabel" name="label_percent_3_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="13">
-              <widget class="QLabel" name="label_percent_n5_sediments">
+              <widget class="QLabel" name="label_percent_n4_sediments">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="5" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_sediments"/>
              </item>
             <item row="5" column="15">
-              <widget class="QLabel" name="label_percent_5_sediments">
+              <widget class="QLabel" name="label_percent_4_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="16">
-              <widget class="QLabel" name="label_percent_n6_sediments">
+              <widget class="QLabel" name="label_percent_n5_sediments">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="5" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_sediments"/>
              </item>
             <item row="5" column="18">
-              <widget class="QLabel" name="label_percent_6_sediments">
+              <widget class="QLabel" name="label_percent_5_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="19">
-              <widget class="QLabel" name="label_percent_n7_sediments">
+              <widget class="QLabel" name="label_percent_n6_sediments">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="5" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_sediments"/>
              </item>
             <item row="5" column="21">
-              <widget class="QLabel" name="label_percent_7_sediments">
+              <widget class="QLabel" name="label_percent_6_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="22">
-              <widget class="QLabel" name="label_percent_n8_sediments">
+              <widget class="QLabel" name="label_percent_n7_sediments">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="5" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_sediments"/>
              </item>
             <item row="5" column="24">
-              <widget class="QLabel" name="label_percent_8_sediments">
+              <widget class="QLabel" name="label_percent_7_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="25">
-              <widget class="QLabel" name="label_percent_n9_sediments">
+              <widget class="QLabel" name="label_percent_n8_sediments">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="5" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_sediments"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_sediments"/>
              </item>
             <item row="5" column="27">
-              <widget class="QLabel" name="label_percent_9_sediments">
+              <widget class="QLabel" name="label_percent_8_sediments">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="5" column="28">
+              <widget class="QLabel" name="label_percent_n9_sediments">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_sediments"/>
+             </item>
+            <item row="5" column="30">
+              <widget class="QLabel" name="label_percent_9_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="5" column="31">
               <widget class="QLabel" name="label_percent_n10_sediments">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="5" column="29">
+            <item row="5" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_sediments"/>
              </item>
-            <item row="5" column="30">
+            <item row="5" column="33">
               <widget class="QLabel" name="label_percent_10_sediments">
                <property name="text">
                 <string>%</string>
@@ -1482,7 +1533,7 @@
               </widget>
             </item>
             <!-- classification methods -->
-            <item row="6" column="17">
+            <item row="6" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_tsunami">
               <property name="text">
                 <string>標準偏差</string>
@@ -1492,7 +1543,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="6" column="20">
+            <item row="6" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_tsunami">
               <property name="text">
                 <string>TCG方式</string>
@@ -1502,7 +1553,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="6" column="23">
+            <item row="6" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_tsunami">
               <property name="text">
                 <string>カスタム</string>
@@ -1513,18 +1564,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="6" column="25">
+            <item row="6" column="10">
               <widget class="QLabel" name="label_classif_max_tsunami">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="6" column="26">
+            <item row="6" column="11">
               <widget class="QSpinBox" name="classif_nbmax_tsunami"/>
              </item>
              <!-- active button -->
-            <item row="6" column="29">
+            <item row="6" column="14">
              <widget class="QPushButton" name="classif_showgraph_tsunami">
               <property name="text">
                <string>画像作成</string>
@@ -1546,169 +1597,186 @@
               </widget>
             </item>
             <item row="7" column="1">
-              <widget class="QLabel" name="label_percent_n1_tsunami">
+              <widget class="QLabel" name="label_percent_n0_tsunami">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="7" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_tsunami"/>
              </item>
             <item row="7" column="3">
-              <widget class="QLabel" name="label_percent_1_tsunami">
+              <widget class="QLabel" name="label_percent_0_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="4">
-              <widget class="QLabel" name="label_percent_n2_tsunami">
+              <widget class="QLabel" name="label_percent_n1_tsunami">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="7" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_tsunami"/>
              </item>
             <item row="7" column="6">
-              <widget class="QLabel" name="label_percent_2_tsunami">
+              <widget class="QLabel" name="label_percent_1_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="7">
-              <widget class="QLabel" name="label_percent_n3_tsunami">
+              <widget class="QLabel" name="label_percent_n2_tsunami">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="7" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_tsunami"/>
              </item>
             <item row="7" column="9">
-              <widget class="QLabel" name="label_percent_3_tsunami">
+              <widget class="QLabel" name="label_percent_2_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="10">
-              <widget class="QLabel" name="label_percent_n4_tsunami">
+              <widget class="QLabel" name="label_percent_n3_tsunami">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="7" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_tsunami"/>
              </item>
             <item row="7" column="12">
-              <widget class="QLabel" name="label_percent_4_tsunami">
+              <widget class="QLabel" name="label_percent_3_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="13">
-              <widget class="QLabel" name="label_percent_n5_tsunami">
+              <widget class="QLabel" name="label_percent_n4_tsunami">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="7" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_tsunami"/>
              </item>
             <item row="7" column="15">
-              <widget class="QLabel" name="label_percent_5_tsunami">
+              <widget class="QLabel" name="label_percent_4_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="16">
-              <widget class="QLabel" name="label_percent_n6_tsunami">
+              <widget class="QLabel" name="label_percent_n5_tsunami">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="7" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_tsunami"/>
              </item>
             <item row="7" column="18">
-              <widget class="QLabel" name="label_percent_6_tsunami">
+              <widget class="QLabel" name="label_percent_5_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="19">
-              <widget class="QLabel" name="label_percent_n7_tsunami">
+              <widget class="QLabel" name="label_percent_n6_tsunami">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="7" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_tsunami"/>
              </item>
             <item row="7" column="21">
-              <widget class="QLabel" name="label_percent_7_tsunami">
+              <widget class="QLabel" name="label_percent_6_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="22">
-              <widget class="QLabel" name="label_percent_n8_tsunami">
+              <widget class="QLabel" name="label_percent_n7_tsunami">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="7" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_tsunami"/>
              </item>
             <item row="7" column="24">
-              <widget class="QLabel" name="label_percent_8_tsunami">
+              <widget class="QLabel" name="label_percent_7_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="25">
-              <widget class="QLabel" name="label_percent_n9_tsunami">
+              <widget class="QLabel" name="label_percent_n8_tsunami">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="7" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_tsunami"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_tsunami"/>
              </item>
             <item row="7" column="27">
-              <widget class="QLabel" name="label_percent_9_tsunami">
+              <widget class="QLabel" name="label_percent_8_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="7" column="28">
+              <widget class="QLabel" name="label_percent_n9_tsunami">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_tsunami"/>
+             </item>
+            <item row="7" column="30">
+              <widget class="QLabel" name="label_percent_9_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="31">
               <widget class="QLabel" name="label_percent_n10_tsunami">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="7" column="29">
+            <item row="7" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_tsunami"/>
              </item>
-            <item row="7" column="30">
+            <item row="7" column="33">
               <widget class="QLabel" name="label_percent_10_tsunami">
                <property name="text">
                 <string>%</string>
@@ -1730,7 +1798,7 @@
               </widget>
             </item>
              <!-- classification methods -->
-            <item row="8" column="17">
+            <item row="8" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_jisuberi">
               <property name="text">
                 <string>標準偏差</string>
@@ -1740,7 +1808,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="8" column="20">
+            <item row="8" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_jisuberi">
               <property name="text">
                 <string>TCG方式</string>
@@ -1750,7 +1818,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="8" column="23">
+            <item row="8" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_jisuberi">
               <property name="text">
                 <string>カスタム</string>
@@ -1761,18 +1829,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="8" column="25">
+            <item row="8" column="10">
               <widget class="QLabel" name="label_classif_max_jisuberi">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="8" column="26">
+            <item row="8" column="11">
               <widget class="QSpinBox" name="classif_nbmax_jisuberi"/>
              </item>
              <!-- active button -->
-            <item row="8" column="29">
+            <item row="8" column="14">
              <widget class="QPushButton" name="classif_showgraph_jisuberi">
               <property name="text">
                <string>画像作成</string>
@@ -1794,169 +1862,186 @@
               </widget>
             </item>
             <item row="9" column="1">
-              <widget class="QLabel" name="label_percent_n1_jisuberi">
+              <widget class="QLabel" name="label_percent_n0_jisuberi">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="9" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_jisuberi"/>
              </item>
             <item row="9" column="3">
-              <widget class="QLabel" name="label_percent_1_jisuberi">
+              <widget class="QLabel" name="label_percent_0_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="4">
-              <widget class="QLabel" name="label_percent_n2_jisuberi">
+              <widget class="QLabel" name="label_percent_n1_jisuberi">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="9" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_jisuberi"/>
              </item>
             <item row="9" column="6">
-              <widget class="QLabel" name="label_percent_2_jisuberi">
+              <widget class="QLabel" name="label_percent_1_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="7">
-              <widget class="QLabel" name="label_percent_n3_jisuberi">
+              <widget class="QLabel" name="label_percent_n2_jisuberi">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="9" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_jisuberi"/>
              </item>
             <item row="9" column="9">
-              <widget class="QLabel" name="label_percent_3_jisuberi">
+              <widget class="QLabel" name="label_percent_2_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="10">
-              <widget class="QLabel" name="label_percent_n4_jisuberi">
+              <widget class="QLabel" name="label_percent_n3_jisuberi">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="9" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_jisuberi"/>
              </item>
             <item row="9" column="12">
-              <widget class="QLabel" name="label_percent_4_jisuberi">
+              <widget class="QLabel" name="label_percent_3_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="13">
-              <widget class="QLabel" name="label_percent_n5_jisuberi">
+              <widget class="QLabel" name="label_percent_n4_jisuberi">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="9" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_jisuberi"/>
              </item>
             <item row="9" column="15">
-              <widget class="QLabel" name="label_percent_5_jisuberi">
+              <widget class="QLabel" name="label_percent_4_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="16">
-              <widget class="QLabel" name="label_percent_n6_jisuberi">
+              <widget class="QLabel" name="label_percent_n5_jisuberi">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="9" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_jisuberi"/>
              </item>
             <item row="9" column="18">
-              <widget class="QLabel" name="label_percent_6_jisuberi">
+              <widget class="QLabel" name="label_percent_5_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="19">
-              <widget class="QLabel" name="label_percent_n7_jisuberi">
+              <widget class="QLabel" name="label_percent_n6_jisuberi">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="9" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_jisuberi"/>
              </item>
             <item row="9" column="21">
-              <widget class="QLabel" name="label_percent_7_jisuberi">
+              <widget class="QLabel" name="label_percent_6_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="22">
-              <widget class="QLabel" name="label_percent_n8_jisuberi">
+              <widget class="QLabel" name="label_percent_n7_jisuberi">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="9" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_jisuberi"/>
              </item>
             <item row="9" column="24">
-              <widget class="QLabel" name="label_percent_8_jisuberi">
+              <widget class="QLabel" name="label_percent_7_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="25">
-              <widget class="QLabel" name="label_percent_n9_jisuberi">
+              <widget class="QLabel" name="label_percent_n8_jisuberi">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="9" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_jisuberi"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_jisuberi"/>
              </item>
             <item row="9" column="27">
-              <widget class="QLabel" name="label_percent_9_jisuberi">
+              <widget class="QLabel" name="label_percent_8_jisuberi">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="9" column="28">
+              <widget class="QLabel" name="label_percent_n9_jisuberi">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_jisuberi"/>
+             </item>
+            <item row="9" column="30">
+              <widget class="QLabel" name="label_percent_9_jisuberi">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="9" column="31">
               <widget class="QLabel" name="label_percent_n10_jisuberi">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="9" column="29">
+            <item row="9" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_jisuberi"/>
              </item>
-            <item row="9" column="30">
+            <item row="9" column="33">
               <widget class="QLabel" name="label_percent_10_jisuberi">
                <property name="text">
                 <string>%</string>
@@ -1978,7 +2063,7 @@
               </widget>
             </item>
          <!-- classification methods -->
-            <item row="10" column="17">
+            <item row="10" column="2">
               <widget class="QRadioButton" name="radiobutton_stdev_saigai">
               <property name="text">
                 <string>標準偏差</string>
@@ -1988,7 +2073,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="10" column="20">
+            <item row="10" column="5">
               <widget class="QRadioButton" name="radiobutton_tcg_saigai">
               <property name="text">
                 <string>TCG方式</string>
@@ -1998,7 +2083,7 @@
               </attribute>
               </widget>
             </item>
-            <item row="10" column="23">
+            <item row="10" column="8">
               <widget class="QRadioButton" name="radiobutton_custom_saigai">
               <property name="text">
                 <string>カスタム</string>
@@ -2009,18 +2094,18 @@
               </widget>
             </item>
             <!-- breaks numbers -->
-            <item row="10" column="25">
+            <item row="10" column="10">
               <widget class="QLabel" name="label_classif_max_saigai">
                <property name="text">
                 <string>最大</string>
                </property>
               </widget>
             </item>
-            <item row="10" column="26">
+            <item row="10" column="11">
               <widget class="QSpinBox" name="classif_nbmax_saigai"/>
              </item>
              <!-- active button -->
-            <item row="10" column="29">
+            <item row="10" column="14">
              <widget class="QPushButton" name="classif_showgraph_saigai">
               <property name="text">
                <string>画像作成</string>
@@ -2042,169 +2127,186 @@
               </widget>
             </item>
             <item row="11" column="1">
-              <widget class="QLabel" name="label_percent_n1_saigai">
+              <widget class="QLabel" name="label_percent_n0_saigai">
                <property name="text">
-                <string>1</string>
+                <string>0</string>
                </property>
               </widget>
             </item>
             <item row="11" column="2">
-              <widget class="QDoubleSpinBox" name="classif_percent_1_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_0_saigai"/>
              </item>
             <item row="11" column="3">
-              <widget class="QLabel" name="label_percent_1_saigai">
+              <widget class="QLabel" name="label_percent_0_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="4">
-              <widget class="QLabel" name="label_percent_n2_saigai">
+              <widget class="QLabel" name="label_percent_n1_saigai">
                <property name="text">
-                <string>2</string>
+                <string>1</string>
                </property>
               </widget>
             </item>
             <item row="11" column="5">
-              <widget class="QDoubleSpinBox" name="classif_percent_2_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_1_saigai"/>
              </item>
             <item row="11" column="6">
-              <widget class="QLabel" name="label_percent_2_saigai">
+              <widget class="QLabel" name="label_percent_1_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="7">
-              <widget class="QLabel" name="label_percent_n3_saigai">
+              <widget class="QLabel" name="label_percent_n2_saigai">
                <property name="text">
-                <string>3</string>
+                <string>2</string>
                </property>
               </widget>
             </item>
             <item row="11" column="8">
-              <widget class="QDoubleSpinBox" name="classif_percent_3_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_2_saigai"/>
              </item>
             <item row="11" column="9">
-              <widget class="QLabel" name="label_percent_3_saigai">
+              <widget class="QLabel" name="label_percent_2_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="10">
-              <widget class="QLabel" name="label_percent_n4_saigai">
+              <widget class="QLabel" name="label_percent_n3_saigai">
                <property name="text">
-                <string>4</string>
+                <string>3</string>
                </property>
               </widget>
             </item>
             <item row="11" column="11">
-              <widget class="QDoubleSpinBox" name="classif_percent_4_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_3_saigai"/>
              </item>
             <item row="11" column="12">
-              <widget class="QLabel" name="label_percent_4_saigai">
+              <widget class="QLabel" name="label_percent_3_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="13">
-              <widget class="QLabel" name="label_percent_n5_saigai">
+              <widget class="QLabel" name="label_percent_n4_saigai">
                <property name="text">
-                <string>5</string>
+                <string>4</string>
                </property>
               </widget>
             </item>
             <item row="11" column="14">
-              <widget class="QDoubleSpinBox" name="classif_percent_5_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_4_saigai"/>
              </item>
             <item row="11" column="15">
-              <widget class="QLabel" name="label_percent_5_saigai">
+              <widget class="QLabel" name="label_percent_4_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="16">
-              <widget class="QLabel" name="label_percent_n6_saigai">
+              <widget class="QLabel" name="label_percent_n5_saigai">
                <property name="text">
-                <string>6</string>
+                <string>5</string>
                </property>
               </widget>
             </item>
             <item row="11" column="17">
-              <widget class="QDoubleSpinBox" name="classif_percent_6_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_5_saigai"/>
              </item>
             <item row="11" column="18">
-              <widget class="QLabel" name="label_percent_6_saigai">
+              <widget class="QLabel" name="label_percent_5_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="19">
-              <widget class="QLabel" name="label_percent_n7_saigai">
+              <widget class="QLabel" name="label_percent_n6_saigai">
                <property name="text">
-                <string>7</string>
+                <string>6</string>
                </property>
               </widget>
             </item>
             <item row="11" column="20">
-              <widget class="QDoubleSpinBox" name="classif_percent_7_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_6_saigai"/>
              </item>
             <item row="11" column="21">
-              <widget class="QLabel" name="label_percent_7_saigai">
+              <widget class="QLabel" name="label_percent_6_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="22">
-              <widget class="QLabel" name="label_percent_n8_saigai">
+              <widget class="QLabel" name="label_percent_n7_saigai">
                <property name="text">
-                <string>8</string>
+                <string>7</string>
                </property>
               </widget>
             </item>
             <item row="11" column="23">
-              <widget class="QDoubleSpinBox" name="classif_percent_8_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_7_saigai"/>
              </item>
             <item row="11" column="24">
-              <widget class="QLabel" name="label_percent_8_saigai">
+              <widget class="QLabel" name="label_percent_7_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="25">
-              <widget class="QLabel" name="label_percent_n9_saigai">
+              <widget class="QLabel" name="label_percent_n8_saigai">
                <property name="text">
-                <string>9</string>
+                <string>8</string>
                </property>
               </widget>
             </item>
             <item row="11" column="26">
-              <widget class="QDoubleSpinBox" name="classif_percent_9_saigai"/>
+              <widget class="QDoubleSpinBox" name="classif_percent_8_saigai"/>
              </item>
             <item row="11" column="27">
-              <widget class="QLabel" name="label_percent_9_saigai">
+              <widget class="QLabel" name="label_percent_8_saigai">
                <property name="text">
                 <string>%</string>
                </property>
               </widget>
             </item>
             <item row="11" column="28">
+              <widget class="QLabel" name="label_percent_n9_saigai">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_saigai"/>
+             </item>
+            <item row="11" column="30">
+              <widget class="QLabel" name="label_percent_9_saigai">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="11" column="31">
               <widget class="QLabel" name="label_percent_n10_saigai">
                <property name="text">
                 <string>10</string>
                </property>
               </widget>
             </item>
-            <item row="11" column="29">
+            <item row="11" column="32">
               <widget class="QDoubleSpinBox" name="classif_percent_10_saigai"/>
              </item>
-            <item row="11" column="30">
+            <item row="11" column="33">
               <widget class="QLabel" name="label_percent_10_saigai">
                <property name="text">
                 <string>%</string>
