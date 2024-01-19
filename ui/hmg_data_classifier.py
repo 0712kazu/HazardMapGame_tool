@@ -188,7 +188,6 @@ class HMGDataClassifier:
 
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
-        print(percentages_classes)
 
         if len(percentages_classes) - 1 != nbmax_box.value():
             self.stdev_calculating = True
@@ -249,7 +248,6 @@ class HMGDataClassifier:
         # classify if values are not equals
         percentages_classes = classify_values_tcg(y_values)
 
-        print(percentages_classes)
         if len(percentages_classes) - 1 != nbmax_box.value():
             nbmax_box.setValue(len(percentages_classes) - 1)
 
