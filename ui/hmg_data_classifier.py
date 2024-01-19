@@ -51,8 +51,8 @@ class HMGDataClassifier:
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_tcg_classify.clicked.connect(self.classify_data_tcg)
 
-        # stdev calculation flag to make calculate at first iteration
-        self.sdev_calculating = False
+        # stdev calculation flag to make calculate only once
+        self.stdev_calculating = False
 
         for hazard in self.hazards:
             # Connect graphs
@@ -120,7 +120,7 @@ class HMGDataClassifier:
         stdev_radio_btn = getattr(self.main, f"radiobutton_stdev_{hazard}")
         tcg_radio_btn = getattr(self.main, f"radiobutton_tcg_{hazard}")
 
-        if stdev_radio_btn.isChecked() and not self.sdev_calculating:
+        if stdev_radio_btn.isChecked() and not self.stdev_calculating:
             nbmax_box.setReadOnly(False)
             self._set_percentages_stdev(hazard)
 
@@ -191,14 +191,14 @@ class HMGDataClassifier:
         print(percentages_classes)
 
         if len(percentages_classes) - 1 != nbmax_box.value():
-            self.sdev_calculating = True
+            self.stdev_calculating = True
             nbmax_box.setValue(len(percentages_classes) - 1)
 
         for n in range(0, len(percentages_classes)):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percentage_box.setValue(percentages_classes[n])
 
-        self.sdev_calculating = False
+        self.stdev_calculating = False
 
     def classify_tcg_tornado(self):
         self._set_percentages_tcg("tornado")
