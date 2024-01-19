@@ -283,6 +283,15 @@ class HMGDataClassifier:
         self.plot_widget = None
         event.accept()
 
+    def _display_only(self, mesh_score_hazard_layer: QgsVectorLayer) -> None:
+        """display only input layer, turn off other 'mesh_score' ones"""
+        layer_tree = QgsProject.instance().layerTreeRoot()
+        for layer in QgsProject.instance().mapLayers().values():
+            if layer.name() == mesh_score_hazard_layer:
+                layer_tree.findLayer(layer.id()).setItemVisibilityChecked(True)
+            elif "mesh_score" in layer.name():
+                layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
+
     def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
@@ -383,6 +392,8 @@ class HMGDataClassifier:
         )[0]
 
         graduate_layer(hazard_mesh_layer, target_field, breaks)
+
+        self._display_only(f"mesh_score_{target_field}")
 
     def _calculate_tcg_score(self, mesh_score_layer: QgsVectorLayer) -> list:
         # list of added fields
