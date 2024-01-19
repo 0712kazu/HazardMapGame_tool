@@ -278,4 +278,19 @@ def get_color_from_range(break_id: int, nb_breaks: int) -> str:
             9: "#b2182b",
             10: "#67001f",
         }.get(break_id, "#00000")
+    elif nb_breaks == 11:
+        color = {
+            1: "#011730",
+            2: "#053061",
+            3: "#2166ac",
+            4: "#4393c3",
+            5: "#92c5de",
+            6: "#d1e5f0",
+            7: "#fddbc7",
+            8: "#f4a582",
+            9: "#d6604d",
+            10: "#b2182b",
+            11: "#67001f",
+        }.get(break_id, "#00000")
+
     return color
