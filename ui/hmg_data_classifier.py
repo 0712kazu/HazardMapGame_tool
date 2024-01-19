@@ -343,6 +343,9 @@ class HMGDataClassifier:
 
             # get mesh value from percentage
             break_max = get_mesh_value_from_percentage(y_values, percent_value)
+            # first value should be the last 0 value
+            if break_max > 0 and n == 0:
+                break_max = 0
 
             # get color to show in graph and map
             color = get_color_from_range(n + 1, nbmax_box.value() + 1)
