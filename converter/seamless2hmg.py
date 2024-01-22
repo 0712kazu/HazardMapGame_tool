@@ -63,6 +63,8 @@ def _sum_surfaces_intersect_meshes(
     dissolve_field = []
     if calculate_field == constants.field_tsunami:
         dissolve_field = ["h_tsunami"]
+    if calculate_field == constants.field_surge:
+        dissolve_field = ["h_surge"]
 
     seamless_dissolved = processing.run(
         "native:dissolve",
@@ -94,6 +96,9 @@ def _sum_surfaces_intersect_meshes(
     if calculate_field == constants.field_tsunami:
         # for tsunami, multiply with tsunami rank
         area_formula = " area(@geometry) * h_tsunami"
+    if calculate_field == constants.field_surge:
+        # for tsunami, multiply with tsunami rank
+        area_formula = " area(@geometry) * h_surge"
 
     seamless_mesh_intersect_area = processing.run(
         "native:fieldcalculator",
@@ -587,6 +592,57 @@ def seamless2hmg_tsunami(
 
     inland_calculated_mesh = _adjust_inland_score(
         sum_surface_mesh, constants.field_tsunami
+    )
+
+    return inland_calculated_mesh
+
+
+def _make_storm_surge_rank_sql() -> str:
+    height = "A49_003"
+    sql = "CASE "
+    sql += f"WHEN \"{height}\" = '0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.5m未満' THEN 0.2 "  # TBC
+    sql += f"WHEN \"{height}\" = '0.3m以上0.5m未満' THEN 0.4 "
+    sql += f"WHEN \"{height}\" = '0.5m以上1m未満' THEN 0.7 "
+    sql += f"WHEN \"{height}\" = '0.5m以上3m未満' THEN 2 "  # TBC
+    sql += f"WHEN \"{height}\" = '1m以上3m未満' THEN 2 "
+    sql += f"WHEN \"{height}\" = '3m以上5m未満' THEN 4 "
+    sql += f"WHEN \"{height}\" = '5m以上10m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '10m以上20m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '20m以上' THEN 30 "
+
+    sql += "ELSE 0 END"
+    return sql
+
+
+def seamless2hmg_surge(
+    surge_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    surge_clipped = _clip_with_valid_geometries(surge_lyr, waku_lyr)
+
+    # calculate surge rank according to height
+    surge_ranked = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": surge_clipped,
+            "FIELD_NAME": "h_surge",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": _make_storm_surge_rank_sql(),
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    add_to_map(surge_ranked, f"seamless_{constants.field_surge}")
+
+    sum_surface_mesh = _sum_surfaces_intersect_meshes(
+        surge_ranked, mesh_lyr, constants.field_surge
+    )
+
+    inland_calculated_mesh = _adjust_inland_score(
+        sum_surface_mesh, constants.field_surge
     )
 
     return inland_calculated_mesh

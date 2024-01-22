@@ -17,6 +17,7 @@ from converter.seamless2hmg import (
     seamless2hmg_tornado,
     seamless2hmg_sediments,
     seamless2hmg_tsunami,
+    seamless2hmg_surge,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -492,6 +493,21 @@ class HMGDataGenerator:
             if saigai_lyr:
                 mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_saigai)
+
+        # 高潮
+        surge_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            constants.SEAMLESS_FILE_SURGE,
+        )
+        if os.path.exists(surge_path):
+            surge_lyr = QgsVectorLayer(
+                surge_path,
+                "surge_merged",
+                "ogr",
+            )
+            if surge_lyr:
+                mesh_lyr = seamless2hmg_surge(surge_lyr, mesh_lyr, waku_lyr)
+                hmg_processed.append(constants.field_surge)
 
         # Add hazard layers to map
         for hazard in hmg_processed:
