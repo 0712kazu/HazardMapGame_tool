@@ -36,6 +36,26 @@ def _clip_with_valid_geometries(
     return clipped
 
 
+def _handle_zero_polygon_hazard(
+    mesh_lyr: QgsVectorLayer, target_field: str
+) -> QgsVectorLayer:
+    mesh_calculated = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_lyr,
+            "FIELD_NAME": target_field,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": "0",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+    message = f"対象領域にポリゴンが含めてないため「{target_field}」の値が0になります。"
+    QMessageBox.information(None, "お知らせ", message)
+    return mesh_calculated
+
+
 def _sum_surfaces_intersect_meshes(
     seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
 ) -> QgsVectorLayer:
@@ -294,20 +314,7 @@ def seamless2hmg_kosui(
 
     # Handle when there is no cliped features
     if kozui_cliped.featureCount() == 0:
-        kozui_mesh = processing.run(
-            "native:fieldcalculator",
-            {
-                "INPUT": mesh_lyr,
-                "FIELD_NAME": constants.field_kozui,
-                "FIELD_TYPE": 0,
-                "FIELD_LENGTH": 0,
-                "FIELD_PRECISION": 0,
-                "FORMULA": "0",
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-        message = "対象領域に洪水ポリゴンがありません。"
-        QMessageBox.information(None, "お知らせ", message)
+        kozui_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_kozui)
         return kozui_mesh
 
     kozui_cliped_fixed = processing.run(
@@ -320,9 +327,6 @@ def seamless2hmg_kosui(
     )["OUTPUT"]
 
     add_to_map(kozui_cliped_fixed, f"seamless_{constants.field_kozui}")
-    # kozui_cliped_fixed.setName("tmp_kozui_cliped")
-
-    # QgsProject.instance().addMapLayer(kozui_cliped_fixed)
 
     # 標準化
     kozui_standard = processing.run(
@@ -460,6 +464,12 @@ def seamless2hmg_jisuberi(
     jisuberi_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     jisuberi_clipped = _clip_with_valid_geometries(jisuberi_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if jisuberi_clipped.featureCount() == 0:
+        jisuberi_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_jisuberi)
+        return jisuberi_mesh
+
     add_to_map(jisuberi_clipped, f"seamless_{constants.field_jisuberi}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
@@ -476,6 +486,12 @@ def seamless2hmg_saigai(
     saigai_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     saigai_clipped = _clip_with_valid_geometries(saigai_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if saigai_clipped.featureCount() == 0:
+        saigai_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_saigai)
+        return saigai_mesh
+
     add_to_map(saigai_clipped, f"seamless_{constants.field_saigai}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
@@ -492,6 +508,12 @@ def seamless2hmg_tornado(
     tornado_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
 ) -> QgsVectorLayer:
     tornado_clipped = _clip_with_valid_geometries(tornado_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if tornado_clipped.featureCount() == 0:
+        tornado_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_tornado)
+        return tornado_mesh
+
     add_to_map(tornado_clipped, f"seamless_{constants.field_tornado}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
@@ -506,6 +528,14 @@ def seamless2hmg_sediments(
 ) -> QgsVectorLayer:
     # extract intersected polygons to avoid clip intersect error
     sediments_clipped = _clip_with_valid_geometries(sediments_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if sediments_clipped.featureCount() == 0:
+        sediments_mesh = _handle_zero_polygon_hazard(
+            mesh_lyr, constants.field_sediments
+        )
+        return sediments_mesh
+
     add_to_map(sediments_clipped, f"seamless_{constants.field_sediments}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
@@ -570,6 +600,11 @@ def seamless2hmg_tsunami(
     # extract intersected polygons to avoid clip intersect error
     tsunami_clipped = _clip_with_valid_geometries(tsunami_lyr, waku_lyr)
 
+    # Handle when there is no cliped features
+    if tsunami_clipped.featureCount() == 0:
+        tsunami_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_tsunami)
+        return tsunami_mesh
+
     # calculate tsunami rank according to height
     tsunami_ranked = processing.run(
         "native:fieldcalculator",
@@ -620,6 +655,11 @@ def seamless2hmg_surge(
 ) -> QgsVectorLayer:
     # extract intersected polygons to avoid clip intersect error
     surge_clipped = _clip_with_valid_geometries(surge_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if surge_clipped.featureCount() == 0:
+        surge_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_surge)
+        return surge_mesh
 
     # calculate surge rank according to height
     surge_ranked = processing.run(
