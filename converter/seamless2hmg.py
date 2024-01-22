@@ -117,7 +117,7 @@ def _sum_surfaces_intersect_meshes(
         # for tsunami, multiply with tsunami rank
         area_formula = " area(@geometry) * h_tsunami"
     if calculate_field == constants.field_surge:
-        # for tsunami, multiply with tsunami rank
+        # for storm surge, multiply with surge rank
         area_formula = " area(@geometry) * h_surge"
 
     seamless_mesh_intersect_area = processing.run(
@@ -590,6 +590,32 @@ def _make_tsunami_rank_sql() -> str:
     sql += f"WHEN \"{height}\" = '20.0m以上' THEN 30 "
     sql += f"WHEN \"{height}\" = '20m以上' THEN 30 "
     sql += f"WHEN \"{height}\" = '20m以上 ～ 50m未満' THEN 35 "
+    sql += f"WHEN \"{height}\" = '〜 0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.01m以上 〜 0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.01m以上〜0.3m未満' THEN 0.1 "
+    sql += f"WHEN \"{height}\" = '0.3m以上 〜 0.5m未満' THEN 0.4 "
+    sql += f"WHEN \"{height}\" = '0.3m以上 〜 1m未満' THEN 0.6 "
+    sql += f"WHEN \"{height}\" = '0.3m以上〜1m未満' THEN 0.6 "
+    sql += f"WHEN \"{height}\" = '0.5m以上 〜 1m未満' THEN 0.7 "
+    sql += f"WHEN \"{height}\" = '1m以上 〜 2m未満' THEN 1.5 "
+    sql += f"WHEN \"{height}\" = '1m以上〜2m未満' THEN 1.5 "
+    sql += f"WHEN \"{height}\" = '1m以上 〜 3m未満' THEN 2 "
+    sql += f"WHEN \"{height}\" = '2m以上 〜 3m未満' THEN 2.5 "
+    sql += f"WHEN \"{height}\" = '2m以上〜3m未満' THEN 2.5 "
+    sql += f"WHEN \"{height}\" = '2m以上 〜 4m未満' THEN 3 "
+    sql += f"WHEN \"{height}\" = '2m以上 〜 5m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3m以上 〜 4m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3m以上〜4m未満' THEN 3.5 "
+    sql += f"WHEN \"{height}\" = '3m以上 〜 5m未満' THEN 4 "
+    sql += f"WHEN \"{height}\" = '4m以上 〜 5m未満' THEN 4.5 "
+    sql += f"WHEN \"{height}\" = '4m以上〜5m未満' THEN 4.5 "
+    sql += f"WHEN \"{height}\" = '5m以上 〜 10m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '5m以上〜10m未満' THEN 7.5 "
+    sql += f"WHEN \"{height}\" = '10m以上 〜 15m未満' THEN 12.5 "
+    sql += f"WHEN \"{height}\" = '10m以上 〜 20m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '10m以上〜20m未満' THEN 15 "
+    sql += f"WHEN \"{height}\" = '15m以上 〜 20m未満' THEN 17.5 "
+    sql += f"WHEN \"{height}\" = '20m以上 〜 50m未満' THEN 35 "
     sql += "ELSE 0 END"
     return sql
 
