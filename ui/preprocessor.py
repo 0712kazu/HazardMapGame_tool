@@ -13,6 +13,7 @@ from constants import (
     INPUT_DIR_TSUNAMI,
     INPUT_DIR_JISUBERI,
     INPUT_DIR_SAIGAI,
+    INPUT_DIR_SURGE,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
     SEAMLESS_FILE_TORNADO,
@@ -21,6 +22,7 @@ from constants import (
     SEAMLESS_FILE_SEDIMENTS,
     SEAMLESS_FILE_TSUNAMI,
     SEAMLESS_FILE_DISASTER,
+    SEAMLESS_FILE_SURGE,
     SEAMLESS_FILE_CITIES,
     SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
@@ -59,6 +61,7 @@ class Preprocessor:
             (INPUT_DIR_TSUNAMI, self.main.QgsFileWidget_tsunami),
             (INPUT_DIR_JISUBERI, self.main.QgsFileWidget_jisuberi),
             (INPUT_DIR_SAIGAI, self.main.QgsFileWidget_saigai),
+            (INPUT_DIR_SURGE, self.main.QgsFileWidget_surge),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_cities),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
@@ -113,6 +116,12 @@ class Preprocessor:
         if self.main.QgsFileWidget_saigai.filePath():
             self.preprocess_saigai(
                 self.main.QgsFileWidget_saigai.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+
+        if self.main.QgsFileWidget_surge.filePath():
+            self.preprocess_surge(
+                self.main.QgsFileWidget_surge.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
@@ -259,6 +268,29 @@ class Preprocessor:
 
         shutil.rmtree(extracted_dir)
         self.seamless_processed.append(SEAMLESS_FILE_DISASTER)
+
+    def preprocess_surge(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+        shapefiles = get_shapefiles_from_dir(extracted_dir)
+        if len(shapefiles) == 0:
+            message = "No shapefile in 高潮 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
+        # get only polygon shapefiles
+        for shapefile in shapefiles:
+            if geom_type_from_shp(shapefile) != "POLYGON":
+                shapefiles.remove(shapefile)
+
+        # merge all shp to gpkg
+        merge_shapefiles(
+            shapefiles, os.path.join(output_directory, SEAMLESS_FILE_SURGE)
+        )
+
+        shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_SURGE)
 
     def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")

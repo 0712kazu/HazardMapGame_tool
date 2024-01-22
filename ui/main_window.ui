@@ -229,7 +229,7 @@
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_9">
+           <widget class="QgsFileWidget" name="QgsFileWidget_surge">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>
