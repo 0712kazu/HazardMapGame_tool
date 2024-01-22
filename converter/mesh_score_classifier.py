@@ -171,7 +171,10 @@ def get_tcg_ranks(values: list) -> list:
     total_values = 0.0
     for value in values:
         total_values += value
-        risk_rate = total_values / sum_all_values
+        if sum_all_values == 0:
+            risk_rate = 0
+        else:
+            risk_rate = total_values / sum_all_values
         # ④ランクを付けて行く
         if risk_rate == 0:
             rank = 0
