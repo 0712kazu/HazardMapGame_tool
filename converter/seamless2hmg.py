@@ -662,10 +662,10 @@ def _make_storm_surge_rank_sql() -> str:
     height = "A49_003"
     sql = "CASE "
     sql += f"WHEN \"{height}\" = '0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.5m未満' THEN 0.2 "  # TBC
+    sql += f"WHEN \"{height}\" = '0.5m未満' THEN 0.2 "
     sql += f"WHEN \"{height}\" = '0.3m以上0.5m未満' THEN 0.4 "
     sql += f"WHEN \"{height}\" = '0.5m以上1m未満' THEN 0.7 "
-    sql += f"WHEN \"{height}\" = '0.5m以上3m未満' THEN 2 "  # TBC
+    sql += f"WHEN \"{height}\" = '0.5m以上3m未満' THEN 2 "
     sql += f"WHEN \"{height}\" = '1m以上3m未満' THEN 2 "
     sql += f"WHEN \"{height}\" = '3m以上5m未満' THEN 4 "
     sql += f"WHEN \"{height}\" = '5m以上10m未満' THEN 7.5 "
