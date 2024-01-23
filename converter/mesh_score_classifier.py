@@ -14,32 +14,60 @@ import numpy as np
 import constants
 
 
+def _get_round_precision(value: float) -> int:
+    if value < constants.MAP_MIN_VALUE:
+        return 4
+    elif value < 0.01:
+        return 3
+    elif value < 0.1:
+        return 2
+    else:
+        return 1
+
+
 def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
     # Set the symbol layer to the renderer
     # breaks list format = [[0, 1000, "#FFFFFF"], [1001, 9999999999, "#0000FF"]]
 
     renderer = QgsGraduatedSymbolRenderer(target_field)
 
-    for min, max, color in breaks:
+    # get minimum value to calculate round
+    all_breaks = [
+        item
+        for element in breaks
+        for item in element
+        if isinstance(item, (int, float)) and item > constants.MAP_MIN_VALUE
+    ]
+    if all_breaks:
+        min_break = min(all_breaks)
+        label_precision = _get_round_precision(min_break)
+    else:
+        label_precision = 0
+
+    for vmin, vmax, color in breaks:
         # skip if it is 0,0 break
-        if min == 0 and max == 0:
+        if vmin == 0 and vmax == 0:
             continue
-        if min < constants.MAP_MIN_VALUE and color != "transparent":
-            min = constants.MAP_MIN_VALUE
+        if vmin < constants.MAP_MIN_VALUE and color != "transparent":
+            vmin = constants.MAP_MIN_VALUE
             label_min = constants.MAP_MIN_VALUE
         else:
-            label_min = round(min, 1)
-        if max < constants.MAP_MIN_VALUE:
-            max = constants.MAP_MIN_VALUE
+            label_min = round(vmin, label_precision)
+
+        if vmax < constants.MAP_MIN_VALUE:
+            vmax = constants.MAP_MIN_VALUE
             label_max = constants.MAP_MIN_VALUE
         else:
-            label_max = round(max, 1)
+            label_max = round(vmax, label_precision)
 
         classificationRange = QgsClassificationRange(
-            f"{label_min} < {target_field} <= {label_max}", min, max
+            f"{label_min} < {target_field} <= {label_max}", vmin, vmax
         )
         if color == "transparent":
             color_txt = "0,0,0,0"
+            classificationRange = QgsClassificationRange(
+                f"{target_field} <= {constants.MAP_MIN_VALUE}", vmin, vmax
+            )
         else:
             # convert #FFFFFF to "255,255,255,135"
             # with opacity as 200 value
@@ -64,7 +92,7 @@ def graduate_layer(layer: QgsVectorLayer, target_field: str, breaks: list):
     label_settings = QgsPalLayerSettings()
     expression = (
         f'CASE WHEN "{target_field}" >= {constants.MAP_MIN_VALUE}'
-        f" THEN ROUND(\"{target_field}\",1) ELSE '' END"
+        f" THEN ROUND(\"{target_field}\",{label_precision}) ELSE '' END"
     )
     label_settings.fieldName = expression
     label_settings.isExpression = True
