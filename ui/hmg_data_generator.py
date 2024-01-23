@@ -397,9 +397,7 @@ class HMGDataGenerator:
         # set mesh_id with left to right then up to bottom order
         set_mesh_id(mesh_lyr)
 
-        QgsProject.instance().addMapLayer(mesh_lyr)
-        mesh_lyr.setName("mesh")
-        mesh_lyr.setOpacity(0.5)
+        add_to_map(mesh_lyr, "mesh")
 
         QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
 
