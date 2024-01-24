@@ -37,6 +37,7 @@ class HMGDataClassifier:
             "saigai",
             "surge",
             "earthquake",
+            "slope",
         ]
 
         # Target mesh layer にする
@@ -124,6 +125,10 @@ class HMGDataClassifier:
         self._set_percentages("earthquake")
         self.show_chart_earthquake()
 
+    def on_number_changed_slope(self):
+        self._set_percentages("slope")
+        self.show_chart_slope()
+
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         custom_radio_btn = getattr(self.main, f"radiobutton_custom_{hazard}")
@@ -187,6 +192,9 @@ class HMGDataClassifier:
     def classify_stdev_earthquake(self):
         self._set_percentages_stdev("earthquake")
 
+    def classify_stdev_slope(self):
+        self._set_percentages_stdev("slope")
+
     def _set_percentages_stdev(self, hazard: str):
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
         # get mesh_score target field name
@@ -238,6 +246,9 @@ class HMGDataClassifier:
 
     def classify_tcg_earthquake(self):
         self._set_percentages_tcg("earthquake")
+
+    def classify_tcg_slope(self):
+        self._set_percentages_tcg("slope")
 
     def _set_percentages_tcg(self, hazard):
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
@@ -303,6 +314,9 @@ class HMGDataClassifier:
 
     def show_chart_earthquake(self):
         self._set_chart("地震", "earthquake")
+
+    def show_chart_slope(self):
+        self._set_chart("傾斜度", "slope")
 
     def _handle_plot_close(self, event):
         # Set the flag to indicate that the plot has been closed
