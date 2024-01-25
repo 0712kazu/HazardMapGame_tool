@@ -271,7 +271,7 @@
            </widget>
           </item>
           <item row="9" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_12">
+           <widget class="QgsFileWidget" name="QgsFileWidget_refuge">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>
@@ -3103,6 +3103,271 @@
              </item>
             <item row="17" column="33">
               <widget class="QLabel" name="label_percent_10_slope">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+          <!-- Classification 10: refuge  -->
+            <item row="18" column="0">
+              <widget class="QLabel" name="label_classif_title_refuge">
+               <property name="text">
+                <string>避難施設</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+         <!-- classification methods -->
+            <item row="18" column="2">
+              <widget class="QRadioButton" name="radiobutton_stdev_refuge">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_refuge</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="18" column="5">
+              <widget class="QRadioButton" name="radiobutton_tcg_refuge">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_refuge</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="18" column="8">
+              <widget class="QRadioButton" name="radiobutton_custom_refuge">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_refuge</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
+            <item row="18" column="10">
+              <widget class="QLabel" name="label_classif_max_refuge">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="18" column="11">
+              <widget class="QSpinBox" name="classif_nbmax_refuge"/>
+             </item>
+             <!-- active button -->
+            <item row="18" column="14">
+             <widget class="QPushButton" name="classif_showgraph_refuge">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="19" column="0">
+              <widget class="QLabel" name="label_classif_values_refuge">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="19" column="1">
+              <widget class="QLabel" name="label_percent_n0_refuge">
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="2">
+              <widget class="QDoubleSpinBox" name="classif_percent_0_refuge"/>
+             </item>
+            <item row="19" column="3">
+              <widget class="QLabel" name="label_percent_0_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="4">
+              <widget class="QLabel" name="label_percent_n1_refuge">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="5">
+              <widget class="QDoubleSpinBox" name="classif_percent_1_refuge"/>
+             </item>
+            <item row="19" column="6">
+              <widget class="QLabel" name="label_percent_1_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="7">
+              <widget class="QLabel" name="label_percent_n2_refuge">
+               <property name="text">
+                <string>2</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="8">
+              <widget class="QDoubleSpinBox" name="classif_percent_2_refuge"/>
+             </item>
+            <item row="19" column="9">
+              <widget class="QLabel" name="label_percent_2_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="10">
+              <widget class="QLabel" name="label_percent_n3_refuge">
+               <property name="text">
+                <string>3</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="11">
+              <widget class="QDoubleSpinBox" name="classif_percent_3_refuge"/>
+             </item>
+            <item row="19" column="12">
+              <widget class="QLabel" name="label_percent_3_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="13">
+              <widget class="QLabel" name="label_percent_n4_refuge">
+               <property name="text">
+                <string>4</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="14">
+              <widget class="QDoubleSpinBox" name="classif_percent_4_refuge"/>
+             </item>
+            <item row="19" column="15">
+              <widget class="QLabel" name="label_percent_4_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="16">
+              <widget class="QLabel" name="label_percent_n5_refuge">
+               <property name="text">
+                <string>5</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="17">
+              <widget class="QDoubleSpinBox" name="classif_percent_5_refuge"/>
+             </item>
+            <item row="19" column="18">
+              <widget class="QLabel" name="label_percent_5_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="19">
+              <widget class="QLabel" name="label_percent_n6_refuge">
+               <property name="text">
+                <string>6</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="20">
+              <widget class="QDoubleSpinBox" name="classif_percent_6_refuge"/>
+             </item>
+            <item row="19" column="21">
+              <widget class="QLabel" name="label_percent_6_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="22">
+              <widget class="QLabel" name="label_percent_n7_refuge">
+               <property name="text">
+                <string>7</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="23">
+              <widget class="QDoubleSpinBox" name="classif_percent_7_refuge"/>
+             </item>
+            <item row="19" column="24">
+              <widget class="QLabel" name="label_percent_7_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="25">
+              <widget class="QLabel" name="label_percent_n8_refuge">
+               <property name="text">
+                <string>8</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="26">
+              <widget class="QDoubleSpinBox" name="classif_percent_8_refuge"/>
+             </item>
+            <item row="19" column="27">
+              <widget class="QLabel" name="label_percent_8_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="28">
+              <widget class="QLabel" name="label_percent_n9_refuge">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_refuge"/>
+             </item>
+            <item row="19" column="30">
+              <widget class="QLabel" name="label_percent_9_refuge">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="31">
+              <widget class="QLabel" name="label_percent_n10_refuge">
+               <property name="text">
+                <string>10</string>
+               </property>
+              </widget>
+            </item>
+            <item row="19" column="32">
+              <widget class="QDoubleSpinBox" name="classif_percent_10_refuge"/>
+             </item>
+            <item row="19" column="33">
+              <widget class="QLabel" name="label_percent_10_refuge">
                <property name="text">
                 <string>%</string>
                </property>
