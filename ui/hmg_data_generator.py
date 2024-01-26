@@ -19,6 +19,7 @@ from converter.seamless2hmg import (
     seamless2hmg_tsunami,
     seamless2hmg_surge,
     seamless2hmg_earthquake,
+    seamless2hmg_slope,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -522,6 +523,21 @@ class HMGDataGenerator:
             if earthquake_lyr:
                 mesh_lyr = seamless2hmg_earthquake(earthquake_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_earthquake)
+
+        # 傾斜度
+        slope_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            constants.SEAMLESS_FILE_SLOPE,
+        )
+        if os.path.exists(slope_path):
+            slope_lyr = QgsVectorLayer(
+                slope_path,
+                "slope_merged",
+                "ogr",
+            )
+            if slope_lyr:
+                mesh_lyr = seamless2hmg_slope(slope_lyr, mesh_lyr, waku_lyr)
+                hmg_processed.append(constants.field_slope)
 
         # Add hazard layers to map
         for hazard in hmg_processed:

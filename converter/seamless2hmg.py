@@ -229,6 +229,27 @@ def _mean_mesh_centroid_values(
         },
     )["OUTPUT"]
 
+    # For slope, erase centroids in sediments 土砂
+    if (
+        calculate_field == constants.field_slope
+        and QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_sediments}"
+        )
+    ):
+        sediments_layer = QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_sediments}"
+        )[0]
+        seamless_filtered = processing.run(
+            "native:difference",
+            {
+                "INPUT": seamless_centroids,
+                "OVERLAY": sediments_layer,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+                "GRID_SIZE": None,
+            },
+        )["OUTPUT"]
+        seamless_centroids = seamless_filtered
+
     # intersect with mesh
     centroids_mesh_intersect = processing.run(
         "native:intersection",
@@ -243,7 +264,7 @@ def _mean_mesh_centroid_values(
         },
     )["OUTPUT"]
 
-    add_to_map(centroids_mesh_intersect, "check_centroid_interstect")
+    add_to_map(centroids_mesh_intersect, f"seamless_{calculate_field}")
 
     # aggregate mean value for each mesh id
     centroids_mean_by_mesh = processing.run(
@@ -268,7 +289,7 @@ def _mean_mesh_centroid_values(
                     "delimiter": ",",
                     "input": f'"{seamless_field}"',
                     "length": 0,
-                    "name": "quake",
+                    "name": f"{calculate_field}",
                     "precision": 0,
                     "sub_type": 0,
                     "type": 6,
@@ -278,8 +299,6 @@ def _mean_mesh_centroid_values(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
-
-    add_to_map(centroids_mean_by_mesh, "check_centroid_mean")
 
     # join with origin mesh
     mesh_join_seamless_mean = processing.run(
@@ -841,10 +860,40 @@ def seamless2hmg_earthquake(
         )
         return earthquake_mesh
 
-    add_to_map(earthquake_clipped, f"seamless_{constants.field_earthquake}")
-
     mean_centroids_mesh = _mean_mesh_centroid_values(
         earthquake_clipped, "T30_I60_PS", mesh_lyr, constants.field_earthquake
+    )
+
+    return mean_centroids_mesh
+
+
+def seamless2hmg_slope(
+    slope_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    slope_clipped = _clip_with_valid_geometries(slope_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if slope_clipped.featureCount() == 0:
+        slope_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_slope)
+        return slope_mesh
+
+    # get only numeric values
+    slope_filtered = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": slope_clipped,
+            "FIELD_NAME": "angle",
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": ' "G04d_010" ',
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    mean_centroids_mesh = _mean_mesh_centroid_values(
+        slope_filtered, "angle", mesh_lyr, constants.field_slope
     )
 
     return mean_centroids_mesh
