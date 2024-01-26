@@ -2,6 +2,7 @@ import glob
 import os
 import shutil
 import subprocess
+import csv
 
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
 
@@ -16,6 +17,7 @@ from constants import (
     INPUT_DIR_SURGE,
     INPUT_DIR_EARTHQUAKE,
     INPUT_DIR_SLOPE,
+    INPUT_DIR_REFUGE,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
     SEAMLESS_FILE_TORNADO,
@@ -27,6 +29,7 @@ from constants import (
     SEAMLESS_FILE_SURGE,
     SEAMLESS_FILE_EARTHQUAKE,
     SEAMLESS_FILE_SLOPE,
+    SEAMLESS_FILE_REFUGE,
     SEAMLESS_FILE_CITIES,
     SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
@@ -68,6 +71,7 @@ class Preprocessor:
             (INPUT_DIR_SURGE, self.main.QgsFileWidget_surge),
             (INPUT_DIR_EARTHQUAKE, self.main.QgsFileWidget_earthquake),
             (INPUT_DIR_SLOPE, self.main.QgsFileWidget_slope),
+            (INPUT_DIR_REFUGE, self.main.QgsFileWidget_refuge),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_cities),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
@@ -140,6 +144,12 @@ class Preprocessor:
         if self.main.QgsFileWidget_slope.filePath():
             self.preprocess_slope(
                 self.main.QgsFileWidget_slope.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+
+        if self.main.QgsFileWidget_refuge.filePath():
+            self.preprocess_refuge(
+                self.main.QgsFileWidget_refuge.filePath(),
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
@@ -355,6 +365,57 @@ class Preprocessor:
 
         shutil.rmtree(extracted_dir)
         self.seamless_processed.append(SEAMLESS_FILE_SLOPE)
+
+    def preprocess_refuge(self, root_directory: str, output_directory: str):
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+
+        csvfiles = []
+        for root, dirs, files in os.walk(extracted_dir):
+            csv_files = glob.glob(os.path.join(root, "*.csv"))
+            csvfiles.extend(csv_files)
+
+        if len(csvfiles) == 0:
+            message = "No CSV file in 避難施設 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
+
+        # get only CSV with 緯度/経度 column
+        for csv_file in csvfiles:
+            with open(csv_file, "r", newline="", encoding="utf-8") as file:
+                reader = csv.reader(file)
+
+                # Read the header row
+                header = next(reader, None)
+
+                # Check if 'x' and 'y' columns are present
+                if "緯度" in header and "経度" in header:
+                    refuge_csv_file = csv_file
+
+        if not refuge_csv_file:
+            message = "No valid CSV file in 避難施設 directory."
+            QMessageBox.information(None, "お知らせ", message)
+            shutil.rmtree(extracted_dir)
+            return
+
+        cmd = (
+            f"ogr2ogr -t_srs EPSG:3857 -f GPKG "
+            "-oo X_POSSIBLE_NAMES=経度 -oo Y_POSSIBLE_NAMES=緯度"
+            f" -nln {SEAMLESS_FILE_REFUGE.split('.')[0]}"
+            f" {os.path.join(output_directory, SEAMLESS_FILE_REFUGE)}"
+            f" {refuge_csv_file} -s_srs EPSG:4326"
+        )
+
+        subprocess.run(
+            cmd,
+            shell=True,
+            check=True,
+        )
+
+        shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(SEAMLESS_FILE_REFUGE)
 
     def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")

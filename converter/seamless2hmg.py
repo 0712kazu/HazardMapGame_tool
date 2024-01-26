@@ -897,3 +897,31 @@ def seamless2hmg_slope(
     )
 
     return mean_centroids_mesh
+
+
+def seamless2hmg_refuge(
+    refuge_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    refuge_clipped = _clip_with_valid_geometries(refuge_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if refuge_clipped.featureCount() == 0:
+        refuge_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_refuge)
+        return refuge_mesh
+
+    add_to_map(refuge_clipped, f"seamless_{constants.field_refuge}")
+
+    mesh_count_refuge = processing.run(
+        "native:countpointsinpolygon",
+        {
+            "POLYGONS": mesh_lyr,
+            "POINTS": refuge_clipped,
+            "WEIGHT": "",
+            "CLASSFIELD": "",
+            "FIELD": constants.field_refuge,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    return mesh_count_refuge
