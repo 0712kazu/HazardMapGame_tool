@@ -28,6 +28,7 @@ from converter.mesh_maker import (
     exclude_offshore_mesh,
     set_mesh_id,
 )
+from utils import set_map_canvas_to_webmercator
 from maptool import POIMapTool
 
 
@@ -35,6 +36,9 @@ class HMGDataGenerator:
     def __init__(self, main: QDialog):
         self.main = main
         self.canvas = iface.mapCanvas()
+
+        # set map to webmercator
+        set_map_canvas_to_webmercator()
 
         # ラムダ式でもconnectできる
         self.main.pushButton_choosepnt.clicked.connect(self.activate_maptool_point)
@@ -100,6 +104,9 @@ class HMGDataGenerator:
                 self.main.comboBox_meshprodlog.addItem(logname)
 
     def _on_log_changed(self):
+        # set map to webmercator
+        set_map_canvas_to_webmercator()
+
         with open(self.log_csv, "r") as f:
             reader = csv.DictReader(f)
             logs = [
@@ -334,6 +341,9 @@ class HMGDataGenerator:
         return scale
 
     def activate_maptool_point(self):
+        # set map to webmercator
+        set_map_canvas_to_webmercator()
+
         self.main.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
 
         def show_xy(point):
@@ -347,6 +357,9 @@ class HMGDataGenerator:
         iface.mapCanvas().setMapTool(maptool)
 
     def generate_mesh(self):
+        # set map to webmercator
+        set_map_canvas_to_webmercator()
+
         if self.main.radioButton_city.isChecked():
             # 市区町村からメッシュを作成する
             mesh_lyr = generate_mesh_city(
