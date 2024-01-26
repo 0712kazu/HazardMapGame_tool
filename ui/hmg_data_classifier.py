@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QVariant
 from qgis.core import (
+    QgsVectorLayer,
     QgsProject,
     QgsMapLayerProxyModel,
     QgsField,
@@ -18,6 +19,7 @@ from converter.mesh_score_classifier import (
     get_tcg_ranks,
 )
 import constants
+from utils import add_to_map
 from modules import pyqtgraph as pg
 
 
@@ -273,6 +275,15 @@ class HMGDataClassifier:
         self.plot_widget = None
         event.accept()
 
+    def _display_only(self, mesh_score_hazard_layer: QgsVectorLayer) -> None:
+        """display only input layer, turn off other 'mesh_score' ones"""
+        layer_tree = QgsProject.instance().layerTreeRoot()
+        for layer in QgsProject.instance().mapLayers().values():
+            if layer.name() == mesh_score_hazard_layer:
+                layer_tree.findLayer(layer.id()).setItemVisibilityChecked(True)
+            elif "mesh_score" in layer.name():
+                layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
+
     def _set_chart(self, chart_title: str, hazard: str) -> None:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
@@ -359,12 +370,23 @@ class HMGDataClassifier:
         # reflect to map
         graduate_layer(mesh_score_layer, target_field, breaks)
 
-    def classify_data_tcg(self):
+        # reflect to hazard mesh layer
+        # create if not exists
+        if not QgsProject.instance().mapLayersByName(f"mesh_score_{target_field}"):
+            add_layer = mesh_score_layer.clone()
+            add_to_map(add_layer, f"mesh_score_{target_field}")
+
+        hazard_mesh_layer = QgsProject.instance().mapLayersByName(
+            f"mesh_score_{target_field}"
+        )[0]
+
+        graduate_layer(hazard_mesh_layer, target_field, breaks)
+
+        self._display_only(f"mesh_score_{target_field}")
+
+    def _calculate_tcg_score(self, mesh_score_layer: QgsVectorLayer) -> list:
         # list of added fields
         tcg_rank_fields_added = []
-
-        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
-
         for hazard in self.hazards:
             # get mesh_score target field name
             target_field = getattr(constants, f"field_{hazard}")
@@ -405,6 +427,27 @@ class HMGDataClassifier:
             mesh_score_layer.commitChanges()
 
             tcg_rank_fields_added.append(tcg_rank_field)
+        return tcg_rank_fields_added
+
+    def classify_data_tcg(self):
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
+
+        # list of added fields
+        tcg_rank_fields_added = self._calculate_tcg_score(mesh_score_layer)
+
+        # add to each hazard mesh layer
+        for hazard_field in tcg_rank_fields_added:
+            hazard_name = hazard_field.split("_")[1]
+
+            # create if not exists
+            if not QgsProject.instance().mapLayersByName(f"mesh_score_{hazard_name}"):
+                add_layer = mesh_score_layer.clone()
+                add_to_map(add_layer, f"mesh_score_{hazard_name}")
+
+            hazard_mesh_layer = QgsProject.instance().mapLayersByName(
+                f"mesh_score_{hazard_name}"
+            )[0]
+            self._calculate_tcg_score(hazard_mesh_layer)
 
         # message end
         message = "TCG方式での点数化が完了しました。\n計算した属性:\n"

@@ -93,3 +93,8 @@ def merge_shapefiles(shapefiles: list, output_path: str, addfields=""):
             shell=True,
             check=True,
         )
+
+
+def add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
+    layer.setName(layer_name)
+    QgsProject.instance().addMapLayer(layer)

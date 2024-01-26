@@ -8,6 +8,8 @@ from qgis.gui import QtCore
 from qgis.utils import iface
 
 import constants
+
+from utils import add_to_map
 from converter.seamless2hmg import (
     seamless2hmg_kosui,
     seamless2hmg_jisuberi,
@@ -491,9 +493,12 @@ class HMGDataGenerator:
                 mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_saigai)
 
-        # Add final mesh score layer to map
-        mesh_lyr.setName("mesh_score")
-        QgsProject.instance().addMapLayer(mesh_lyr)
+        # Add hazard layers to map
+        for hazard in hmg_processed:
+            hazard_lyr = mesh_lyr.clone()
+            add_to_map(hazard_lyr, f"mesh_score_{hazard}")
+        # Add final mesh score (all) layer to map
+        add_to_map(mesh_lyr, "mesh_score")
 
         # set for HMG classifier
         score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
