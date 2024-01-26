@@ -98,15 +98,31 @@ def generate_mesh_point(
         a1_height = max(a1_size)
         a1_width = min(a1_size)
 
-    grid_extent_str = (
-        f"{grid_center_x - (grid_map_size * ncolumns / 2)},"
-        f" {grid_center_x + (grid_map_size * ncolumns / 2)},"
-        f"{grid_center_y - (grid_map_size * nrows / 2)},"
-        f"{grid_center_y + (grid_map_size * nrows / 2)} [EPSG:3857]"
-    )
+    left = grid_center_x - (grid_map_size * ncolumns / 2)
+    right = grid_center_x + (grid_map_size * ncolumns / 2)
+    bottom = grid_center_y - (grid_map_size * nrows / 2)
+    top = grid_center_y + (grid_map_size * nrows / 2)
+    grid_extent_str = f"{left},{right},{bottom},{top} [EPSG:3857]"
 
     mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
+    # Exceeded rows can occur when extent is 0.0001 m too large
+    # revise it by reduce input grid extent (should not change output size)
+    tentative = 1
+    while mesh_lyr.featureCount() != nb_mesh1 * nb_mesh2:
+        tentative = tentative + 1
+        print(tentative)
+        reduce_distance = 0.0001
+        # reduce distance of extent
+        left = left + reduce_distance
+        right = right - reduce_distance
+        bottom = bottom + reduce_distance
+        top = top - reduce_distance
+        grid_extent_str = f"{left},{right},{bottom},{top} [EPSG:3857]"
+
+        mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
+
+    print(grid_extent_str, grid_map_size)
     # A1の紙のサイズに合わせてワクを作成
     _generate_waku_rectangle(grid_center_x, grid_center_y, a1_width, a1_height, scale)
 
