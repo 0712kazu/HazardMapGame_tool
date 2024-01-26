@@ -203,6 +203,120 @@ def _sum_surfaces_intersect_meshes(
     return seamless_sum_mesh
 
 
+def _mean_mesh_centroid_values(
+    seamless_lyr: QgsVectorLayer,
+    seamless_field: str,
+    mesh_lyr: QgsVectorLayer,
+    calculate_field: str,
+) -> QgsVectorLayer:
+    # reproject to 3857
+    seamless_reprojected = processing.run(
+        "native:reprojectlayer",
+        {
+            "INPUT": seamless_lyr,
+            "TARGET_CRS": QgsCoordinateReferenceSystem("EPSG:3857"),
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # make centroids of clipped seamless
+    seamless_centroids = processing.run(
+        "native:pointonsurface",
+        {
+            "INPUT": seamless_reprojected,
+            "ALL_PARTS": False,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # intersect with mesh
+    centroids_mesh_intersect = processing.run(
+        "native:intersection",
+        {
+            "INPUT": seamless_centroids,
+            "OVERLAY": mesh_lyr,
+            "INPUT_FIELDS": [seamless_field],
+            "OVERLAY_FIELDS": ["id"],
+            "OVERLAY_FIELDS_PREFIX": "mesh_",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+            "GRID_SIZE": None,
+        },
+    )["OUTPUT"]
+
+    add_to_map(centroids_mesh_intersect, "check_centroid_interstect")
+
+    # aggregate mean value for each mesh id
+    centroids_mean_by_mesh = processing.run(
+        "native:aggregate",
+        {
+            "INPUT": centroids_mesh_intersect,
+            "GROUP_BY": '"mesh_id"',
+            "AGGREGATES": [
+                {
+                    "aggregate": "first_value",
+                    "delimiter": ",",
+                    "input": '"mesh_id"',
+                    "length": 0,
+                    "name": "mesh_id",
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 4,
+                    "type_name": "int8",
+                },
+                {
+                    "aggregate": "mean",
+                    "delimiter": ",",
+                    "input": f'"{seamless_field}"',
+                    "length": 0,
+                    "name": "quake",
+                    "precision": 0,
+                    "sub_type": 0,
+                    "type": 6,
+                    "type_name": "double precision",
+                },
+            ],
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    add_to_map(centroids_mean_by_mesh, "check_centroid_mean")
+
+    # join with origin mesh
+    mesh_join_seamless_mean = processing.run(
+        "native:joinattributestable",
+        {
+            "INPUT": mesh_lyr,
+            "FIELD": "id",
+            "INPUT_2": centroids_mean_by_mesh,
+            "FIELD_2": "mesh_id",
+            "FIELDS_TO_COPY": [calculate_field],
+            "METHOD": 1,
+            "DISCARD_NONMATCHING": False,
+            "PREFIX": "",
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    # populate null values with 0
+    seamless_sql = (
+        f'CASE WHEN "{calculate_field}" > 0 THEN "{calculate_field}" ELSE 0 END'
+    )
+    seamless_centroid_mean_mesh = processing.run(
+        "native:fieldcalculator",
+        {
+            "INPUT": mesh_join_seamless_mean,
+            "FIELD_NAME": calculate_field,
+            "FIELD_TYPE": 0,
+            "FIELD_LENGTH": 0,
+            "FIELD_PRECISION": 0,
+            "FORMULA": seamless_sql,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
+    return seamless_centroid_mean_mesh
+
+
 def _adjust_inland_score(layer: QgsVectorLayer, hazard_field: str) -> QgsVectorLayer:
     return processing.run(
         "native:fieldcalculator",
@@ -712,3 +826,25 @@ def seamless2hmg_surge(
     )
 
     return inland_calculated_mesh
+
+
+def seamless2hmg_earthquake(
+    earthquake_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    earthquake_clipped = _clip_with_valid_geometries(earthquake_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if earthquake_clipped.featureCount() == 0:
+        earthquake_mesh = _handle_zero_polygon_hazard(
+            mesh_lyr, constants.field_earthquake
+        )
+        return earthquake_mesh
+
+    add_to_map(earthquake_clipped, f"seamless_{constants.field_earthquake}")
+
+    mean_centroids_mesh = _mean_mesh_centroid_values(
+        earthquake_clipped, "T30_I60_PS", mesh_lyr, constants.field_earthquake
+    )
+
+    return mean_centroids_mesh

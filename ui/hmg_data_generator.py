@@ -18,6 +18,7 @@ from converter.seamless2hmg import (
     seamless2hmg_sediments,
     seamless2hmg_tsunami,
     seamless2hmg_surge,
+    seamless2hmg_earthquake,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -396,9 +397,7 @@ class HMGDataGenerator:
         # set mesh_id with left to right then up to bottom order
         set_mesh_id(mesh_lyr)
 
-        QgsProject.instance().addMapLayer(mesh_lyr)
-        mesh_lyr.setName("mesh")
-        mesh_lyr.setOpacity(0.5)
+        add_to_map(mesh_lyr, "mesh")
 
         QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
 
@@ -508,6 +507,21 @@ class HMGDataGenerator:
             if surge_lyr:
                 mesh_lyr = seamless2hmg_surge(surge_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_surge)
+
+        # 地震
+        earthquake_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            constants.SEAMLESS_FILE_EARTHQUAKE,
+        )
+        if os.path.exists(earthquake_path):
+            earthquake_lyr = QgsVectorLayer(
+                earthquake_path,
+                "earthquake_merged",
+                "ogr",
+            )
+            if earthquake_lyr:
+                mesh_lyr = seamless2hmg_earthquake(earthquake_lyr, mesh_lyr, waku_lyr)
+                hmg_processed.append(constants.field_earthquake)
 
         # Add hazard layers to map
         for hazard in hmg_processed:
