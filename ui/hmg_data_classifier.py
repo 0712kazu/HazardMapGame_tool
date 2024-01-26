@@ -51,6 +51,9 @@ class HMGDataClassifier:
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_tcg_classify.clicked.connect(self.classify_data_tcg)
 
+        # stdev calculation flag to make calculate only once
+        self.stdev_calculating = False
+
         for hazard in self.hazards:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
@@ -65,7 +68,7 @@ class HMGDataClassifier:
             nbmax_box.valueChanged.connect(on_number_changed_function)
 
             # default percentages: 10 classes by 10%
-            for n in range(1, 11):
+            for n in range(0, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
                 percentage_box.setRange(0, 100)
                 percentage_box.setValue(n * 10)
@@ -117,7 +120,7 @@ class HMGDataClassifier:
         stdev_radio_btn = getattr(self.main, f"radiobutton_stdev_{hazard}")
         tcg_radio_btn = getattr(self.main, f"radiobutton_tcg_{hazard}")
 
-        if stdev_radio_btn.isChecked():
+        if stdev_radio_btn.isChecked() and not self.stdev_calculating:
             nbmax_box.setReadOnly(False)
             self._set_percentages_stdev(hazard)
 
@@ -128,7 +131,7 @@ class HMGDataClassifier:
         if custom_radio_btn.isChecked():
             nbmax_box.setReadOnly(False)
 
-        for n in range(1, 11):
+        for n in range(0, 11):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
 
             # lock box if box ID >=  designated max box
@@ -186,12 +189,15 @@ class HMGDataClassifier:
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
 
-        if len(percentages_classes) != nbmax_box.value():
-            nbmax_box.setValue(len(percentages_classes))
+        if len(percentages_classes) - 1 != nbmax_box.value():
+            self.stdev_calculating = True
+            nbmax_box.setValue(len(percentages_classes) - 1)
 
-        for n in range(1, len(percentages_classes) + 1):
+        for n in range(0, len(percentages_classes)):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setValue(percentages_classes[n - 1])
+            percentage_box.setValue(percentages_classes[n])
+
+        self.stdev_calculating = False
 
     def classify_tcg_tornado(self):
         self._set_percentages_tcg("tornado")
@@ -242,15 +248,15 @@ class HMGDataClassifier:
         # classify if values are not equals
         percentages_classes = classify_values_tcg(y_values)
 
-        if len(percentages_classes) != nbmax_box.value():
-            nbmax_box.setValue(len(percentages_classes))
+        if len(percentages_classes) - 1 != nbmax_box.value():
+            nbmax_box.setValue(len(percentages_classes) - 1)
 
         # update UI
         nbmax_box.setReadOnly(True)
 
-        for n in range(1, len(percentages_classes) + 1):
+        for n in range(0, len(percentages_classes)):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setValue(percentages_classes[n - 1])
+            percentage_box.setValue(percentages_classes[n])
 
     def show_chart_tornado(self):
         self._set_chart("竜巻", "tornado")
@@ -338,15 +344,18 @@ class HMGDataClassifier:
         break_min = 0
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
 
-        for n in range(1, nbmax_box.value() + 1):
+        for n in range(0, nbmax_box.value() + 1):
             percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
             percent_value = percentage_box.value()
 
             # get mesh value from percentage
             break_max = get_mesh_value_from_percentage(y_values, percent_value)
+            # first value should be the last 0 value
+            if break_max > 0 and n == 0:
+                break_max = 0
 
             # get color to show in graph and map
-            color = get_color_from_range(n, nbmax_box.value())
+            color = get_color_from_range(n + 1, nbmax_box.value() + 1)
 
             # add break_max line as plot
             line_label = f"{percent_value}% ({round(break_max,1)})"
@@ -400,7 +409,6 @@ class HMGDataClassifier:
                 continue
             # get ranks from values
             tcg_ranks = get_tcg_ranks(y_values)
-            print(tcg_ranks)
             tcg_rank_field = f"t_{target_field}"
 
             # add tcg rank field if not exists
@@ -420,7 +428,6 @@ class HMGDataClassifier:
             # Update the tcg rank field based on the sorting order
             for index, feature in enumerate(features):
                 feature.setAttribute(tcg_rank_field, tcg_ranks[index])
-                print(tcg_ranks[index])
                 mesh_score_layer.updateFeature(feature)
 
             # Stop editing and save changes

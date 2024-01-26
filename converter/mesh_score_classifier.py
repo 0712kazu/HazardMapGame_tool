@@ -101,8 +101,7 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     - values [0,0,24,255,484,1056...]
     - num_classes: 6
     output:
-    - class_percentages : [0,54,85,90,100] a list of percentages
-    -
+    - class_percentages : [54,85,90,100] a list of percentages (0 is removed)
     """
 
     # Calculate mean and standard deviation
@@ -128,7 +127,8 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
         nb_elements_in_class = classes.tolist().count(i)
         total_sample += nb_elements_in_class
         percentage = total_sample / len(values) * 100
-        class_percentages.append(percentage)
+        if percentage != 0:
+            class_percentages.append(percentage)
     class_percentages.append(100)
 
     # remove duplicate values
@@ -278,4 +278,19 @@ def get_color_from_range(break_id: int, nb_breaks: int) -> str:
             9: "#b2182b",
             10: "#67001f",
         }.get(break_id, "#00000")
+    elif nb_breaks == 11:
+        color = {
+            1: "#011730",
+            2: "#053061",
+            3: "#2166ac",
+            4: "#4393c3",
+            5: "#92c5de",
+            6: "#d1e5f0",
+            7: "#fddbc7",
+            8: "#f4a582",
+            9: "#d6604d",
+            10: "#b2182b",
+            11: "#67001f",
+        }.get(break_id, "#00000")
+
     return color
