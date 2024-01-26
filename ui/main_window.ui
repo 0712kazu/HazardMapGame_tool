@@ -131,32 +131,25 @@
           <string>ハザードデータレイヤ</string>
          </property>
          <layout class="QGridLayout" name="gridLayout_8">
-          <item row="5" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_saigai">
+          <item row="0" column="0">
+            <widget class="QLabel" name="label_18">
+              <property name="text">
+              <string>竜巻</string>
+              </property>
+            </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_tatumaki">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>
            </widget>
           </item>
-          <item row="7" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_4">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="0">
-           <widget class="QLabel" name="label_13">
-            <property name="text">
-             <string>避難施設</string>
-            </property>
-           </widget>
-          </item>
-          <item row="8" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_11">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
+          <item row="1" column="0">
+            <widget class="QLabel" name="label_14">
+              <property name="text">
+              <string>洪水</string>
+              </property>
            </widget>
           </item>
           <item row="1" column="2">
@@ -166,17 +159,38 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_14">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_19">
             <property name="text">
-             <string>洪水</string>
+             <string>土砂</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_sediments">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_21">
+            <property name="text">
+             <string>津波</string>
             </property>
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_6">
+           <widget class="QgsFileWidget" name="QgsFileWidget_tsunami">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="label_20">
+            <property name="text">
+             <string>地すべり</string>
             </property>
            </widget>
           </item>
@@ -200,38 +214,17 @@
             </property>
            </widget>
           </item>
+          <item row="5" column="2">
+           <widget class="QgsFileWidget" name="QgsFileWidget_saigai">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
           <item row="6" column="0">
            <widget class="QLabel" name="label_16">
             <property name="text">
              <string>高潮</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_17">
-            <property name="text">
-             <string>地震</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_sediments">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="9" column="2">
-           <widget class="QgsFileWidget" name="mQgsFileWidget_12">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_18">
-            <property name="text">
-             <string>竜巻</string>
             </property>
            </widget>
           </item>
@@ -242,31 +235,17 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="2">
-           <widget class="QgsFileWidget" name="QgsFileWidget_tatumaki">
+          <item row="7" column="0">
+           <widget class="QLabel" name="label_17">
+            <property name="text">
+             <string>地震</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_4">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_19">
-            <property name="text">
-             <string>土砂</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="label_20">
-            <property name="text">
-             <string>地すべり</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>津波</string>
             </property>
            </widget>
           </item>
@@ -274,6 +253,27 @@
            <widget class="QLabel" name="label_22">
             <property name="text">
              <string>傾斜度</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_11">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="label_13">
+            <property name="text">
+             <string>避難施設</string>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="2">
+           <widget class="QgsFileWidget" name="mQgsFileWidget_12">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
             </property>
            </widget>
           </item>
@@ -1462,6 +1462,254 @@
              </item>
             <item row="5" column="30">
               <widget class="QLabel" name="label_percent_10_sediments">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+        <!-- Classification 4: tsunami  -->
+            <item row="6" column="0">
+              <widget class="QLabel" name="label_classif_title_tsunami">
+               <property name="text">
+                <string>津波</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <!-- classification methods -->
+            <item row="6" column="17">
+              <widget class="QRadioButton" name="radiobutton_stdev_tsunami">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_tsunami</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="6" column="20">
+              <widget class="QRadioButton" name="radiobutton_tcg_tsunami">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_tsunami</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="6" column="23">
+              <widget class="QRadioButton" name="radiobutton_custom_tsunami">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_tsunami</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
+            <item row="6" column="25">
+              <widget class="QLabel" name="label_classif_max_tsunami">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="6" column="26">
+              <widget class="QSpinBox" name="classif_nbmax_tsunami"/>
+             </item>
+             <!-- active button -->
+            <item row="6" column="29">
+             <widget class="QPushButton" name="classif_showgraph_tsunami">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="7" column="0">
+              <widget class="QLabel" name="label_classif_values_tsunami">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="7" column="1">
+              <widget class="QLabel" name="label_percent_n1_tsunami">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="2">
+              <widget class="QDoubleSpinBox" name="classif_percent_1_tsunami"/>
+             </item>
+            <item row="7" column="3">
+              <widget class="QLabel" name="label_percent_1_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="4">
+              <widget class="QLabel" name="label_percent_n2_tsunami">
+               <property name="text">
+                <string>2</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="5">
+              <widget class="QDoubleSpinBox" name="classif_percent_2_tsunami"/>
+             </item>
+            <item row="7" column="6">
+              <widget class="QLabel" name="label_percent_2_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="7">
+              <widget class="QLabel" name="label_percent_n3_tsunami">
+               <property name="text">
+                <string>3</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="8">
+              <widget class="QDoubleSpinBox" name="classif_percent_3_tsunami"/>
+             </item>
+            <item row="7" column="9">
+              <widget class="QLabel" name="label_percent_3_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="10">
+              <widget class="QLabel" name="label_percent_n4_tsunami">
+               <property name="text">
+                <string>4</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="11">
+              <widget class="QDoubleSpinBox" name="classif_percent_4_tsunami"/>
+             </item>
+            <item row="7" column="12">
+              <widget class="QLabel" name="label_percent_4_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="13">
+              <widget class="QLabel" name="label_percent_n5_tsunami">
+               <property name="text">
+                <string>5</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="14">
+              <widget class="QDoubleSpinBox" name="classif_percent_5_tsunami"/>
+             </item>
+            <item row="7" column="15">
+              <widget class="QLabel" name="label_percent_5_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="16">
+              <widget class="QLabel" name="label_percent_n6_tsunami">
+               <property name="text">
+                <string>6</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="17">
+              <widget class="QDoubleSpinBox" name="classif_percent_6_tsunami"/>
+             </item>
+            <item row="7" column="18">
+              <widget class="QLabel" name="label_percent_6_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="19">
+              <widget class="QLabel" name="label_percent_n7_tsunami">
+               <property name="text">
+                <string>7</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="20">
+              <widget class="QDoubleSpinBox" name="classif_percent_7_tsunami"/>
+             </item>
+            <item row="7" column="21">
+              <widget class="QLabel" name="label_percent_7_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="22">
+              <widget class="QLabel" name="label_percent_n8_tsunami">
+               <property name="text">
+                <string>8</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="23">
+              <widget class="QDoubleSpinBox" name="classif_percent_8_tsunami"/>
+             </item>
+            <item row="7" column="24">
+              <widget class="QLabel" name="label_percent_8_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="25">
+              <widget class="QLabel" name="label_percent_n9_tsunami">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="26">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_tsunami"/>
+             </item>
+            <item row="7" column="27">
+              <widget class="QLabel" name="label_percent_9_tsunami">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="28">
+              <widget class="QLabel" name="label_percent_n10_tsunami">
+               <property name="text">
+                <string>10</string>
+               </property>
+              </widget>
+            </item>
+            <item row="7" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_10_tsunami"/>
+             </item>
+            <item row="7" column="30">
+              <widget class="QLabel" name="label_percent_10_tsunami">
                <property name="text">
                 <string>%</string>
                </property>
