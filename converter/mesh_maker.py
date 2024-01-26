@@ -108,10 +108,7 @@ def generate_mesh_point(
 
     # Exceeded rows can occur when extent is 0.0001 m too large
     # revise it by reduce input grid extent (should not change output size)
-    tentative = 1
     while mesh_lyr.featureCount() != nb_mesh1 * nb_mesh2:
-        tentative = tentative + 1
-        print(tentative)
         reduce_distance = 0.0001
         # reduce distance of extent
         left = left + reduce_distance
@@ -122,7 +119,6 @@ def generate_mesh_point(
 
         mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
-    print(grid_extent_str, grid_map_size)
     # A1の紙のサイズに合わせてワクを作成
     _generate_waku_rectangle(grid_center_x, grid_center_y, a1_width, a1_height, scale)
 
@@ -186,21 +182,20 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
     if size_x >= size_y:
         # 向き：横
         # 中心点からの距離をピッタリにすると、グリッドが一個多くできることがあるので、0.01mを引いている
-        grid_extent_str = (
-            f"{grid_x_min}, {grid_x_max},"
-            f"{center_y - grid_map_size * (short_size_n / 2 - 0.01)},"
-            f"{center_y + grid_map_size * (short_size_n / 2 - 0.01)} [EPSG:3857]"
-        )
+        left = grid_x_min
+        right = grid_x_max
+        bottom = center_y - grid_map_size * (short_size_n / 2 - 0.01)
+        top = center_y + grid_map_size * (short_size_n / 2 - 0.01)
         a1_height = min(a1_size)
         a1_width = max(a1_size)
 
     else:
         # 向き：縦
-        grid_extent_str = (
-            f"{center_x - grid_map_size * (short_size_n / 2 - 0.01)}, "
-            f"{center_x + grid_map_size * (short_size_n / 2 - 0.01)},"
-            f"{grid_y_min},{grid_y_max} [EPSG:3857]"
-        )
+        left = center_x - grid_map_size * (short_size_n / 2 - 0.01)
+        right = center_x + grid_map_size * (short_size_n / 2 - 0.01)
+        bottom = grid_y_min
+        top = grid_y_max
+
         a1_height = max(a1_size)
         a1_width = min(a1_size)
 
@@ -208,7 +203,21 @@ def generate_mesh_city(pref: str, city: str, pref_city_csv: str) -> QgsVectorLay
     _generate_waku_rectangle(center_x, center_y, a1_width, a1_height, scale)
 
     # メッシュ作成
+    grid_extent_str = f"{left},{right},{bottom},{top} [EPSG:3857]"
     mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
+
+    # Exceeded rows can occur when extent is 0.0001 m too large
+    # revise it by reduce input grid extent (should not change output size)
+    while mesh_lyr.featureCount() != long_size_n * short_size_n:
+        reduce_distance = 0.0001
+        # reduce distance of extent
+        left = left + reduce_distance
+        right = right - reduce_distance
+        bottom = bottom + reduce_distance
+        top = top - reduce_distance
+        grid_extent_str = f"{left},{right},{bottom},{top} [EPSG:3857]"
+
+        mesh_lyr = _create_grid(grid_extent_str, grid_map_size)
 
     return mesh_lyr
 
