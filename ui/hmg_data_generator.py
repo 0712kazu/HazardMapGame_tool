@@ -369,6 +369,13 @@ class HMGDataGenerator:
             )
 
         elif self.main.radioButton_point.isChecked():
+            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "中心点が指定していません。",
+                )
+                return
             # 中心点座標からメッシュを作成する
             mesh_lyr = generate_mesh_point(
                 float(self.main.lineEdit_x.text()),
