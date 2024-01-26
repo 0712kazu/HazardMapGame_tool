@@ -73,7 +73,7 @@ class Preprocessor:
             (INPUT_DIR_SLOPE, self.main.QgsFileWidget_slope),
             (INPUT_DIR_REFUGE, self.main.QgsFileWidget_refuge),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
-            (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_cities),
+            (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_shikuchoson),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
         ):
             folders = glob.glob(
@@ -168,6 +168,8 @@ class Preprocessor:
         message = "シムレスデータの作成が完了しました。\n"
         for seamless_data in self.seamless_processed:
             message += f"{seamless_data}\n"
+        if len(self.seamless_processed) == 0:
+            message = "データがありませんでした。"
         QMessageBox.information(None, "完了", message)
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
