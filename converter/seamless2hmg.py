@@ -264,8 +264,6 @@ def _mean_mesh_centroid_values(
         },
     )["OUTPUT"]
 
-    add_to_map(centroids_mesh_intersect, f"seamless_{calculate_field}")
-
     # aggregate mean value for each mesh id
     centroids_mean_by_mesh = processing.run(
         "native:aggregate",
@@ -860,6 +858,8 @@ def seamless2hmg_earthquake(
         )
         return earthquake_mesh
 
+    add_to_map(earthquake_clipped, f"seamless_{constants.field_earthquake}")
+
     mean_centroids_mesh = _mean_mesh_centroid_values(
         earthquake_clipped, "T30_I60_PS", mesh_lyr, constants.field_earthquake
     )
@@ -891,6 +891,8 @@ def seamless2hmg_slope(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    add_to_map(slope_filtered, f"seamless_{constants.field_slope}")
 
     mean_centroids_mesh = _mean_mesh_centroid_values(
         slope_filtered, "angle", mesh_lyr, constants.field_slope
