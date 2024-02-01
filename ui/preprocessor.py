@@ -53,6 +53,9 @@ class Preprocessor:
             self.load_elements_files_from_dir
         )
 
+        self.main.custom_seamless_filename.textChanged.connect(
+            self._on_custom_seamless_name_changed
+        )
         self.seamless_processed = []
 
     def load_elements_files_from_dir(self):
@@ -83,6 +86,12 @@ class Preprocessor:
             # ファイルが見つかったならウィジェットに反映する
             if len(folders) > 0:
                 filewidget.setFilePath(folders[0])
+
+    def _on_custom_seamless_name_changed(self):
+        # set same named on HMG generator text box
+        self.main.custom_hmg_seamlessfilename.setText(
+            self.main.custom_seamless_filename.text()
+        )
 
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
