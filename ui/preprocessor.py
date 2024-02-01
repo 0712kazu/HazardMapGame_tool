@@ -57,6 +57,12 @@ class Preprocessor:
         self.main.custom_seamless_filename.textChanged.connect(
             self._on_custom_seamless_name_changed
         )
+        self.main.radioButton_custom_type_csv.clicked.connect(
+            self._on_custom_csv_clicked
+        )
+        self.main.radioButton_custom_geom_polygon.clicked.connect(
+            self._on_custom_polygon_clicked
+        )
         # Default option to Shapefile and Polygon
         # Custom method Sum surfaces as Default
         self.main.radioButton_custom_type_shp.setChecked(True)
@@ -98,6 +104,14 @@ class Preprocessor:
         self.main.custom_hmg_seamlessfilename.setText(
             self.main.custom_seamless_filename.text()
         )
+
+    def _on_custom_csv_clicked(self):
+        # when CSV, force geometry format to be polygon
+        self.main.radioButton_custom_geom_point.setChecked(True)
+
+    def _on_custom_polygon_clicked(self):
+        # when Polygon, force file format to be Shape
+        self.main.radioButton_custom_type_shp.setChecked(True)
 
     def run(self):
         if not self.main.FileWidgetSeamlessDir.filePath():
@@ -545,16 +559,14 @@ class Preprocessor:
             message = "追加災害のシームレスファイル名が記入していません。"
             QMessageBox.information(None, "お知らせ", message)
             return
-        else:
-            custom_seamless_filename = (
-                self.main.custom_seamless_filename.text() + ".gpkg"
-            )
+
+        custom_seamless_filename = self.main.custom_seamless_filename.text() + ".gpkg"
 
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
 
-        # Shapefile case :
+        # Shapefile case
         if self.main.radioButton_custom_type_shp.isChecked():
             extracted_shapefiles = get_shapefiles_from_dir(extracted_dir)
 
@@ -578,6 +590,63 @@ class Preprocessor:
             # merge all shp to gpkg
             merge_shapefiles(
                 shapefiles, os.path.join(output_directory, custom_seamless_filename)
+            )
+
+        # CSV case (point only)
+        if self.main.radioButton_custom_type_csv.isChecked():
+            if (
+                self.main.custom_csv_column_x.text() == ""
+                or self.main.custom_csv_column_y.text() == ""
+            ):
+                message = "CSVの対象カラムが記入していません。"
+                QMessageBox.information(None, "お知らせ", message)
+                shutil.rmtree(extracted_dir)
+                return
+
+            csvfiles = []
+            for root, dirs, files in os.walk(extracted_dir):
+                csv_files = glob.glob(os.path.join(root, "*.csv"))
+                csvfiles.extend(csv_files)
+
+            if len(csvfiles) == 0:
+                message = "No CSV file in 追加災害 directory."
+                QMessageBox.information(None, "お知らせ", message)
+                shutil.rmtree(extracted_dir)
+                return
+
+            # get only CSV with target columns
+            x_col = self.main.custom_csv_column_x.text()
+            y_col = self.main.custom_csv_column_y.text()
+
+            for csv_file in csvfiles:
+                with open(csv_file, "r", newline="", encoding="utf-8") as file:
+                    reader = csv.reader(file)
+
+                    # Read the header row
+                    header = next(reader, None)
+
+                    # Check if 'x' and 'y' columns are present
+                    if x_col in header and y_col in header:
+                        custom_csv_file = csv_file
+
+            if not custom_csv_file:
+                message = "No valid CSV file in 追加災害 directory."
+                QMessageBox.information(None, "お知らせ", message)
+                shutil.rmtree(extracted_dir)
+                return
+
+            cmd = (
+                f"ogr2ogr -t_srs EPSG:3857 -f GPKG "
+                f"-oo X_POSSIBLE_NAMES={x_col} -oo Y_POSSIBLE_NAMES={y_col}"
+                f" -nln {custom_seamless_filename.split('.')[0]}"
+                f" {os.path.join(output_directory, custom_seamless_filename)}"
+                f" {custom_csv_file} -s_srs EPSG:4326"
+            )
+
+            subprocess.run(
+                cmd,
+                shell=True,
+                check=True,
             )
 
         shutil.rmtree(extracted_dir)
