@@ -65,7 +65,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QgsFileWidget" name="QgsFileWidget_custom">
+           <widget class="QgsFileWidget" name="QgsFileWidget_shikuchoson">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>

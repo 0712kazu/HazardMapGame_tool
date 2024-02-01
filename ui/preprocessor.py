@@ -180,6 +180,12 @@ class Preprocessor:
                 self.main.FileWidgetSeamlessDir.filePath(),
             )
 
+        if self.main.QgsFileWidget_custom.filePath():
+            self.preprocess_custom(
+                self.main.QgsFileWidget_custom.filePath(),
+                self.main.FileWidgetSeamlessDir.filePath(),
+            )
+
         message = "シムレスデータの作成が完了しました。\n"
         for seamless_data in self.seamless_processed:
             message += f"{seamless_data}\n"
@@ -533,3 +539,46 @@ class Preprocessor:
         shutil.rmtree(extracted_dir)
 
         self.seamless_processed.append(SEAMLESS_FILE_TORNADO)
+
+    def preprocess_custom(self, root_directory: str, output_directory: str):
+        if self.main.custom_seamless_filename.text() == "":
+            message = "追加災害のシームレスファイル名が記入していません。"
+            QMessageBox.information(None, "お知らせ", message)
+            return
+        else:
+            custom_seamless_filename = (
+                self.main.custom_seamless_filename.text() + ".gpkg"
+            )
+
+        extracted_dir = os.path.join(root_directory, "temp")
+        if not os.path.exists(extracted_dir):
+            unpack_zips_from_dir(root_directory, extracted_dir)
+
+        # Shapefile case :
+        if self.main.radioButton_custom_type_shp.isChecked():
+            extracted_shapefiles = get_shapefiles_from_dir(extracted_dir)
+
+            # get only point shapefiles
+            if self.main.radioButton_custom_geom_polygon.isChecked():
+                geom_type = "POLYGON"
+            if self.main.radioButton_custom_geom_point.isChecked():
+                geom_type = "POINT"
+
+            shapefiles = []
+            for shapefile in extracted_shapefiles:
+                if geom_type_from_shp(shapefile) == geom_type:
+                    shapefiles.append(shapefile)
+
+            if len(shapefiles) == 0:
+                message = f"No {geom_type} shapefile in 追加災害 directory"
+                QMessageBox.information(None, "お知らせ", message)
+                shutil.rmtree(extracted_dir)
+                return
+
+            # merge all shp to gpkg
+            merge_shapefiles(
+                shapefiles, os.path.join(output_directory, custom_seamless_filename)
+            )
+
+        shutil.rmtree(extracted_dir)
+        self.seamless_processed.append(custom_seamless_filename)
