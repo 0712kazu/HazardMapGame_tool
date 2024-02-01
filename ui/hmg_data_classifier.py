@@ -58,6 +58,9 @@ class HMGDataClassifier:
         # stdev calculation flag to make calculate only once
         self.stdev_calculating = False
 
+        # Custom method Sum surfaces as Default
+        self.main.radiobutton_custom_calc_sumsurf.setChecked(True)
+
         for hazard in self.hazards:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")

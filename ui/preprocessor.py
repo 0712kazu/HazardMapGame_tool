@@ -53,9 +53,15 @@ class Preprocessor:
             self.load_elements_files_from_dir
         )
 
+        # custom hazards
         self.main.custom_seamless_filename.textChanged.connect(
             self._on_custom_seamless_name_changed
         )
+        # Default option to Shapefile and Polygon
+        # Custom method Sum surfaces as Default
+        self.main.radioButton_custom_type_shp.setChecked(True)
+        self.main.radioButton_custom_geom_polygon.setChecked(True)
+
         self.seamless_processed = []
 
     def load_elements_files_from_dir(self):
