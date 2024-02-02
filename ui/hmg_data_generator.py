@@ -629,6 +629,10 @@ class HMGDataGenerator:
                     self.main.custom_inland_adjust_checkbox.isChecked(),
                 )
                 hmg_processed.append(custom_field)
+                # change name of classification class
+                self.main.label_classif_title_custom.setText(
+                    self.main.custom_hmg_seamlessfilename.text()
+                )
             elif custom_lyr and custom_field == "":
                 message = "追加災害の属性名が記入されてません。"
                 QMessageBox.information(None, "お知らせ", message)

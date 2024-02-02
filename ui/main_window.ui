@@ -835,7 +835,7 @@
        <string>HMGデータ作成</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="2" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="pushButton_processhmg">
@@ -862,7 +862,7 @@
             </item>
             </layout>
         </item>
-        <item row="2" column="0">
+        <item row="0" column="0">
         <widget class="QGroupBox" name="groupBox_custom">
          <property name="title">
           <string>追加災害</string>
@@ -3663,7 +3663,7 @@
             <item row="20" column="0">
               <widget class="QLabel" name="label_classif_title_custom">
                <property name="text">
-                <string>カスタム</string>
+                <string>追加災害</string>
                </property>
                <property name="maximumSize">
                 <size>
