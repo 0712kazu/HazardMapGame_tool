@@ -60,7 +60,7 @@ class HMGDataClassifier:
         self.stdev_calculating = False
 
         # Custom method Sum surfaces as Default
-        self.main.radiobutton_custom_calc_sumsurf.setChecked(True)
+        self.main.btn_custom_calc_sumsurf.setChecked(True)
 
         for hazard in self.hazards:
             # Connect graphs

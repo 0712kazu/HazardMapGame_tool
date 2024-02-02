@@ -900,6 +900,14 @@
             </property>
             </widget>
           </item>
+          <!-- inland adjustment option -->
+          <item row="0" column="3">
+          <widget class="QCheckBox" name="custom_inland_adjust_checkbox">
+            <property name="text">
+            <string>陸域調整</string>
+            </property>
+          </widget>
+          </item>
           <!-- Custom calculation type -->
           <item row="0" column="5">
            <widget class="QLabel" name="label_12">
@@ -931,7 +939,7 @@
            </widget>
           </item>
           <item row="1" column="3">
-              <widget class="QRadioButton" name="radiobutton_custom_calc_sumsurf">
+              <widget class="QRadioButton" name="btn_custom_calc_sumsurf">
               <property name="text">
                 <string>面積の合計</string>
               </property>
@@ -941,7 +949,7 @@
               </widget>
             </item>
             <item row="1" column="4">
-              <widget class="QRadioButton" name="radiobutton_custom_geom_sumsurfvalue">
+              <widget class="QRadioButton" name="btn_custom_calc_sumsurfvalue">
               <property name="text">
                 <string>面積×値の合計</string>
               </property>
@@ -951,7 +959,7 @@
               </widget>
             </item> 
             <item row="1" column="2">
-              <widget class="QRadioButton" name="radiobutton_custom_geom_centroidmean">
+              <widget class="QRadioButton" name="btn_custom_calc_centroidmean">
               <property name="text">
                 <string>中心点の値の平均</string>
               </property>
@@ -961,7 +969,7 @@
               </widget>
             </item>
             <item row="1" column="1">
-              <widget class="QRadioButton" name="radiobutton_custom_geom_countpoints">
+              <widget class="QRadioButton" name="btn_custom_calc_countpoints">
               <property name="text">
                 <string>ポイント個数の合計</string>
               </property>

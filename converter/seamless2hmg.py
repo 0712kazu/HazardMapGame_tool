@@ -7,6 +7,7 @@ from qgis.core import (
     QgsProcessingFeedback,
     QgsProject,
     QgsVectorLayer,
+    QgsWkbTypes,
 )
 from qgis.gui import QgisInterface
 
@@ -57,7 +58,10 @@ def _handle_zero_polygon_hazard(
 
 
 def _sum_surfaces_intersect_meshes(
-    seamless_lyr: QgsVectorLayer, mesh_lyr: QgsVectorLayer, calculate_field: str
+    seamless_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+    calculate_field: str,
+    value_field="",
 ) -> QgsVectorLayer:
     # fix_geometries
     seamless_fix = processing.run(
@@ -81,10 +85,9 @@ def _sum_surfaces_intersect_meshes(
 
     # Dissolve to avoid overlay polygon
     dissolve_field = []
-    if calculate_field == constants.field_tsunami:
-        dissolve_field = ["h_tsunami"]
-    if calculate_field == constants.field_surge:
-        dissolve_field = ["h_surge"]
+    # value_field is used to multiply with surface
+    if value_field != "":
+        dissolve_field = [value_field]
 
     seamless_dissolved = processing.run(
         "native:dissolve",
@@ -113,12 +116,9 @@ def _sum_surfaces_intersect_meshes(
     # calculate area of intersect polygon
     area_formula = " area(@geometry) "
 
-    if calculate_field == constants.field_tsunami:
-        # for tsunami, multiply with tsunami rank
-        area_formula = " area(@geometry) * h_tsunami"
-    if calculate_field == constants.field_surge:
-        # for storm surge, multiply with surge rank
-        area_formula = " area(@geometry) * h_surge"
+    # value_field is used to multiply with surface when defined
+    if value_field != "":
+        area_formula = f" area(@geometry) * {value_field}"
 
     seamless_mesh_intersect_area = processing.run(
         "native:fieldcalculator",
@@ -763,11 +763,12 @@ def seamless2hmg_tsunami(
         return tsunami_mesh
 
     # calculate tsunami rank according to height
+    tsunami_value_field = "h_tsunami"
     tsunami_ranked = processing.run(
         "native:fieldcalculator",
         {
             "INPUT": tsunami_clipped,
-            "FIELD_NAME": "h_tsunami",
+            "FIELD_NAME": tsunami_value_field,
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
@@ -779,7 +780,7 @@ def seamless2hmg_tsunami(
     add_to_map(tsunami_ranked, f"seamless_{constants.field_tsunami}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        tsunami_ranked, mesh_lyr, constants.field_tsunami
+        tsunami_ranked, mesh_lyr, constants.field_tsunami, tsunami_value_field
     )
 
     inland_calculated_mesh = _adjust_inland_score(
@@ -819,11 +820,12 @@ def seamless2hmg_surge(
         return surge_mesh
 
     # calculate surge rank according to height
+    surge_value_field = "h_surge"
     surge_ranked = processing.run(
         "native:fieldcalculator",
         {
             "INPUT": surge_clipped,
-            "FIELD_NAME": "h_surge",
+            "FIELD_NAME": surge_value_field,
             "FIELD_TYPE": 0,
             "FIELD_LENGTH": 0,
             "FIELD_PRECISION": 0,
@@ -835,7 +837,7 @@ def seamless2hmg_surge(
     add_to_map(surge_ranked, f"seamless_{constants.field_surge}")
 
     sum_surface_mesh = _sum_surfaces_intersect_meshes(
-        surge_ranked, mesh_lyr, constants.field_surge
+        surge_ranked, mesh_lyr, constants.field_surge, surge_value_field
     )
 
     inland_calculated_mesh = _adjust_inland_score(
@@ -927,3 +929,124 @@ def seamless2hmg_refuge(
     )["OUTPUT"]
 
     return mesh_count_refuge
+
+
+def seamless2hmg_custom(
+    custom_lyr: QgsVectorLayer,
+    mesh_lyr: QgsVectorLayer,
+    waku_lyr: QgsVectorLayer,
+    custom_field: str,
+    calc_method: str,
+    seamless_field: str,
+    adjust_inland_score_option: bool,
+) -> QgsVectorLayer:
+    # extract intersected polygons to avoid clip intersect error
+    custom_clipped = _clip_with_valid_geometries(custom_lyr, waku_lyr)
+
+    # Handle when there is no cliped features
+    if custom_clipped.featureCount() == 0:
+        custom_mesh = _handle_zero_polygon_hazard(mesh_lyr, custom_field)
+        return custom_mesh
+
+    add_to_map(custom_clipped, f"seamless_{custom_field}")
+
+    custom_geom_type = custom_clipped.geometryType()
+
+    # sum surfaces
+    if calc_method == "sum_surfaces":
+        if custom_geom_type != QgsWkbTypes.PolygonGeometry:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "追加災害のレイヤがポリゴンではありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        mesh_custom = _sum_surfaces_intersect_meshes(
+            custom_clipped, mesh_lyr, custom_field
+        )
+
+    # csum surfaces x values
+    if calc_method == "sum_surfaces_values":
+        if custom_geom_type != QgsWkbTypes.PolygonGeometry:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "追加災害のレイヤがポリゴンではありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        # check if seamless_field is exists and if it is numeric
+        field_index = custom_lyr.fields().indexFromName(seamless_field)
+        if field_index == -1:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += f"シームレスレイヤに「{seamless_field}」属性がありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        if not custom_lyr.fields()[field_index].isNumeric():
+            error_message = "エラーが発生しました。\n\n"
+            error_message += (
+                f"シームレスレイヤに「{seamless_field}」属性が数字ではありません。"
+            )
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        mesh_custom = _sum_surfaces_intersect_meshes(
+            custom_clipped, mesh_lyr, custom_field, seamless_field
+        )
+
+    # centroid value means
+    if calc_method == "centroid_value_mean":
+        if custom_geom_type != QgsWkbTypes.PolygonGeometry:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "追加災害のレイヤがポリゴンではありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        if seamless_field == "":
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "シームレス値属性名が記入していません"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        # check if seamless_field is exists and if it is numeric
+        field_index = custom_lyr.fields().indexFromName(seamless_field)
+        if field_index == -1:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += f"シームレスレイヤに「{seamless_field}」属性がありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        if not custom_lyr.fields()[field_index].isNumeric():
+            error_message = "エラーが発生しました。\n\n"
+            error_message += (
+                f"シームレスレイヤに「{seamless_field}」属性が数字ではありません。"
+            )
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        mesh_custom = _mean_mesh_centroid_values(
+            custom_clipped, seamless_field, mesh_lyr, custom_field
+        )
+
+    # count points in meshes
+    if calc_method == "count_points":
+        if custom_geom_type != QgsWkbTypes.PointGeometry:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "追加災害のレイヤがポイントではありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return mesh_lyr
+
+        mesh_custom = processing.run(
+            "native:countpointsinpolygon",
+            {
+                "POLYGONS": mesh_lyr,
+                "POINTS": custom_clipped,
+                "WEIGHT": "",
+                "CLASSFIELD": "",
+                "FIELD": custom_field,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+    if adjust_inland_score_option:
+        mesh_custom = _adjust_inland_score(mesh_custom, custom_field)
+
+    return mesh_custom
