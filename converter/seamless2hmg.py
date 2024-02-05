@@ -493,7 +493,7 @@ def seamless2hmg_kosui(
         "native:creategrid",
         {
             "TYPE": 0,
-            "EXTENT": mesh_lyr.extent(),
+            "EXTENT": waku_lyr.extent(),
             "HSPACING": 20,
             "VSPACING": 20,
             "HOVERLAY": 0,
