@@ -368,13 +368,14 @@ class HMGDataClassifier:
         self.plot_widget = None
         event.accept()
 
-    def _display_only(self, mesh_score_hazard_layer: QgsVectorLayer) -> None:
-        """display only input layer, turn off other 'mesh_score' ones"""
+    def _display_only(self, prefix: str, hazard_name: str) -> None:
+        """display only input layer {prefix}_{hazard_name},
+        turn off other prefix 'prefix_○○' ones"""
         layer_tree = QgsProject.instance().layerTreeRoot()
         for layer in QgsProject.instance().mapLayers().values():
-            if layer.name() == mesh_score_hazard_layer:
+            if layer.name() == f"{prefix}_{hazard_name}":
                 layer_tree.findLayer(layer.id()).setItemVisibilityChecked(True)
-            elif "mesh_score" in layer.name():
+            elif prefix in layer.name():
                 layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
@@ -485,7 +486,8 @@ class HMGDataClassifier:
 
         graduate_layer(hazard_mesh_layer, target_field, breaks)
 
-        self._display_only(f"mesh_score_{target_field}")
+        self._display_only("mesh_score", target_field)
+        self._display_only("seamless", target_field)
 
     def _calculate_tcg_score(self, mesh_score_layer: QgsVectorLayer) -> list:
         # list of added fields
