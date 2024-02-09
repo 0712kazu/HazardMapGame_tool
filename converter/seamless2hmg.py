@@ -522,7 +522,7 @@ def seamless2hmg_kosui(
         processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
 
     except Exception as e:
-        # When "Could not create the combined clip geometry" error occursm skip it
+        # When "Could not create the combined clip geometry" error occurs skip it
         print(f"pnt clip error: {e}")
         pnt_lyr = pnt_lyr_raw
 

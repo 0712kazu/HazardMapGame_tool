@@ -40,4 +40,17 @@ field_earthquake = "quake"
 field_slope = "slope"
 field_refuge = "refuge"
 
+hazards_ui_names = [
+    "tornado",
+    "kozui",
+    "sediments",
+    "tsunami",
+    "jisuberi",
+    "saigai",
+    "surge",
+    "earthquake",
+    "slope",
+    "refuge",
+    "custom",
+]
 MAP_MIN_VALUE = 0.001

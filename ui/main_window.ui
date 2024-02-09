@@ -3946,7 +3946,7 @@
            </widget>
           </item>
         <item>
-             <widget class="QLineEdit" name="map_title">
+             <widget class="QLineEdit" name="pdf_map_title">
              <property name="maximumSize">
                 <size>
                     <width>150</width>
@@ -3963,7 +3963,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QgsFileWidget" name="QgsFileWidget_pdf_folder">
+           <widget class="QgsFileWidget" name="pdf_folder">
             <property name="storageMode">
              <enum>QgsFileWidget::GetDirectory</enum>
             </property>

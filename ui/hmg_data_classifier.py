@@ -18,6 +18,7 @@ from converter.mesh_score_classifier import (
     classify_values_tcg,
     get_tcg_ranks,
 )
+
 import constants
 from utils import add_to_map
 from modules import pyqtgraph as pg
@@ -28,19 +29,6 @@ class HMGDataClassifier:
         self.plot_widget = None
         self.main = main
         self.canvas = iface.mapCanvas()
-        self.hazards = [
-            "tornado",
-            "kozui",
-            "sediments",
-            "tsunami",
-            "jisuberi",
-            "saigai",
-            "surge",
-            "earthquake",
-            "slope",
-            "refuge",
-            "custom",
-        ]
 
         # Target mesh layer にする
         self.main.mesh_score_layer_combobox.setFilters(
@@ -62,7 +50,7 @@ class HMGDataClassifier:
         # Custom method Sum surfaces as Default
         self.main.btn_custom_calc_sumsurf.setChecked(True)
 
-        for hazard in self.hazards:
+        for hazard in constants.hazards_ui_names:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
             show_graph_function = getattr(self, f"on_number_changed_{hazard}")
@@ -492,7 +480,7 @@ class HMGDataClassifier:
     def _calculate_tcg_score(self, mesh_score_layer: QgsVectorLayer) -> list:
         # list of added fields
         tcg_rank_fields_added = []
-        for hazard in self.hazards:
+        for hazard in constants.hazards_ui_names:
             # get mesh_score target field name
             if hazard == "custom":
                 target_field = self.main.custom_hmg_fieldname.text()
