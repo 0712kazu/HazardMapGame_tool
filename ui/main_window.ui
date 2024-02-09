@@ -3932,22 +3932,47 @@
          <item row="4" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>60</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
              <widget class="QPushButton" name="pushButton_tcg_classify">
               <property name="text">
                <string>TCG方式の点数化を始める</string>
+              </property>
+             </widget>
+            </item>
+           <item>
+           <widget class="QLabel" name="label_maptitle">
+            <property name="text">
+             <string>PDFタイトル</string>
+            </property>
+           </widget>
+          </item>
+        <item>
+             <widget class="QLineEdit" name="map_title">
+             <property name="maximumSize">
+                <size>
+                    <width>150</width>
+                    <height>180</height>
+                </size>
+                </property>
+            </widget>
+            </item>
+         <item>
+           <widget class="QLabel" name="label_pdffolder">
+            <property name="text">
+             <string>PDF出力フォルダー</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QgsFileWidget" name="QgsFileWidget_pdf_folder">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+         <item>
+             <widget class="QPushButton" name="pushButton_export_pdf">
+              <property name="text">
+               <string>PDF作成を始める</string>
               </property>
              </widget>
             </item>
