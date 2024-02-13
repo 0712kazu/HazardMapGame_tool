@@ -39,6 +39,7 @@ class HMGDataClassifier:
             "earthquake",
             "slope",
             "refuge",
+            "custom",
         ]
 
         # Target mesh layer にする
@@ -57,6 +58,9 @@ class HMGDataClassifier:
 
         # stdev calculation flag to make calculate only once
         self.stdev_calculating = False
+
+        # Custom method Sum surfaces as Default
+        self.main.btn_custom_calc_sumsurf.setChecked(True)
 
         for hazard in self.hazards:
             # Connect graphs
@@ -134,6 +138,10 @@ class HMGDataClassifier:
         self._set_percentages("refuge")
         self.show_chart_refuge()
 
+    def on_number_changed_custom(self):
+        self._set_percentages("custom")
+        self.show_chart_custom()
+
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
         custom_radio_btn = getattr(self.main, f"radiobutton_custom_{hazard}")
@@ -203,6 +211,9 @@ class HMGDataClassifier:
     def classify_stdev_refuge(self):
         self._set_percentages_stdev("refuge")
 
+    def classify_stdev_custom(self):
+        self._set_percentages_stdev("custom")
+
     def _set_percentages_stdev(self, hazard: str):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
@@ -210,7 +221,10 @@ class HMGDataClassifier:
             return
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
         # get mesh_score target field name
-        target_field = getattr(constants, f"field_{hazard}")
+        if hazard == "custom":
+            target_field = self.main.custom_hmg_fieldname.text()
+        else:
+            target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -218,7 +232,7 @@ class HMGDataClassifier:
             ]
             y_values = sorted(field_values)
         else:
-            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
             QMessageBox.information(None, "エラー", error_message)
             return
 
@@ -265,6 +279,9 @@ class HMGDataClassifier:
     def classify_tcg_refuge(self):
         self._set_percentages_tcg("refuge")
 
+    def classify_tcg_custom(self):
+        self._set_percentages_tcg("custom")
+
     def _set_percentages_tcg(self, hazard):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
@@ -273,7 +290,10 @@ class HMGDataClassifier:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
-        target_field = getattr(constants, f"field_{hazard}")
+        if hazard == "custom":
+            target_field = self.main.custom_hmg_fieldname.text()
+        else:
+            target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -282,7 +302,7 @@ class HMGDataClassifier:
             y_values = sorted(field_values)
 
         else:
-            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
             QMessageBox.information(None, "エラー", error_message)
             return
 
@@ -340,6 +360,9 @@ class HMGDataClassifier:
     def show_chart_refuge(self):
         self._set_chart("避難施設", "refuge")
 
+    def show_chart_custom(self):
+        self._set_chart(self.main.custom_hmg_seamlessfilename.text(), "custom")
+
     def _handle_plot_close(self, event):
         # Set the flag to indicate that the plot has been closed
         self.plot_widget = None
@@ -362,7 +385,10 @@ class HMGDataClassifier:
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
-        target_field = getattr(constants, f"field_{hazard}")
+        if hazard == "custom":
+            target_field = self.main.custom_hmg_fieldname.text()
+        else:
+            target_field = getattr(constants, f"field_{hazard}")
 
         if target_field in mesh_score_layer.fields().names():
             field_values = [
@@ -371,7 +397,7 @@ class HMGDataClassifier:
             y_values = sorted(field_values)
             x_values = list(range(1, len(field_values) + 1))
         else:
-            error_message = f"対象レイヤに{target_field}の属性がありません。"
+            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
             QMessageBox.information(None, "エラー", error_message)
             return
 
@@ -466,7 +492,10 @@ class HMGDataClassifier:
         tcg_rank_fields_added = []
         for hazard in self.hazards:
             # get mesh_score target field name
-            target_field = getattr(constants, f"field_{hazard}")
+            if hazard == "custom":
+                target_field = self.main.custom_hmg_fieldname.text()
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
 
             if target_field in mesh_score_layer.fields().names():
                 field_values = [

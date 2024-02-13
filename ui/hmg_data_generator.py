@@ -21,6 +21,7 @@ from converter.seamless2hmg import (
     seamless2hmg_earthquake,
     seamless2hmg_slope,
     seamless2hmg_refuge,
+    seamless2hmg_custom,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -593,6 +594,49 @@ class HMGDataGenerator:
             if refuge_lyr:
                 mesh_lyr = seamless2hmg_refuge(refuge_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_refuge)
+
+        # 追加災害
+        custom_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(),
+            self.main.custom_hmg_seamlessfilename.text() + ".gpkg",
+        )
+        print(custom_path)
+        if os.path.exists(custom_path):
+            custom_lyr = QgsVectorLayer(
+                custom_path,
+                "hazard_custom_merged",
+                "ogr",
+            )
+            custom_field = self.main.custom_hmg_fieldname.text()
+            if custom_lyr and custom_field != "":
+                # checked calculation method
+                if self.main.btn_custom_calc_sumsurf.isChecked():
+                    calc_method = "sum_surfaces"
+                if self.main.btn_custom_calc_sumsurfvalue.isChecked():
+                    calc_method = "sum_surfaces_values"
+                if self.main.btn_custom_calc_centroidmean.isChecked():
+                    calc_method = "centroid_value_mean"
+                if self.main.btn_custom_calc_countpoints.isChecked():
+                    calc_method = "count_points"
+
+                mesh_lyr = seamless2hmg_custom(
+                    custom_lyr,
+                    mesh_lyr,
+                    waku_lyr,
+                    custom_field,
+                    calc_method,
+                    self.main.custom_seamless_fieldname.text(),
+                    self.main.custom_inland_adjust_checkbox.isChecked(),
+                )
+                hmg_processed.append(custom_field)
+                # change name of classification class
+                self.main.label_classif_title_custom.setText(
+                    self.main.custom_hmg_seamlessfilename.text()
+                )
+            elif custom_lyr and custom_field == "":
+                message = "追加災害の属性名が記入されてません。"
+                QMessageBox.information(None, "お知らせ", message)
+                return
 
         # if no seamless data , message it
         if len(hmg_processed) == 0:

@@ -280,7 +280,155 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox_custom">
+         <property name="title">
+          <string>追加災害</string>
+         </property>
+         <property name="maximumSize">
+                <size>
+                    <width>1000</width>
+                    <height>180</height>
+                </size>
+                </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>フォルダー先</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QgsFileWidget" name="QgsFileWidget_custom">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>シームレスファイル名</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="custom_seamless_filename"/>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>.gpkg</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>ファイル形式</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_custom_type_shp">
+           <property name="text">
+            <string>SHP</string>
+           </property>
+           <attribute name="buttonGroup">
+              <string notr="true">buttonGroup_custom_format</string>
+            </attribute>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_custom_type_csv">
+           <property name="text">
+            <string>CSV</string>
+           </property>
+           <attribute name="buttonGroup">
+              <string notr="true">buttonGroup_custom_format</string>
+            </attribute>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string>Xカラム</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="custom_csv_column_x"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_8">
+           <property name="text">
+            <string>Yカラム</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="custom_csv_column_y">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>ジオメトリ</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_custom_geom_polygon">
+         <property name="text">
+          <string>ポリゴン</string>
+         </property>
+         <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_custom_geom</string>
+          </attribute>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_custom_geom_point">
+         <property name="text">
+          <string>ポイント</string>
+         </property>
+         <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_custom_geom</string>
+          </attribute>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+        </widget>
+       </item>
+       <item row="45" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <spacer name="horizontalSpacer_6">
@@ -687,7 +835,7 @@
        <string>HMGデータ作成</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="0" column="0">
+        <item row="2" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QPushButton" name="pushButton_processhmg">
@@ -714,9 +862,147 @@
             </item>
             </layout>
         </item>
+        <item row="0" column="0">
+        <widget class="QGroupBox" name="groupBox_custom">
+         <property name="title">
+          <string>追加災害</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_customhmg">
+         <item row="0" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>シームレスファイル名</string>
+            </property>
+           </widget>
+          </item>
+        <item row="0" column="1">
+             <widget class="QLineEdit" name="custom_hmg_seamlessfilename">
+            <property name="geometry">
+                <rect>
+                <x>40</x>
+                <y>220</y>
+                <width>30</width>
+                <height>27</height>
+                </rect>
+            </property>
+            <property name="maximumSize">
+                <size>
+                    <width>160</width>
+                    <height>100</height>
+                </size>
+                </property>
+            </widget>
+            </item>
+          <item row="0" column="2">
+            <widget class="QLabel" name="label_7">
+            <property name="text">
+              <string>.gpkg</string>
+            </property>
+            </widget>
+          </item>
+          <!-- inland adjustment option -->
+          <item row="0" column="3">
+          <widget class="QCheckBox" name="custom_inland_adjust_checkbox">
+            <property name="text">
+            <string>陸域調整</string>
+            </property>
+          </widget>
+          </item>
+          <!-- Custom calculation type -->
+          <item row="0" column="5">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>HMG属性名</string>
+            </property>
+           </widget>
+          </item>
+        <item row="0" column="6">
+             <widget class="QLineEdit" name="custom_hmg_fieldname">
+            <property name="geometry">
+                <rect>
+                <x>40</x>
+                <y>220</y>
+                <width>30</width>
+                <height>27</height>
+                </rect>
+            </property>
+            <property name="maxLength">
+              <number>8</number>
+            </property>
+            </widget>
+            </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>HMG計算方法</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+              <widget class="QRadioButton" name="btn_custom_calc_sumsurf">
+              <property name="text">
+                <string>面積の合計</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom_calc</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="1" column="4">
+              <widget class="QRadioButton" name="btn_custom_calc_sumsurfvalue">
+              <property name="text">
+                <string>面積×値の合計</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom_calc</string>
+              </attribute>
+              </widget>
+            </item> 
+            <item row="1" column="2">
+              <widget class="QRadioButton" name="btn_custom_calc_centroidmean">
+              <property name="text">
+                <string>中心点の値の平均</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom_calc</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="1" column="1">
+              <widget class="QRadioButton" name="btn_custom_calc_countpoints">
+              <property name="text">
+                <string>ポイント個数の合計</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom_calc</string>
+              </attribute>
+              </widget>
+            </item>  
+            <item row="1" column="5">
+           <widget class="QLabel" name="label_12">
+            <property name="text">
+             <string>シームレス値属性名</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="6">
+             <widget class="QLineEdit" name="custom_seamless_fieldname">
+            <property name="geometry">
+                <rect>
+                <x>40</x>
+                <y>220</y>
+                <width>30</width>
+                <height>27</height>
+                </rect>
+            </property>
 
+            </widget>
+            </item>
+         </layout>
+         </widget>
+        </item>
         <!-- CLASSIFICATION -->
-        <item row="2" column="0">
+        <item row="3" column="0">
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
           <string>分類設定</string>
@@ -3373,12 +3659,277 @@
                </property>
               </widget>
             </item>
+          <!-- Classification 11: custom  -->
+            <item row="20" column="0">
+              <widget class="QLabel" name="label_classif_title_custom">
+               <property name="text">
+                <string>追加災害</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+         <!-- classification methods -->
+            <item row="20" column="2">
+              <widget class="QRadioButton" name="radiobutton_stdev_custom">
+              <property name="text">
+                <string>標準偏差</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="20" column="5">
+              <widget class="QRadioButton" name="radiobutton_tcg_custom">
+              <property name="text">
+                <string>TCG方式</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom</string>
+              </attribute>
+              </widget>
+            </item>
+            <item row="20" column="8">
+              <widget class="QRadioButton" name="radiobutton_custom_custom">
+              <property name="text">
+                <string>カスタム</string>
+              </property>
+              <attribute name="buttonGroup">
+                <string notr="true">buttonGroup_custom</string>
+              </attribute>
+              </widget>
+            </item>
+            <!-- breaks numbers -->
+            <item row="20" column="10">
+              <widget class="QLabel" name="label_classif_max_custom">
+               <property name="text">
+                <string>最大</string>
+               </property>
+              </widget>
+            </item>
+            <item row="20" column="11">
+              <widget class="QSpinBox" name="classif_nbmax_custom"/>
+             </item>
+             <!-- active button -->
+            <item row="20" column="14">
+             <widget class="QPushButton" name="classif_showgraph_custom">
+              <property name="text">
+               <string>画像作成</string>
+              </property>
+             </widget>
+            </item>
+            <!-- breaks line -->
+            <item row="21" column="0">
+              <widget class="QLabel" name="label_classif_values_custom">
+               <property name="text">
+                <string>比率</string>
+               </property>
+               <property name="maximumSize">
+                <size>
+                    <width>60</width>
+                    <height>100</height>
+                </size>
+                </property>
+              </widget>
+            </item>
+            <item row="21" column="1">
+              <widget class="QLabel" name="label_percent_n0_custom">
+               <property name="text">
+                <string>0</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="2">
+              <widget class="QDoubleSpinBox" name="classif_percent_0_custom"/>
+             </item>
+            <item row="21" column="3">
+              <widget class="QLabel" name="label_percent_0_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="4">
+              <widget class="QLabel" name="label_percent_n1_custom">
+               <property name="text">
+                <string>1</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="5">
+              <widget class="QDoubleSpinBox" name="classif_percent_1_custom"/>
+             </item>
+            <item row="21" column="6">
+              <widget class="QLabel" name="label_percent_1_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="7">
+              <widget class="QLabel" name="label_percent_n2_custom">
+               <property name="text">
+                <string>2</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="8">
+              <widget class="QDoubleSpinBox" name="classif_percent_2_custom"/>
+             </item>
+            <item row="21" column="9">
+              <widget class="QLabel" name="label_percent_2_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="10">
+              <widget class="QLabel" name="label_percent_n3_custom">
+               <property name="text">
+                <string>3</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="11">
+              <widget class="QDoubleSpinBox" name="classif_percent_3_custom"/>
+             </item>
+            <item row="21" column="12">
+              <widget class="QLabel" name="label_percent_3_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="13">
+              <widget class="QLabel" name="label_percent_n4_custom">
+               <property name="text">
+                <string>4</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="14">
+              <widget class="QDoubleSpinBox" name="classif_percent_4_custom"/>
+             </item>
+            <item row="21" column="15">
+              <widget class="QLabel" name="label_percent_4_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="16">
+              <widget class="QLabel" name="label_percent_n5_custom">
+               <property name="text">
+                <string>5</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="17">
+              <widget class="QDoubleSpinBox" name="classif_percent_5_custom"/>
+             </item>
+            <item row="21" column="18">
+              <widget class="QLabel" name="label_percent_5_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="19">
+              <widget class="QLabel" name="label_percent_n6_custom">
+               <property name="text">
+                <string>6</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="20">
+              <widget class="QDoubleSpinBox" name="classif_percent_6_custom"/>
+             </item>
+            <item row="21" column="21">
+              <widget class="QLabel" name="label_percent_6_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="22">
+              <widget class="QLabel" name="label_percent_n7_custom">
+               <property name="text">
+                <string>7</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="23">
+              <widget class="QDoubleSpinBox" name="classif_percent_7_custom"/>
+             </item>
+            <item row="21" column="24">
+              <widget class="QLabel" name="label_percent_7_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="25">
+              <widget class="QLabel" name="label_percent_n8_custom">
+               <property name="text">
+                <string>8</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="26">
+              <widget class="QDoubleSpinBox" name="classif_percent_8_custom"/>
+             </item>
+            <item row="21" column="27">
+              <widget class="QLabel" name="label_percent_8_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="28">
+              <widget class="QLabel" name="label_percent_n9_custom">
+               <property name="text">
+                <string>9</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="29">
+              <widget class="QDoubleSpinBox" name="classif_percent_9_custom"/>
+             </item>
+            <item row="21" column="30">
+              <widget class="QLabel" name="label_percent_9_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="31">
+              <widget class="QLabel" name="label_percent_n10_custom">
+               <property name="text">
+                <string>10</string>
+               </property>
+              </widget>
+            </item>
+            <item row="21" column="32">
+              <widget class="QDoubleSpinBox" name="classif_percent_10_custom"/>
+             </item>
+            <item row="21" column="33">
+              <widget class="QLabel" name="label_percent_10_custom">
+               <property name="text">
+                <string>%</string>
+               </property>
+              </widget>
+            </item>
           </layout>
 
         </widget>
        </item> 
        <!-- LAUNCH / CLOSE BUTTONS -->
-         <item row="3" column="0">
+         <item row="4" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
          <item>
           <spacer name="horizontalSpacer_3">
