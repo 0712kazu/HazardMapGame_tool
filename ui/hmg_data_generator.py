@@ -369,6 +369,13 @@ class HMGDataGenerator:
             )
 
         elif self.main.radioButton_point.isChecked():
+            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "中心点が指定していません。",
+                )
+                return
             # 中心点座標からメッシュを作成する
             mesh_lyr = generate_mesh_point(
                 float(self.main.lineEdit_x.text()),
@@ -417,6 +424,25 @@ class HMGDataGenerator:
         QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
 
     def process_hmg(self):
+        # error handling
+        if not self.main.FileWidgetSeamlessDir.filePath():
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "シームレスフォルダーが設定していません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        if not QgsProject.instance().mapLayersByName("waku"):
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "「waku」レイヤがありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        if not QgsProject.instance().mapLayersByName("mesh"):
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "「mesh」レイヤがありません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
         # list of hazard processed
         hmg_processed = []
 
@@ -568,10 +594,17 @@ class HMGDataGenerator:
                 mesh_lyr = seamless2hmg_refuge(refuge_lyr, mesh_lyr, waku_lyr)
                 hmg_processed.append(constants.field_refuge)
 
+        # if no seamless data , message it
+        if len(hmg_processed) == 0:
+            message = "Seamless dataがありませんでした。"
+            QMessageBox.information(None, "完了", message)
+            return
+
         # Add hazard layers to map
         for hazard in hmg_processed:
             hazard_lyr = mesh_lyr.clone()
             add_to_map(hazard_lyr, f"mesh_score_{hazard}")
+
         # Add final mesh score (all) layer to map
         add_to_map(mesh_lyr, "mesh_score")
 

@@ -204,6 +204,10 @@ class HMGDataClassifier:
         self._set_percentages_stdev("refuge")
 
     def _set_percentages_stdev(self, hazard: str):
+        if not self.main.mesh_score_layer_combobox.currentLayer():
+            error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
         # get mesh_score target field name
         target_field = getattr(constants, f"field_{hazard}")
@@ -262,6 +266,10 @@ class HMGDataClassifier:
         self._set_percentages_tcg("refuge")
 
     def _set_percentages_tcg(self, hazard):
+        if not self.main.mesh_score_layer_combobox.currentLayer():
+            error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
@@ -347,6 +355,10 @@ class HMGDataClassifier:
                 layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
 
     def _set_chart(self, chart_title: str, hazard: str) -> None:
+        if not self.main.mesh_score_layer_combobox.currentLayer():
+            error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # get mesh_score target field name
@@ -493,6 +505,10 @@ class HMGDataClassifier:
         return tcg_rank_fields_added
 
     def classify_data_tcg(self):
+        if not self.main.mesh_score_layer_combobox.currentLayer():
+            error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
         mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
         # list of added fields
@@ -516,4 +532,6 @@ class HMGDataClassifier:
         message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
         for tcg_field in tcg_rank_fields_added:
             message += f"{tcg_field}\n"
+        if len(tcg_rank_fields_added) == 0:
+            message += "なし"
         QMessageBox.information(None, "完了", message)
