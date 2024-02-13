@@ -4,7 +4,8 @@ import subprocess
 import zipfile
 from osgeo import ogr
 
-from qgis.core import QgsProject, QgsVectorLayer
+from qgis.core import QgsProject, QgsVectorLayer, QgsCoordinateReferenceSystem
+from qgis.utils import iface
 
 
 def unpack_zips_from_dir(target_dir: str, extracted_dir: str):
@@ -99,3 +100,9 @@ def add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
     layer.setName(layer_name)
     QgsProject.instance().addMapLayer(layer)
     layer.setOpacity(0.5)
+
+
+def set_map_canvas_to_webmercator():
+    webmercator_crs = QgsCoordinateReferenceSystem("EPSG:3857")
+    if iface.mapCanvas().mapSettings().destinationCrs() != webmercator_crs:
+        iface.mapCanvas().setDestinationCrs(webmercator_crs)
