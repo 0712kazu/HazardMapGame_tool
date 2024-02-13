@@ -493,7 +493,7 @@ def seamless2hmg_kosui(
         "native:creategrid",
         {
             "TYPE": 0,
-            "EXTENT": mesh_lyr.extent(),
+            "EXTENT": waku_lyr.extent(),
             "HSPACING": 20,
             "VSPACING": 20,
             "HOVERLAY": 0,
@@ -508,17 +508,23 @@ def seamless2hmg_kosui(
     for lyr in [kozui_standard, pnt_lyr_raw, mesh_lyr]:
         processing.run("native:createspatialindex", {"INPUT": lyr})
 
-    # Get only points intersects flood polygons
-    pnt_lyr = processing.run(
-        "native:clip",
-        {
-            "INPUT": pnt_lyr_raw,
-            "OVERLAY": kozui_cliped_fixed,
-            "OUTPUT": "TEMPORARY_OUTPUT",
-        },
-    )["OUTPUT"]
+    # Get only points intersects flood polygons to improve speed
+    try:
+        pnt_lyr = processing.run(
+            "native:clip",
+            {
+                "INPUT": pnt_lyr_raw,
+                "OVERLAY": kozui_cliped_fixed,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
 
-    processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
+        processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
+
+    except Exception as e:
+        # When "Could not create the combined clip geometry" error occursm skip it
+        print(f"pnt clip error: {e}")
+        pnt_lyr = pnt_lyr_raw
 
     print("ポイントに最大浸水深を結合...")
     max_dep_pnt = processing.run(

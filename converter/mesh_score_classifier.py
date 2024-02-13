@@ -196,6 +196,8 @@ def get_tcg_ranks(values: list) -> list:
     # ②リスク値の小さい順番に、マスの順番を決める　※リスク値が同じ場合には、同じ順番を付ける
     # ③順番にリスク値を合計して、トータル合計で割って、そこまでのリスク割合を求める
     tcg_classes = []
+    tcg_values_dict = {}  # use dict to have unique rank for same value
+
     total_values = 0.0
     for value in values:
         total_values += value
@@ -217,12 +219,19 @@ def get_tcg_ranks(values: list) -> list:
         elif risk_rate <= 0.9:
             rank = 5
         else:  # >0.9
-            if tcg_classes[-1] == 5:
+            if tcg_classes[-1] >= 5:
                 rank = 6
             else:
                 rank = 5
         tcg_classes.append(rank)
-    return tcg_classes
+        tcg_values_dict[value] = rank  # will have the upper rank for same value
+
+    # make revised tcg values with same rank for same values
+    tcg_ranks = []
+    for value in values:
+        tcg_ranks.append(tcg_values_dict[value])
+
+    return tcg_ranks
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
