@@ -16,6 +16,8 @@ import os
 import datetime
 import constants
 
+from utils import get_layer_orientation
+
 
 class PDFExporter:
     def __init__(self, main: QDialog):
@@ -26,15 +28,43 @@ class PDFExporter:
         self.main.pushButton_export_pdf.clicked.connect(self._on_export_pdf_clicked)
 
     def _on_export_pdf_clicked(self):
-        # TODO STEP 1: check fields t_hazard. If not, message it
+        # import basemaps
+        # basemap: gsi standard
+        # basemap: gsi coloured elevation
+        # basemap: gsi hillshade
 
+        # nake labels
+        # label Mesh ID
+        # Label Score
+        # Label Hinan #0070ff
+
+        # HMG01_ans : gsi standard only, refuges score and number, total hazard score
+        # HNG02_base : gsi standard and hillshade
+        # HMG02_base2: gsi standard
+        # HMG03_tile: gsi_standard, turn off mesh id label
+        # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
+        # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
+        # HMG06_g04: slope symbol & score, gsi_standard 50%
+        # HMG07_b01: quake symbol & score, gsi_standard 50%
+
+        # HMG08_a30 (DO NOT YET): tornado symbol & score, gsi_standard 50%
+
+        # HMG09_a31 : flood symbol & score, gsi_standard 50%
+        # HMG10_a33 : sediment symbol & score, gsi_standard 50%
+        # HMG40_a40 : tsunami OR surge symbol & score, gsi_standard 50%
+
+        # HMG12_a46 (DO NOT YET): landslip symbol & score, gsi_standard 50%
+        # HMG13_a48 (DO NOT YET): disaster symbol & score, gsi_standard 50%
+
+        self._export_pdf("hmgtest")
         for hazard in constants.hazards_ui_names:
+            print(hazard)
+            # TODO STEP 1: check fields t_hazard. If not, message it
             # TODO STEP 2: for each hazards, symbolize
-            # TODO STEP 3: export pdf
-            self._export_pdf(hazard)
+            # TODO STEP 3: export pdf WITH FIELD NAME or in Japanese
         return
 
-    def _export_pdf(self, hazard_name):
+    def _export_pdf(self, map_title):
         project = QgsProject.instance()
 
         if QgsProject.instance().mapLayersByName("waku"):
@@ -43,11 +73,12 @@ class PDFExporter:
             error_message = "「waku」レイヤが足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
-        # TODO : determine landscape or portrait from waku
-        orientation = "landscape"
+        # determine landscape or portrait from waku
+        orientation = get_layer_orientation(waku_lyr)
         layout_template_path = os.path.join(
             os.path.dirname(__file__),
             constants.data_dir,
+            "layouts",
             f"tcg_layout_a1_{orientation}.qpt",
         )
 
@@ -70,19 +101,20 @@ class PDFExporter:
         map_item.zoomToExtent(waku_lyr.extent())
 
         # retrieve text object and set text
-        txt_title_item = layout.itemById("map_title")
-        txt_title_item.setText(self.main.pdf_map_title.text())
+        # txt_title_item = layout.itemById("map_title")
+        # txt_title_item.setText(self.main.pdf_map_title.text())
 
-        txt_hazard_item = layout.itemById("hazard_name")
-        txt_hazard_item.setText(hazard_name)
+        # txt_hazard_item = layout.itemById("map_title")
+        # txt_hazard_item.setText(map_title)
 
-        txt_year_item = layout.itemById("copyright_year")
-        txt_year_item.setText(str(datetime.date.today().year))
+        txt_year_item = layout.itemById("copyright")
+        copyright_txt = f"ハザードマップゲーム {str(datetime.date.today().year)} 東京カートグラフィック株式会社"
+        txt_year_item.setText(copyright_txt)
 
         # Export PDF
         exporter = QgsLayoutExporter(layout)
         pdf_path = os.path.join(
             self.main.pdf_folder.filePath(),
-            f"{self.main.pdf_map_title.text()}_{hazard_name}.pdf",
+            f"{self.main.pdf_map_title.text()}_{map_title}.pdf",
         )
         exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())

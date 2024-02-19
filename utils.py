@@ -106,3 +106,12 @@ def set_map_canvas_to_webmercator():
     webmercator_crs = QgsCoordinateReferenceSystem("EPSG:3857")
     if iface.mapCanvas().mapSettings().destinationCrs() != webmercator_crs:
         iface.mapCanvas().setDestinationCrs(webmercator_crs)
+
+
+def get_layer_orientation(layer: QgsVectorLayer) -> str:
+    """return layer extent orientation"""
+    rectangle = layer.extent()
+    if rectangle.width() >= rectangle.height():
+        return "landscape"
+    else:
+        return "portrait"
