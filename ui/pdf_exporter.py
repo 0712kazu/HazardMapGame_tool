@@ -13,10 +13,12 @@ from PyQt5.QtXml import QDomDocument
 from qgis.utils import iface
 
 import os
+import processing
 import datetime
 import constants
 
-from utils import get_layer_orientation, add_xyz_basemap_layer
+from converter.hmg2pdf import label_pt_mesh
+from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map
 
 
 class PDFExporter:
@@ -47,10 +49,59 @@ class PDFExporter:
             "basemap_hillshade",
         )
 
+        # expressions reference
+        # expression = (
+        #     f'CASE WHEN "{target_field}" >= {constants.MAP_MIN_VALUE}'
+        #     f" THEN ROUND(\"{target_field}\",{label_precision}) ELSE '' END"
+        # )
+
         # make labels
+        mesh_lyr = QgsProject.instance().mapLayersByName("mesh_score")[0]
         # label Mesh ID
+        label_mesh_id = processing.run(
+            "native:pointonsurface",
+            {
+                "INPUT": mesh_lyr,
+                "ALL_PARTS": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_mesh_id, "label_id")
+        label_pt_mesh(label_mesh_id, '"id"', "#686868")
+
         # Label Score
+        # get the distance to translate label from mesh center (1/5 mesh distance)
+        mesh_feature = next(mesh_lyr.getFeatures())
+        mesh_edge_size = mesh_feature.geometry().length() / 4
+        dy = mesh_edge_size / 5
+        label_mesh_score = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": label_mesh_id,
+                "DELTA_X": 0,
+                "DELTA_Y": -dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_mesh_score, "label_score")
+        label_pt_mesh(label_mesh_score, '"t_tsunami"', "#ff0000")
+
         # Label Hinan #0070ff
+        label_hinan_count = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": label_mesh_id,
+                "DELTA_X": 0,
+                "DELTA_Y": dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_hinan_count, "label_refuge")
+        label_pt_mesh(label_hinan_count, '"refuge"', "#0070ff")
 
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score
         # HNG02_base : gsi standard and hillshade
