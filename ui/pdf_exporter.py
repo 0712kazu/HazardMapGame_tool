@@ -31,7 +31,7 @@ from converter.hmg2pdf import (
     set_hmg10_sediments,
     set_hmg11_tsunami,
 )
-from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map
+from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map, find
 
 
 class PDFExporter:
@@ -75,16 +75,45 @@ class PDFExporter:
         )
 
         # basemap: gsi coloured elevation
-        add_xyz_basemap_layer(
+        gsi_relief_lyr = add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png",
             "basemap_relief",
         )
 
         # basemap: gsi hillshade
-        add_xyz_basemap_layer(
+        gsi_hillshade_lyr = add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png",
             "basemap_hillshade",
         )
+
+        # 変更前のレイヤー順序を取得
+        root = iface.layerTreeCanvasBridge().rootGroup()
+        root.setCustomLayerOrder(root.layerOrder())
+        root.setHasCustomLayerOrder(True)
+        order = list(
+            map(
+                lambda list: list.layer(),
+                QgsProject.instance().layerTreeRoot().findLayers(),
+            )
+        )
+
+        # 地理院標準レイヤーを最後面に
+        std_idx = find(order, gsi_std_lyr)
+        if std_idx > -1:
+            order.insert(-1, order.pop(std_idx))
+
+        # 地理院色別標高レイヤーを最後面に
+        rlf_idx = find(order, gsi_relief_lyr)
+        if std_idx > -1:
+            order.insert(-1, order.pop(rlf_idx))
+
+        # 地理院陰影レイヤーを最後面に
+        hls_idx = find(order, gsi_hillshade_lyr)
+        if hls_idx > -1:
+            order.insert(-1, order.pop(hls_idx))
+
+        # 変更されたレイヤー順序を適用
+        root.setCustomLayerOrder(order)
 
         # expressions reference
         # expression = (
@@ -123,7 +152,7 @@ class PDFExporter:
             },
         )["OUTPUT"]
         add_to_map(label_mesh_score, "label_score")
-        label_pt_mesh(label_mesh_score, '"t_refuge"', "#ff0000")
+        label_pt_mesh(label_mesh_score, '"t_refuge"', "red")
         label_mesh_score.setOpacity(0)
 
         # Label Hinan #0070ff
@@ -151,7 +180,7 @@ class PDFExporter:
         self._export_pdf("HMG02_base")
 
         # HMG02_base2: gsi standard and hillshade
-        set_hmg02_base_hillshade(gsi_std_lyr)
+        set_hmg02_base_hillshade(gsi_std_lyr, gsi_hillshade_lyr)
         self._export_pdf("HMG02_base2")
 
         # HMG03_tile: gsi_standard, turn off mesh id label

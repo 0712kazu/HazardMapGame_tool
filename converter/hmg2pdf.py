@@ -13,6 +13,7 @@ from qgis.core import (
 from qgis.PyQt.QtGui import QFont, QColor
 
 import constants
+from utils import add_xyz_basemap_layer
 
 
 def label_pt_mesh(layer: QgsVectorLayer, expression: str, color: str) -> None:
@@ -89,7 +90,9 @@ def set_hmg02_base(gsi_std_lyr: QgsVectorLayer) -> None:
     gsi_std_lyr.setOpacity(1)
 
 
-def set_hmg02_base_hillshade(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg02_base_hillshade(
+    gsi_std_lyr: QgsVectorLayer, gsi_hillshade_lyr: QgsVectorLayer
+) -> None:
     # HMG02_base2: gsi standard and hillshade
     _display_only_layers(
         [
@@ -102,6 +105,7 @@ def set_hmg02_base_hillshade(gsi_std_lyr: QgsVectorLayer) -> None:
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    gsi_hillshade_lyr.setOpacity(0.5)
 
 
 def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
