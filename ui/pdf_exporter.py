@@ -16,7 +16,7 @@ import os
 import datetime
 import constants
 
-from utils import get_layer_orientation
+from utils import get_layer_orientation, add_xyz_basemap_layer
 
 
 class PDFExporter:
@@ -30,10 +30,24 @@ class PDFExporter:
     def _on_export_pdf_clicked(self):
         # import basemaps
         # basemap: gsi standard
-        # basemap: gsi coloured elevation
-        # basemap: gsi hillshade
+        gsi_std_lyr = add_xyz_basemap_layer(
+            "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
+            "basemap_standard",
+        )
 
-        # nake labels
+        # basemap: gsi coloured elevation
+        gsi_relief_lyr = add_xyz_basemap_layer(
+            "https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png",
+            "basemap_relief",
+        )
+
+        # basemap: gsi hillshade
+        gsi_hillshade_lyr = add_xyz_basemap_layer(
+            "https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png",
+            "basemap_hillshade",
+        )
+
+        # make labels
         # label Mesh ID
         # Label Score
         # Label Hinan #0070ff
@@ -42,8 +56,10 @@ class PDFExporter:
         # HNG02_base : gsi standard and hillshade
         # HMG02_base2: gsi standard
         # HMG03_tile: gsi_standard, turn off mesh id label
+
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
+
         # HMG06_g04: slope symbol & score, gsi_standard 50%
         # HMG07_b01: quake symbol & score, gsi_standard 50%
 
@@ -51,7 +67,7 @@ class PDFExporter:
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
-        # HMG40_a40 : tsunami OR surge symbol & score, gsi_standard 50%
+        # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
 
         # HMG12_a46 (DO NOT YET): landslip symbol & score, gsi_standard 50%
         # HMG13_a48 (DO NOT YET): disaster symbol & score, gsi_standard 50%

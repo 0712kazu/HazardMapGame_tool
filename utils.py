@@ -4,7 +4,13 @@ import subprocess
 import zipfile
 from osgeo import ogr
 
-from qgis.core import QgsProject, QgsVectorLayer, QgsCoordinateReferenceSystem
+from qgis.core import (
+    QgsProject,
+    QgsVectorLayer,
+    QgsCoordinateReferenceSystem,
+    QgsRasterLayer,
+    QgsLayerTreeLayer,
+)
 from qgis.utils import iface
 
 
@@ -115,3 +121,12 @@ def get_layer_orientation(layer: QgsVectorLayer) -> str:
         return "landscape"
     else:
         return "portrait"
+
+
+def add_xyz_basemap_layer(url: str, layer_name: str) -> QgsRasterLayer:
+    """add a xyz layer from URL, at the bottom of layer tree"""
+    url = f"type=xyz&url={url}"
+    xyz_layer = QgsRasterLayer(url, layer_name, "wms")
+    root = QgsProject.instance().layerTreeRoot()
+    root.insertChildNode(-1, QgsLayerTreeLayer(xyz_layer))
+    return xyz_layer
