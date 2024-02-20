@@ -30,6 +30,30 @@ class PDFExporter:
         self.main.pushButton_export_pdf.clicked.connect(self._on_export_pdf_clicked)
 
     def _on_export_pdf_clicked(self):
+        # set style to mesh_score and waku
+        if QgsProject.instance().mapLayersByName("waku"):
+            waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
+        else:
+            error_message = "「waku」レイヤが足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        if QgsProject.instance().mapLayersByName("mesh_score"):
+            mesh_lyr = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        else:
+            error_message = "「mesh_score」レイヤが足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        qml_file = os.path.join(
+            os.path.dirname(__file__),
+            constants.data_dir,
+            "styles",
+            "mesh_pdf_style.qml",
+        )
+        mesh_lyr.loadNamedStyle(qml_file)
+        waku_lyr.loadNamedStyle(qml_file)
+
         # import basemaps
         # basemap: gsi standard
         gsi_std_lyr = add_xyz_basemap_layer(
@@ -56,7 +80,6 @@ class PDFExporter:
         # )
 
         # make labels
-        mesh_lyr = QgsProject.instance().mapLayersByName("mesh_score")[0]
         # label Mesh ID
         label_mesh_id = processing.run(
             "native:pointonsurface",
@@ -68,6 +91,7 @@ class PDFExporter:
         )["OUTPUT"]
         add_to_map(label_mesh_id, "label_id")
         label_pt_mesh(label_mesh_id, '"id"', "#686868")
+        label_mesh_id.setOpacity(0)
 
         # Label Score
         # get the distance to translate label from mesh center (1/5 mesh distance)
@@ -87,6 +111,7 @@ class PDFExporter:
         )["OUTPUT"]
         add_to_map(label_mesh_score, "label_score")
         label_pt_mesh(label_mesh_score, '"t_tsunami"', "#ff0000")
+        label_mesh_score.setOpacity(0)
 
         # Label Hinan #0070ff
         label_hinan_count = processing.run(
@@ -102,8 +127,10 @@ class PDFExporter:
         )["OUTPUT"]
         add_to_map(label_hinan_count, "label_refuge")
         label_pt_mesh(label_hinan_count, '"refuge"', "#0070ff")
+        label_hinan_count.setOpacity(0)
 
-        # HMG01_ans : gsi standard only, refuges score and number, total hazard score
+        # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
+        # to do , symbolize total score
         # HNG02_base : gsi standard and hillshade
         # HMG02_base2: gsi standard
         # HMG03_tile: gsi_standard, turn off mesh id label
