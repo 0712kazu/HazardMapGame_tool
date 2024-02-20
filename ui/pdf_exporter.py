@@ -17,7 +17,20 @@ import processing
 import datetime
 import constants
 
-from converter.hmg2pdf import label_pt_mesh
+from converter.hmg2pdf import (
+    label_pt_mesh,
+    set_hmg01_ans_refuge,
+    set_hmg02_base,
+    set_hmg02_base_hillshade,
+    set_hmg03_tile,
+    set_hmg04_use_landuse,
+    set_hmg05_elev,
+    set_hmg06_slope,
+    set_hmg07_earthquake,
+    set_hmg09_flood,
+    set_hmg10_sediments,
+    set_hmg11_tsunami,
+)
 from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map
 
 
@@ -62,13 +75,13 @@ class PDFExporter:
         )
 
         # basemap: gsi coloured elevation
-        gsi_relief_lyr = add_xyz_basemap_layer(
+        add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png",
             "basemap_relief",
         )
 
         # basemap: gsi hillshade
-        gsi_hillshade_lyr = add_xyz_basemap_layer(
+        add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png",
             "basemap_hillshade",
         )
@@ -110,7 +123,7 @@ class PDFExporter:
             },
         )["OUTPUT"]
         add_to_map(label_mesh_score, "label_score")
-        label_pt_mesh(label_mesh_score, '"t_tsunami"', "#ff0000")
+        label_pt_mesh(label_mesh_score, '"t_refuge"', "#ff0000")
         label_mesh_score.setOpacity(0)
 
         # Label Hinan #0070ff
@@ -130,32 +143,54 @@ class PDFExporter:
         label_hinan_count.setOpacity(0)
 
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
-        # to do , symbolize total score
-        # HNG02_base : gsi standard and hillshade
-        # HMG02_base2: gsi standard
+        set_hmg01_ans_refuge(gsi_std_lyr)
+        self._export_pdf("HMG01_ans")
+
+        # HNG02_base : gsi standard
+        set_hmg02_base(gsi_std_lyr)
+        self._export_pdf("HMG02_base")
+
+        # HMG02_base2: gsi standard and hillshade
+        set_hmg02_base_hillshade(gsi_std_lyr)
+        self._export_pdf("HMG02_base2")
+
         # HMG03_tile: gsi_standard, turn off mesh id label
+        set_hmg03_tile(gsi_std_lyr)
+        self._export_pdf("HMG03_tile")
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
+        set_hmg04_use_landuse(gsi_std_lyr)
+        self._export_pdf("HMG04_use")
+
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
+        set_hmg05_elev(gsi_std_lyr)
+        self._export_pdf("HMG05_elev")
 
         # HMG06_g04: slope symbol & score, gsi_standard 50%
+        set_hmg06_slope(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG06_g04")
+
         # HMG07_b01: quake symbol & score, gsi_standard 50%
+        set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG07_b01")
 
         # HMG08_a30 (DO NOT YET): tornado symbol & score, gsi_standard 50%
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
+        set_hmg09_flood(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG09_a31")
+
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
+        set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG10_a33")
+
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
+        set_hmg11_tsunami(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG11_a40")
 
         # HMG12_a46 (DO NOT YET): landslip symbol & score, gsi_standard 50%
         # HMG13_a48 (DO NOT YET): disaster symbol & score, gsi_standard 50%
 
-        self._export_pdf("hmgtest")
-        for hazard in constants.hazards_ui_names:
-            print(hazard)
-            # TODO STEP 1: check fields t_hazard. If not, message it
-            # TODO STEP 2: for each hazards, symbolize
-            # TODO STEP 3: export pdf WITH FIELD NAME or in Japanese
         return
 
     def _export_pdf(self, map_title):
