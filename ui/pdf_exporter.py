@@ -27,9 +27,12 @@ from converter.hmg2pdf import (
     set_hmg05_elev,
     set_hmg06_slope,
     set_hmg07_earthquake,
+    set_hmg08_tornado,
     set_hmg09_flood,
     set_hmg10_sediments,
     set_hmg11_tsunami,
+    set_hmg12_landslip,
+    set_hmg13_disaster,
 )
 from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map, find
 
@@ -203,7 +206,9 @@ class PDFExporter:
         set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
         self._export_pdf("HMG07_b01")
 
-        # HMG08_a30 (DO NOT YET): tornado symbol & score, gsi_standard 50%
+        # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
+        set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG08_a30")
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         set_hmg09_flood(gsi_std_lyr, label_mesh_score)
@@ -217,8 +222,13 @@ class PDFExporter:
         set_hmg11_tsunami(gsi_std_lyr, label_mesh_score)
         self._export_pdf("HMG11_a40")
 
-        # HMG12_a46 (DO NOT YET): landslip symbol & score, gsi_standard 50%
-        # HMG13_a48 (DO NOT YET): disaster symbol & score, gsi_standard 50%
+        # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
+        set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG12_a46")
+
+        # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
+        set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
+        self._export_pdf("HMG13_a48")
 
         return
 

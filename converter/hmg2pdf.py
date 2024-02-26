@@ -200,6 +200,30 @@ def set_hmg07_earthquake(
     gsi_std_lyr.setOpacity(0.5)
 
 
+def set_hmg08_tornado(
+    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+) -> None:
+    # HMG08_a30: tornado symbol & score, gsi_standard 50%
+
+    # label_score
+    # TODO : check target field
+    label_pt_mesh(label_mesh_score, f'"t_{constants.field_tornado}"', "red")
+
+    # TODO : symbolyze seamless earthquake opacity 0.5
+    _display_only_layers(
+        [
+            "waku",
+            "mesh_score",
+            "basemap_standard",
+            f"seamless_{constants.field_tornado}",
+            "label_id",
+            "label_score",
+        ]
+    )
+
+    gsi_std_lyr.setOpacity(0.5)
+
+
 def set_hmg09_flood(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
@@ -269,6 +293,56 @@ def set_hmg11_tsunami(
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
+            "label_id",
+            "label_score",
+        ]
+    )
+
+    gsi_std_lyr.setOpacity(0.5)
+
+
+def set_hmg12_landslip(
+    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+) -> None:
+    # HMG12_a46 : landslip symbol & score, gsi_standard 50%
+
+    # label_score
+    # TODO : check target field
+
+    label_pt_mesh(label_mesh_score, f'"t_{constants.field_jisuberi}"', "red")
+
+    # TODO : symbolyze seamless sediments opacity 0.5
+    _display_only_layers(
+        [
+            "waku",
+            "mesh_score",
+            "basemap_standard",
+            f"seamless_{constants.field_jisuberi}",
+            "label_id",
+            "label_score",
+        ]
+    )
+
+    gsi_std_lyr.setOpacity(0.5)
+
+
+def set_hmg13_disaster(
+    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+) -> None:
+    # HMG13_a48 : disaster symbol & score, gsi_standard 50%
+
+    # label_score
+    # TODO : check target field
+
+    label_pt_mesh(label_mesh_score, f'"t_{constants.field_saigai}"', "red")
+
+    # TODO : symbolyze seamless sediments opacity 0.5
+    _display_only_layers(
+        [
+            "waku",
+            "mesh_score",
+            "basemap_standard",
+            f"seamless_{constants.field_saigai}",
             "label_id",
             "label_score",
         ]
