@@ -6,12 +6,14 @@ from qgis.core import (
     QgsClassificationRange,
     QgsFillSymbol,
     QgsRendererRange,
+    QgsGradientColorRamp,
     QgsSingleSymbolRenderer,
     QgsSymbol,
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsVectorLayerSimpleLabeling,
     QgsTextBufferSettings,
+    QgsClassificationJenks,
 )
 from qgis.PyQt.QtGui import QFont, QColor
 
@@ -78,6 +80,32 @@ def _symbolize_fill_layer_simple(
 ) -> None:
     symbol = _add_simple_fill_symbol_renderer(fill_color, stroke_color)
     renderer = QgsSingleSymbolRenderer(symbol)
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
+
+
+def _symbolize_fill_layer_graduated(
+    layer: QgsVectorLayer,
+    cntField: str,
+    nbClasses: int,
+    start_color: str,
+    end_color: str,
+) -> None:
+    properties = {
+        "outline_style": "no",
+        "outline_color": "000000",
+        "outline_width": 0,
+    }
+
+    renderer = QgsGraduatedSymbolRenderer()
+    renderer.setSourceSymbol(QgsFillSymbol.createSimple(properties))
+    renderer.setClassAttribute(cntField)
+    renderer.setClassificationMethod(QgsClassificationJenks())
+    renderer.setSourceColorRamp(
+        QgsGradientColorRamp(QColor(start_color), QColor(end_color))
+    )
+    renderer.setGraduatedMethod(QgsGraduatedSymbolRenderer.GraduatedColor)
+    renderer.updateClasses(layer, nbClasses)
     layer.setRenderer(renderer)
     layer.triggerRepaint()
 
@@ -179,18 +207,28 @@ def set_hmg06_slope(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG06_g04: slope symbol & score, gsi_standard 50%
-
+    target_field = constants.field_slope
     # label_score
     # TODO : check target field
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_slope}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
-    # TODO : symbolyze seamless slope opacity 0.5
+    # symbolyze seamless slope opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+        _symbolize_fill_layer_graduated(seamless_lyr, "angle", 10, "#ffffd4", "#993404")
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_slope}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -203,18 +241,30 @@ def set_hmg07_earthquake(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG07_b01: quake symbol & score, gsi_standard 50%
-
+    target_field = constants.field_earthquake
     # label_score
     # TODO : check target field
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_earthquake}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
-    # TODO : symbolyze seamless earthquake opacity 0.5
+    # symbolyze seamless earthquake opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+        _symbolize_fill_layer_graduated(
+            seamless_lyr, "T30_I60_PS", 10, "#f1eef6", "#980043"
+        )
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_earthquake}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -227,20 +277,20 @@ def set_hmg08_tornado(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG08_a30: tornado symbol & score, gsi_standard 50%
-
+    target_field = constants.field_tornado
     # label_score
     # TODO : check target field
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_tornado}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless tornado opacity 0.5
-    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_tornado}"):
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
         seamless_lyr = QgsProject.instance().mapLayersByName(
-            f"seamless_{constants.field_tornado}"
+            f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
         seamless_lyr.setOpacity(0.5)
     else:
-        error_message = f"「seamless_{constants.field_sediments}」レイヤが足りません。"
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
 
     _display_only_layers(
@@ -248,7 +298,7 @@ def set_hmg08_tornado(
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_tornado}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -261,19 +311,36 @@ def set_hmg09_flood(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG09_a31 : flood symbol & score, gsi_standard 50%
-
+    target_field = constants.field_kozui
     # label_score
     # TODO : check target field
 
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_kozui}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
-    # TODO : symbolyze seamless earthquake opacity 0.5
+    # symbolyze seamless flood opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+        _symbolize_fill_layer_graduated(
+            # To do : Create depth max field
+            seamless_lyr,
+            "A31_105",
+            10,
+            "#fcfbfd",
+            "#3f007d",
+        )
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_kozui}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -286,21 +353,21 @@ def set_hmg10_sediments(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG10_a33 : sediment symbol & score, gsi_standard 50%
-
+    target_field = constants.field_sediments
     # label_score
     # TODO : check target field
 
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_sediments}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless sediments opacity 0.5
-    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_sediments}"):
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
         seamless_lyr = QgsProject.instance().mapLayersByName(
-            f"seamless_{constants.field_sediments}"
+            f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
         seamless_lyr.setOpacity(0.5)
     else:
-        error_message = f"「seamless_{constants.field_sediments}」レイヤが足りません。"
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
 
     _display_only_layers(
@@ -308,7 +375,7 @@ def set_hmg10_sediments(
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_sediments}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -329,7 +396,19 @@ def set_hmg11_tsunami(
 
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
-    # TODO : symbolyze seamless tsunami or surge opacity 0.5
+    # symbolyze seamless tsunami or surge opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+        _symbolize_fill_layer_graduated(
+            seamless_lyr, f"h_{target_field}", 10, "#fcfbfd", "#3f007d"
+        )
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
@@ -348,21 +427,21 @@ def set_hmg12_landslip(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG12_a46 : landslip symbol & score, gsi_standard 50%
-
+    target_field = constants.field_jisuberi
     # label_score
     # TODO : check target field
 
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_jisuberi}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless landslip opacity 0.5
-    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_jisuberi}"):
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
         seamless_lyr = QgsProject.instance().mapLayersByName(
-            f"seamless_{constants.field_jisuberi}"
+            f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
         seamless_lyr.setOpacity(0.5)
     else:
-        error_message = f"「seamless_{constants.field_jisuberi}」レイヤが足りません。"
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
 
     _display_only_layers(
@@ -370,7 +449,7 @@ def set_hmg12_landslip(
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_jisuberi}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
@@ -383,21 +462,21 @@ def set_hmg13_disaster(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG13_a48 : disaster symbol & score, gsi_standard 50%
-
+    target_field = constants.field_saigai
     # label_score
     # TODO : check target field
 
-    label_pt_mesh(label_mesh_score, f'"t_{constants.field_saigai}"', "red")
+    label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless disaster opacity 0.5
-    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_saigai}"):
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
         seamless_lyr = QgsProject.instance().mapLayersByName(
-            f"seamless_{constants.field_saigai}"
+            f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
         seamless_lyr.setOpacity(0.5)
     else:
-        error_message = f"「seamless_{constants.field_saigai}」レイヤが足りません。"
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
 
     _display_only_layers(
@@ -405,7 +484,7 @@ def set_hmg13_disaster(
             "waku",
             "mesh_score",
             "basemap_standard",
-            f"seamless_{constants.field_saigai}",
+            f"seamless_{target_field}",
             "label_id",
             "label_score",
         ]
