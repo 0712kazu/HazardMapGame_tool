@@ -1,3 +1,4 @@
+from PyQt5.QtWidgets import QMessageBox
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
@@ -5,6 +6,8 @@ from qgis.core import (
     QgsClassificationRange,
     QgsFillSymbol,
     QgsRendererRange,
+    QgsSingleSymbolRenderer,
+    QgsSymbol,
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsVectorLayerSimpleLabeling,
@@ -57,6 +60,26 @@ def _display_only_layers(layers: list) -> None:
             layer_tree.findLayer(layer.id()).setItemVisibilityChecked(True)
         else:
             layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
+
+
+def _add_simple_fill_symbol_renderer(fill_color: str, stroke_color: str) -> QgsSymbol:
+    properties = {
+        "color": fill_color,
+        "outline_color": stroke_color,
+        "outline_width": 0.1,
+    }
+
+    symbol = QgsFillSymbol.createSimple(properties)
+    return symbol
+
+
+def _symbolize_fill_layer_simple(
+    layer: QgsVectorLayer, fill_color: str, stroke_color: str
+) -> None:
+    symbol = _add_simple_fill_symbol_renderer(fill_color, stroke_color)
+    renderer = QgsSingleSymbolRenderer(symbol)
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
 
 
 def set_hmg01_ans_refuge(gsi_std_lyr: QgsVectorLayer) -> None:
@@ -209,7 +232,17 @@ def set_hmg08_tornado(
     # TODO : check target field
     label_pt_mesh(label_mesh_score, f'"t_{constants.field_tornado}"', "red")
 
-    # TODO : symbolyze seamless earthquake opacity 0.5
+    # symbolyze seamless tornado opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_tornado}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_tornado}"
+        )[0]
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{constants.field_sediments}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
@@ -259,7 +292,17 @@ def set_hmg10_sediments(
 
     label_pt_mesh(label_mesh_score, f'"t_{constants.field_sediments}"', "red")
 
-    # TODO : symbolyze seamless sediments opacity 0.5
+    # symbolyze seamless sediments opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_sediments}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_sediments}"
+        )[0]
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{constants.field_sediments}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
@@ -311,7 +354,17 @@ def set_hmg12_landslip(
 
     label_pt_mesh(label_mesh_score, f'"t_{constants.field_jisuberi}"', "red")
 
-    # TODO : symbolyze seamless sediments opacity 0.5
+    # symbolyze seamless landslip opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_jisuberi}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_jisuberi}"
+        )[0]
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{constants.field_jisuberi}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
@@ -336,7 +389,17 @@ def set_hmg13_disaster(
 
     label_pt_mesh(label_mesh_score, f'"t_{constants.field_saigai}"', "red")
 
-    # TODO : symbolyze seamless sediments opacity 0.5
+    # symbolyze seamless disaster opacity 0.5
+    if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_saigai}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{constants.field_saigai}"
+        )[0]
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        seamless_lyr.setOpacity(0.5)
+    else:
+        error_message = f"「seamless_{constants.field_saigai}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
