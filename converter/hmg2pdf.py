@@ -323,11 +323,10 @@ def set_hmg09_flood(
             f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_graduated(
-            # To do : Create depth max field
             seamless_lyr,
-            "A31_105",
+            "depth",
             10,
-            "#fcfbfd",
+            "#aa95c8",
             "#3f007d",
         )
         seamless_lyr.setOpacity(0.5)
@@ -402,7 +401,7 @@ def set_hmg11_tsunami(
             f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_graduated(
-            seamless_lyr, f"h_{target_field}", 10, "#fcfbfd", "#3f007d"
+            seamless_lyr, f"h_{target_field}", 10, "#e0e0ee", "#3f007d"
         )
         seamless_lyr.setOpacity(0.5)
     else:

@@ -457,7 +457,7 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    add_to_map(kozui_cliped_fixed, f"seamless_{constants.field_kozui}")
+    add_to_map(kozui_cliped_fixed, f"tmp_clipped_{constants.field_kozui}")
 
     # 標準化
     kozui_standard = processing.run(
@@ -487,6 +487,8 @@ def seamless2hmg_kosui(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    add_to_map(kozui_standard, f"seamless_{constants.field_kozui}")
 
     # 20m間隔ポイントを作成
     pnt_lyr_raw = processing.run(
@@ -593,6 +595,10 @@ def seamless2hmg_kosui(
     # remove temporary layers
     tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
     QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
+    tmp_flood_cliped_lyr = QgsProject.instance().mapLayersByName(
+        f"tmp_clipped_{constants.field_kozui}"
+    )[0]
+    QgsProject.instance().removeMapLayer(tmp_flood_cliped_lyr.id())
 
     return inland_calculated_mesh
 
