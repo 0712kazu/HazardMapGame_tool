@@ -14,8 +14,10 @@ from qgis.core import (
     QgsVectorLayerSimpleLabeling,
     QgsTextBufferSettings,
     QgsClassificationJenks,
+    QgsCategorizedSymbolRenderer,
+    QgsRendererCategory,
 )
-from qgis.PyQt.QtGui import QFont, QColor
+from qgis.PyQt.QtGui import QFont, QColor, QPainter
 
 import constants
 from utils import add_xyz_basemap_layer
@@ -64,21 +66,26 @@ def _display_only_layers(layers: list) -> None:
             layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
 
 
-def _add_simple_fill_symbol_renderer(fill_color: str, stroke_color: str) -> QgsSymbol:
+def _add_simple_fill_symbol_renderer(
+    fill_color: str, stroke_color: str, stroke_width: float
+) -> QgsSymbol:
     properties = {
         "color": fill_color,
         "outline_color": stroke_color,
-        "outline_width": 0.1,
+        "outline_width": stroke_width,
     }
+
+    if stroke_width == 0:
+        properties["outline_style"] = "no"
 
     symbol = QgsFillSymbol.createSimple(properties)
     return symbol
 
 
 def _symbolize_fill_layer_simple(
-    layer: QgsVectorLayer, fill_color: str, stroke_color: str
+    layer: QgsVectorLayer, fill_color: str, stroke_color: str, stroke_width: float
 ) -> None:
-    symbol = _add_simple_fill_symbol_renderer(fill_color, stroke_color)
+    symbol = _add_simple_fill_symbol_renderer(fill_color, stroke_color, stroke_width)
     renderer = QgsSingleSymbolRenderer(symbol)
     layer.setRenderer(renderer)
     layer.triggerRepaint()
@@ -106,6 +113,27 @@ def _symbolize_fill_layer_graduated(
     )
     renderer.setGraduatedMethod(QgsGraduatedSymbolRenderer.GraduatedColor)
     renderer.updateClasses(layer, nbClasses)
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
+
+
+def _symbolize_fill_layer_categorized(
+    layer: QgsVectorLayer, category_field: str, category_mapping: list
+) -> None:
+    categories = []
+
+    for cat in category_mapping:
+        stroke_width = 0
+        symbol = _add_simple_fill_symbol_renderer(
+            cat["fill_color"], cat["stroke_color"], stroke_width
+        )
+        category = QgsRendererCategory(
+            cat["value"],
+            symbol,
+            cat["value"],
+        )
+        categories.append(category)
+    renderer = QgsCategorizedSymbolRenderer(category_field, categories)
     layer.setRenderer(renderer)
     layer.triggerRepaint()
 
@@ -172,9 +200,39 @@ def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
     gsi_std_lyr.setOpacity(1)
 
 
-def set_hmg04_use_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
     # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
-    # TODO: create seamless_landuse and symbolize
+    target_field = constants.field_landuse
+
+    # symbolize seamless_landuse by category and symbolize as 0.7 opacity
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+
+        category_mapping = [
+            {"value": "0100", "fill_color": "#ffee7f", "stroke_color": "#000000"},
+            {"value": "0200", "fill_color": "#fbf8da", "stroke_color": "#000000"},
+            {"value": "0500", "fill_color": "#86e192", "stroke_color": "#000000"},
+            {"value": "0600", "fill_color": "#fec37f", "stroke_color": "#000000"},
+            {"value": "0700", "fill_color": "#ff7f7f", "stroke_color": "#000000"},
+            {"value": "0901", "fill_color": "#c4c4c4", "stroke_color": "#000000"},
+            {"value": "0902", "fill_color": "#e3e3e3", "stroke_color": "#000000"},
+            {"value": "1000", "fill_color": "#d2b98d", "stroke_color": "#000000"},
+            {"value": "1100", "fill_color": "#7b8aff", "stroke_color": "#000000"},
+            {"value": "1400", "fill_color": "#fcf8e2", "stroke_color": "#000000"},
+            {"value": "1500", "fill_color": "#8feaff", "stroke_color": "#000000"},
+            {"value": "1600", "fill_color": "#9bfd9b", "stroke_color": "#000000"},
+            {"value": "0000", "fill_color": "#e8e8e8", "stroke_color": "#000000"},
+        ]
+
+        _symbolize_fill_layer_categorized(seamless_lyr, "土地利用種", category_mapping)
+        seamless_lyr.setOpacity(0.7)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
@@ -219,6 +277,7 @@ def set_hmg06_slope(
         )[0]
         _symbolize_fill_layer_graduated(seamless_lyr, "angle", 10, "#ffffd4", "#993404")
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -255,6 +314,7 @@ def set_hmg07_earthquake(
             seamless_lyr, "T30_I60_PS", 10, "#f1eef6", "#980043"
         )
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -287,8 +347,9 @@ def set_hmg08_tornado(
         seamless_lyr = QgsProject.instance().mapLayersByName(
             f"seamless_{target_field}"
         )[0]
-        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868", 0.1)
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -330,6 +391,7 @@ def set_hmg09_flood(
             "#3f007d",
         )
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -363,8 +425,9 @@ def set_hmg10_sediments(
         seamless_lyr = QgsProject.instance().mapLayersByName(
             f"seamless_{target_field}"
         )[0]
-        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868", 0.1)
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -404,6 +467,7 @@ def set_hmg11_tsunami(
             seamless_lyr, f"h_{target_field}", 10, "#e0e0ee", "#3f007d"
         )
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -437,8 +501,9 @@ def set_hmg12_landslip(
         seamless_lyr = QgsProject.instance().mapLayersByName(
             f"seamless_{target_field}"
         )[0]
-        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868", 0.1)
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
@@ -472,8 +537,9 @@ def set_hmg13_disaster(
         seamless_lyr = QgsProject.instance().mapLayersByName(
             f"seamless_{target_field}"
         )[0]
-        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868")
+        _symbolize_fill_layer_simple(seamless_lyr, "#FF0000", "#686868", 0.1)
         seamless_lyr.setOpacity(0.5)
+        seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         error_message = f"「seamless_{target_field}」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)

@@ -23,7 +23,7 @@ from converter.hmg2pdf import (
     set_hmg02_base,
     set_hmg02_base_hillshade,
     set_hmg03_tile,
-    set_hmg04_use_landuse,
+    set_hmg04_landuse,
     set_hmg05_elev,
     set_hmg06_slope,
     set_hmg07_earthquake,
@@ -191,7 +191,7 @@ class PDFExporter:
         self._export_pdf("HMG03_tile")
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
-        set_hmg04_use_landuse(gsi_std_lyr)
+        set_hmg04_landuse(gsi_std_lyr)
         self._export_pdf("HMG04_use")
 
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
