@@ -198,6 +198,18 @@ class PDFExporter:
         if hls_idx > -1:
             order.insert(-1, order.pop(hls_idx))
 
+        # 避難施設所レイヤーを最前面に
+        if QgsProject.instance().mapLayersByName(f"seamless_{constants.field_refuge}"):
+            hinan_lyr = QgsProject.instance().mapLayersByName(
+                f"seamless_{constants.field_refuge}"
+            )[0]
+            hinan_idx = find(order, hinan_lyr)
+            if hinan_idx > -1:
+                order.insert(0, order.pop(hinan_idx))
+        else:
+            error_message = f"「seamless_{constants.field_refuge}」レイヤが足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+
         # 変更されたレイヤー順序を適用
         root.setCustomLayerOrder(order)
 

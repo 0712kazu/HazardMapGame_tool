@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QVariant
 from qgis.core import (
@@ -11,6 +13,7 @@ from qgis.core import (
     QgsSymbol,
     QgsFillSymbol,
     QgsMarkerSymbol,
+    QgsSvgMarkerSymbolLayer,
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsVectorLayerSimpleLabeling,
@@ -115,6 +118,26 @@ def _symbolize_fill_layer_simple(
     layer.triggerRepaint()
 
 
+def _symbolize_point_layer_simple(
+    layer: QgsVectorLayer,
+    shape: str,
+    color: str,
+    stroke_color: str,
+    stroke_width: float,
+    size_mm: float,
+) -> None:
+    symbol = _add_point_symbol_renderer(
+        shape,
+        color,
+        stroke_color,
+        stroke_width,
+        size_mm,
+    )
+    renderer = QgsSingleSymbolRenderer(symbol)
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
+
+
 def _symbolize_fill_layer_graduated(
     layer: QgsVectorLayer,
     cntField: str,
@@ -190,7 +213,6 @@ def set_hmg01_ans_refuge(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
-    target_field = constants.field_refuge
 
     # symbolize total score with label_id layer
     label_pt_mesh(label_mesh_score, f'"{constants.field_hazard_score}"', "red")
@@ -233,7 +255,32 @@ def set_hmg01_ans_refuge(
         error_message = "「hazard_score」レイヤが足りません。"
         QMessageBox.information(None, "エラー", error_message)
 
-    # TO DO , symbolize POINT refuge
+    # symbolize POINT refuge
+    target_field = constants.field_refuge
+    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
+        seamless_lyr = QgsProject.instance().mapLayersByName(
+            f"seamless_{target_field}"
+        )[0]
+
+        svg_path = os.path.join(
+            os.path.dirname(__file__),
+            constants.data_dir,
+            "styles",
+            "refuge_marker.svg",
+        )
+        symbol = QgsSymbol.defaultSymbol(seamless_lyr.geometryType())
+        symbol_layer = QgsSvgMarkerSymbolLayer(svg_path)
+        symbol_layer.setSize(5)  # in mm
+        symbol.changeSymbolLayer(0, symbol_layer)
+        renderer = QgsSingleSymbolRenderer(symbol)
+        seamless_lyr.setRenderer(renderer)
+        seamless_lyr.triggerRepaint()
+        seamless_lyr.setOpacity(1)
+
+    else:
+        error_message = f"「seamless_{target_field}」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
     _display_only_layers(
         [
             "waku",
