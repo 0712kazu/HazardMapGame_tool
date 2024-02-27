@@ -33,6 +33,7 @@ from converter.hmg2pdf import (
     set_hmg11_tsunami,
     set_hmg12_landslip,
     set_hmg13_disaster,
+    calculate_hazard_rank,
 )
 from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map, find
 
@@ -118,18 +119,36 @@ class PDFExporter:
         # 変更されたレイヤー順序を適用
         root.setCustomLayerOrder(order)
 
-        # expressions reference
-        # expression = (
-        #     f'CASE WHEN "{target_field}" >= {constants.MAP_MIN_VALUE}'
-        #     f" THEN ROUND(\"{target_field}\",{label_precision}) ELSE '' END"
-        # )
+        # calculate total hazard score
+        hazard_score_field = "hazard"
+        rank_score_field = "rank"
+
+        # TODO : customize score formula
+        score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
+        scored_hazard = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD_NAME": hazard_score_field,
+                "FIELD_TYPE": 1,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": score_formula,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # calculate rank formula
+        ranked_hazard = calculate_hazard_rank(
+            scored_hazard, hazard_score_field, rank_score_field
+        )
 
         # make labels
         # label Mesh ID
         label_mesh_id = processing.run(
             "native:pointonsurface",
             {
-                "INPUT": mesh_lyr,
+                "INPUT": ranked_hazard,
                 "ALL_PARTS": False,
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
@@ -170,12 +189,13 @@ class PDFExporter:
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
-        add_to_map(label_hinan_count, "label_refuge")
-        label_pt_mesh(label_hinan_count, '"refuge"', "#0070ff")
+        add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
+        label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
         label_hinan_count.setOpacity(0)
 
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
-        set_hmg01_ans_refuge(gsi_std_lyr)
+
+        set_hmg01_ans_refuge(gsi_std_lyr, scored_hazard)
         self._export_pdf("HMG01_ans")
 
         # HNG02_base : gsi standard

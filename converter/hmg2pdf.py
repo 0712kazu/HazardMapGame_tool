@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import QVariant
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
@@ -16,6 +17,8 @@ from qgis.core import (
     QgsClassificationJenks,
     QgsCategorizedSymbolRenderer,
     QgsRendererCategory,
+    QgsField,
+    QgsFeatureRequest,
 )
 from qgis.PyQt.QtGui import QFont, QColor, QPainter
 
@@ -138,18 +141,22 @@ def _symbolize_fill_layer_categorized(
     layer.triggerRepaint()
 
 
-def set_hmg01_ans_refuge(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg01_ans_refuge(
+    gsi_std_lyr: QgsVectorLayer, hazard_lyr: QgsVectorLayer
+) -> None:
     # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
+    target_field = constants.field_refuge
     # TO DO , symbolize total score with label_id layer
     _display_only_layers(
         [
             "waku",
             "mesh_score",
             "basemap_standard",
-            "label_refuge",
+            f"label_{target_field}",
             "label_id",
             "label_score",
-            "seamless_refuge",
+            f"seamless_{target_field}",
+            "hazard_score",
         ]
     )
     gsi_std_lyr.setOpacity(1)
@@ -556,3 +563,79 @@ def set_hmg13_disaster(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+
+
+def calculate_hazard_rank(
+    scored_hazard_lyr: QgsVectorLayer, hazard_score_field: str, rank_score_field: str
+) -> QgsVectorLayer:
+    field_values = [
+        feature[hazard_score_field] for feature in scored_hazard_lyr.getFeatures()
+    ]
+    values = sorted(field_values)
+
+    # calculate rank list
+    hzd_ranks = _get_hzd_ranks(values)
+
+    # add hzd rank field if not exists
+    if rank_score_field not in scored_hazard_lyr.fields().names():
+        scored_hazard_lyr.startEditing()
+        scored_hazard_lyr.addAttribute(QgsField(rank_score_field, QVariant.Int))
+        scored_hazard_lyr.commitChanges()
+
+    # calculate hzd rank
+    scored_hazard_lyr.startEditing()
+    # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
+    # associated hzd_ranks : [0,1,2,4,4,6]
+    # Sort the features based on hazard score ascending order
+    request = QgsFeatureRequest().addOrderBy(hazard_score_field, ascending=True)
+    features = scored_hazard_lyr.getFeatures(request)
+
+    # Update the hzd rank field based on the sorting order
+    for index, feature in enumerate(features):
+        feature.setAttribute(rank_score_field, hzd_ranks[index])
+        scored_hazard_lyr.updateFeature(feature)
+
+    # Stop editing and save changes
+    scored_hazard_lyr.commitChanges()
+    return scored_hazard_lyr
+
+
+def _get_hzd_ranks(values: list) -> list:
+    """Return a list of Hazard rank associated to input values
+    input :[0,1,2,2,8,14]
+    output : [1,1,1,1,2,3]
+    全ての枠の合計点数を総合計を求める。
+    合計点数が小さい順に並べて、累計を求める。
+    累計が総合計の50%未満:黄色 (rank 1)
+    累計が総合計の50%以上80%未満:オレンジ (rank 2)
+    累計が総合計の80%以上:赤 (rank 3)
+    """
+    # ①全てのマスのリスク値のトータル合計を求める
+    sum_all_values = sum(values)
+
+    hzd_classes = []
+    hzd_values_dict = {}  # use dict to have unique rank for same value
+
+    total_values = 0.0
+    for value in values:
+        total_values += value
+        if sum_all_values == 0:
+            risk_rate = 0
+        else:
+            risk_rate = total_values / sum_all_values
+        # ランクを付けて行く
+        if risk_rate < 0.5:
+            rank = 1
+        elif risk_rate < 0.8:
+            rank = 2
+        else:  # >=0.8
+            rank = 3
+        hzd_classes.append(rank)
+        hzd_values_dict[value] = rank  # will have the upper rank for same value
+
+    # make revised hzd values with same rank for same values
+    hzd_ranks = []
+    for value in values:
+        hzd_ranks.append(hzd_values_dict[value])
+
+    return hzd_ranks
