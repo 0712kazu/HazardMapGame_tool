@@ -40,6 +40,9 @@ field_earthquake = "quake"
 field_slope = "slope"
 field_refuge = "refuge"
 field_landuse = "landuse"
+# total hazard score fields
+field_hazard_score = "hazard"
+field_hazard_rank = "rank"
 
 hazards_ui_names = [
     "tornado",

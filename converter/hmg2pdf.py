@@ -5,11 +5,12 @@ from qgis.core import (
     QgsProject,
     QgsGraduatedSymbolRenderer,
     QgsClassificationRange,
-    QgsFillSymbol,
     QgsRendererRange,
     QgsGradientColorRamp,
     QgsSingleSymbolRenderer,
     QgsSymbol,
+    QgsFillSymbol,
+    QgsMarkerSymbol,
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsVectorLayerSimpleLabeling,
@@ -85,6 +86,26 @@ def _add_simple_fill_symbol_renderer(
     return symbol
 
 
+def _add_point_symbol_renderer(
+    shape: str, color: str, stroke_color: str, stroke_width: float, size_mm: float
+) -> QgsSymbol:
+    properties = {
+        "name": shape,
+        "color": color,
+        "outline_color": stroke_color,
+        "outline_width": stroke_width,
+        "size": size_mm,
+        "size_unit": "MM",
+    }
+
+    if stroke_width == 0:
+        properties["outline_style"] = "no"
+
+    symbol = QgsMarkerSymbol.createSimple(properties)
+
+    return symbol
+
+
 def _symbolize_fill_layer_simple(
     layer: QgsVectorLayer, fill_color: str, stroke_color: str, stroke_width: float
 ) -> None:
@@ -141,12 +162,78 @@ def _symbolize_fill_layer_categorized(
     layer.triggerRepaint()
 
 
+def _symbolize_point_layer_categorized(
+    layer: QgsVectorLayer, category_field: str, category_mapping: list
+) -> None:
+    categories = []
+
+    for cat in category_mapping:
+        symbol = _add_point_symbol_renderer(
+            cat["shape"],
+            cat["color"],
+            cat["stroke_color"],
+            cat["stroke_width"],
+            cat["size_mm"],
+        )
+        category = QgsRendererCategory(
+            cat["value"],
+            symbol,
+            cat["value"],
+        )
+        categories.append(category)
+    renderer = QgsCategorizedSymbolRenderer(category_field, categories)
+    layer.setRenderer(renderer)
+    layer.triggerRepaint()
+
+
 def set_hmg01_ans_refuge(
-    gsi_std_lyr: QgsVectorLayer, hazard_lyr: QgsVectorLayer
+    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> None:
     # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
     target_field = constants.field_refuge
-    # TO DO , symbolize total score with label_id layer
+
+    # symbolize total score with label_id layer
+    label_pt_mesh(label_mesh_score, f'"{constants.field_hazard_score}"', "red")
+
+    if QgsProject.instance().mapLayersByName("hazard_score"):
+        hazard_score_lyr = QgsProject.instance().mapLayersByName("hazard_score")[0]
+        category_mapping = [
+            {
+                "value": "1",
+                "shape": "circle",
+                "size_mm": 40,
+                "color": "#fdf7c0",
+                "stroke_color": "#000000",
+                "stroke_width": 0,
+            },
+            {
+                "value": "2",
+                "shape": "circle",
+                "size_mm": 40,
+                "color": "#ffdf9b",
+                "stroke_color": "#000000",
+                "stroke_width": 0,
+            },
+            {
+                "value": "3",
+                "shape": "circle",
+                "size_mm": 40,
+                "color": "#fab6b2",
+                "stroke_color": "#000000",
+                "stroke_width": 0,
+            },
+        ]
+
+        _symbolize_point_layer_categorized(
+            hazard_score_lyr, constants.field_hazard_rank, category_mapping
+        )
+        hazard_score_lyr.setOpacity(1)
+        hazard_score_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
+    else:
+        error_message = "「hazard_score」レイヤが足りません。"
+        QMessageBox.information(None, "エラー", error_message)
+
+    # TO DO , symbolize POINT refuge
     _display_only_layers(
         [
             "waku",
@@ -245,7 +332,7 @@ def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
             "waku",
             "mesh_score",
             "basemap_standard",
-            "seamless_landuse",
+            f"seamless_{target_field}",
             "label_id",
         ]
     )
@@ -565,9 +652,9 @@ def set_hmg13_disaster(
     gsi_std_lyr.setOpacity(0.5)
 
 
-def calculate_hazard_rank(
-    scored_hazard_lyr: QgsVectorLayer, hazard_score_field: str, rank_score_field: str
-) -> QgsVectorLayer:
+def calculate_hazard_rank(scored_hazard_lyr: QgsVectorLayer) -> QgsVectorLayer:
+    hazard_score_field = constants.field_hazard_score
+    rank_score_field = constants.field_hazard_rank
     field_values = [
         feature[hazard_score_field] for feature in scored_hazard_lyr.getFeatures()
     ]

@@ -71,6 +71,88 @@ class PDFExporter:
         mesh_lyr.loadNamedStyle(qml_file)
         waku_lyr.loadNamedStyle(qml_file)
 
+        # calculate total hazard score
+        # TODO : customize score formula
+        score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
+        scored_hazard = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD_NAME": constants.field_hazard_score,
+                "FIELD_TYPE": 1,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": score_formula,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # calculate rank formula
+        ranked_hazard = calculate_hazard_rank(scored_hazard)
+
+        # create hazard score point layer from mesh centroid
+        hazard_lyr = processing.run(
+            "native:pointonsurface",
+            {
+                "INPUT": ranked_hazard,
+                "ALL_PARTS": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(hazard_lyr, "hazard_score")
+
+        # make labels
+        # label Mesh ID
+        label_mesh_id = processing.run(
+            "native:pointonsurface",
+            {
+                "INPUT": ranked_hazard,
+                "ALL_PARTS": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_mesh_id, "label_id")
+        label_pt_mesh(label_mesh_id, '"id"', "#686868")
+        label_mesh_id.setOpacity(0)
+
+        # Label Score
+        # get the distance to translate label from mesh center (1/5 mesh distance)
+        mesh_feature = next(mesh_lyr.getFeatures())
+        mesh_edge_size = mesh_feature.geometry().length() / 4
+        dy = mesh_edge_size / 5
+        label_mesh_score = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": label_mesh_id,
+                "DELTA_X": 0,
+                "DELTA_Y": -dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_mesh_score, "label_score")
+
+        label_pt_mesh(label_mesh_score, '"t_refuge"', "red")
+        label_mesh_score.setOpacity(0)
+
+        # Label Hinan #0070ff
+        label_hinan_count = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": label_mesh_id,
+                "DELTA_X": 0,
+                "DELTA_Y": dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
+
+        label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
+        label_hinan_count.setOpacity(0)
+
         # import basemaps
         # basemap: gsi standard
         gsi_std_lyr = add_xyz_basemap_layer(
@@ -119,83 +201,8 @@ class PDFExporter:
         # 変更されたレイヤー順序を適用
         root.setCustomLayerOrder(order)
 
-        # calculate total hazard score
-        hazard_score_field = "hazard"
-        rank_score_field = "rank"
-
-        # TODO : customize score formula
-        score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
-        scored_hazard = processing.run(
-            "native:fieldcalculator",
-            {
-                "INPUT": mesh_lyr,
-                "FIELD_NAME": hazard_score_field,
-                "FIELD_TYPE": 1,
-                "FIELD_LENGTH": 0,
-                "FIELD_PRECISION": 0,
-                "FORMULA": score_formula,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-
-        # calculate rank formula
-        ranked_hazard = calculate_hazard_rank(
-            scored_hazard, hazard_score_field, rank_score_field
-        )
-
-        # make labels
-        # label Mesh ID
-        label_mesh_id = processing.run(
-            "native:pointonsurface",
-            {
-                "INPUT": ranked_hazard,
-                "ALL_PARTS": False,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-        add_to_map(label_mesh_id, "label_id")
-        label_pt_mesh(label_mesh_id, '"id"', "#686868")
-        label_mesh_id.setOpacity(0)
-
-        # Label Score
-        # get the distance to translate label from mesh center (1/5 mesh distance)
-        mesh_feature = next(mesh_lyr.getFeatures())
-        mesh_edge_size = mesh_feature.geometry().length() / 4
-        dy = mesh_edge_size / 5
-        label_mesh_score = processing.run(
-            "native:translategeometry",
-            {
-                "INPUT": label_mesh_id,
-                "DELTA_X": 0,
-                "DELTA_Y": -dy,
-                "DELTA_Z": 0,
-                "DELTA_M": 0,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-        add_to_map(label_mesh_score, "label_score")
-        label_pt_mesh(label_mesh_score, '"t_refuge"', "red")
-        label_mesh_score.setOpacity(0)
-
-        # Label Hinan #0070ff
-        label_hinan_count = processing.run(
-            "native:translategeometry",
-            {
-                "INPUT": label_mesh_id,
-                "DELTA_X": 0,
-                "DELTA_Y": dy,
-                "DELTA_Z": 0,
-                "DELTA_M": 0,
-                "OUTPUT": "TEMPORARY_OUTPUT",
-            },
-        )["OUTPUT"]
-        add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
-        label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
-        label_hinan_count.setOpacity(0)
-
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
-
-        set_hmg01_ans_refuge(gsi_std_lyr, scored_hazard)
+        set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
         self._export_pdf("HMG01_ans")
 
         # HNG02_base : gsi standard
