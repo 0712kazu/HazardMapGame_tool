@@ -39,6 +39,7 @@ field_surge = "surge"
 field_earthquake = "quake"
 field_slope = "slope"
 field_refuge = "refuge"
+field_landuse = "landuse"
 
 hazards_ui_names = [
     "tornado",

@@ -1062,3 +1062,10 @@ def seamless2hmg_custom(
         mesh_custom = _adjust_inland_score(mesh_custom, custom_field)
 
     return mesh_custom
+
+
+def seamless2hmg_landuse(landuse_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer) -> None:
+    # clip seamless data only and add to map
+    landuse_clipped = _clip_with_valid_geometries(landuse_lyr, waku_lyr)
+
+    add_to_map(landuse_clipped, f"seamless_{constants.field_landuse}")

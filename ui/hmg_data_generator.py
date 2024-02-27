@@ -22,6 +22,7 @@ from converter.seamless2hmg import (
     seamless2hmg_slope,
     seamless2hmg_refuge,
     seamless2hmg_custom,
+    seamless2hmg_landuse,
 )
 from converter.mesh_maker import (
     generate_mesh_city,
@@ -449,6 +450,20 @@ class HMGDataGenerator:
 
         waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
         mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
+
+        # 土地利用
+        # clip data seamless data only
+        landuse_path = os.path.join(
+            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDUSE
+        )
+        if os.path.exists(landuse_path):
+            landuse_lyr = QgsVectorLayer(
+                landuse_path,
+                "landuse_merged",
+                "ogr",
+            )
+            if landuse_lyr:
+                seamless2hmg_landuse(landuse_lyr, waku_lyr)
 
         # 竜巻
         tornado_path = os.path.join(
