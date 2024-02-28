@@ -6,6 +6,8 @@ from qgis.core import (
     QgsPrintLayout,
     QgsReadWriteContext,
     QgsLayoutExporter,
+    QgsVectorFileWriter,
+    QgsCoordinateReferenceSystem,
 )
 from PyQt5.QtXml import QDomDocument
 
@@ -89,6 +91,24 @@ class PDFExporter:
 
         # calculate rank formula
         ranked_hazard = calculate_hazard_rank(scored_hazard)
+
+        # export mesh as shapefile
+        shp_file_name = f"{self.main.pdf_map_title.text()}_HMG_hazard_score.shp"
+        if self.main.pdf_map_title.text() == "":
+            # remove first "_" if title is empty
+            shp_file_name = shp_file_name[1:]
+
+        shp_path = os.path.join(
+            self.main.pdf_folder.filePath(),
+            shp_file_name,
+        )
+        QgsVectorFileWriter.writeAsVectorFormat(
+            ranked_hazard,
+            shp_path,
+            "UTF-8",
+            QgsCoordinateReferenceSystem("epsg:3857"),
+            "ESRI Shapefile",
+        )
 
         # create hazard score point layer from mesh centroid
         hazard_lyr = processing.run(
@@ -320,8 +340,14 @@ class PDFExporter:
 
         # Export PDF
         exporter = QgsLayoutExporter(layout)
+
+        pdf_file_name = f"{self.main.pdf_map_title.text()}_{map_title}.pdf"
+        if self.main.pdf_map_title.text() == "":
+            # remove first "_" if title is empty
+            pdf_file_name = pdf_file_name[1:]
+
         pdf_path = os.path.join(
             self.main.pdf_folder.filePath(),
-            f"{self.main.pdf_map_title.text()}_{map_title}.pdf",
+            pdf_file_name,
         )
         exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
