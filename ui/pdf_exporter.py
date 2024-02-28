@@ -300,7 +300,16 @@ class PDFExporter:
         self._export_pdf("HMG10_a33")
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
-        set_hmg11_tsunami(gsi_std_lyr, label_mesh_score)
+        if self.main.radioButton_hmg11_tsunami.isChecked():
+            hmg11_field = constants.field_tsunami
+        elif self.main.radioButton_hmg11_surge.isChecked():
+            hmg11_field = constants.field_surge
+        else:
+            error_message = "HMG11_a31の対象カラムが指定していません。\n"
+            error_message += "津波に指定します。"
+            QMessageBox.information(None, "エラー", error_message)
+
+        set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
         self._export_pdf("HMG11_a40")
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%

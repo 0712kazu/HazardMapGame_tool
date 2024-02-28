@@ -4198,6 +4198,9 @@
            <property name="text">
             <string>津波</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_hmg11_option</string>
+           </attribute>
           </widget>
          </item>
          <item row="11" column="2">
@@ -4205,6 +4208,9 @@
            <property name="text">
             <string>高潮 (東京都の場合)</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_hmg11_option</string>
+           </attribute>
           </widget>
          </item>
          <item row="12" column="0">
