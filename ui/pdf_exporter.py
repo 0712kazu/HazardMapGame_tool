@@ -47,6 +47,28 @@ class PDFExporter:
         self.canvas = iface.mapCanvas()
 
         self.main.pushButton_export_pdf.clicked.connect(self._on_export_pdf_clicked)
+        self.main.pushButton_cancel_pdf.clicked.connect(lambda: self.main.close())
+
+        # set default checkbox
+        default_pdf_to_exports = [
+            "hmg01",
+            "hmg02",
+            "hmg02b",
+            "hmg03",
+            "hmg04",
+            "hmg05",
+            "hmg06",
+            "hmg07",
+            "hmg09",
+            "hmg10",
+            "hmg11",
+        ]
+        for pdf_to_export in default_pdf_to_exports:
+            checkbox = getattr(self.main, f"checkBox_{pdf_to_export}")
+            checkbox.setChecked(True)
+
+        # set tsunami radiobutton as default for hmg11
+        self.main.radioButton_hmg11_tsunami.setChecked(True)
 
     def _on_export_pdf_clicked(self):
         # set style to mesh_score and waku
