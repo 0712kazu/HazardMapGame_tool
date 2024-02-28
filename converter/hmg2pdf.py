@@ -588,11 +588,9 @@ def set_hmg10_sediments(
 
 
 def set_hmg11_tsunami(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer, target_field: str
 ) -> None:
-    #  HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
-    # TO DO : check add tokyo surge data if tokyo to be added or not
-    target_field = constants.field_tsunami
+    #  HMG11_a40 : tsunami OR surge symbol (target_field) & score, gsi_standard 50%
 
     # label_score
     # TODO : check target field
