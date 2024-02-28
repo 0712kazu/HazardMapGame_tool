@@ -96,8 +96,6 @@ class PDFExporter:
         waku_lyr.loadNamedStyle(qml_file)
 
         # calculate total hazard score
-        # TODO : customize score formula
-        score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
         scored_hazard = processing.run(
             "native:fieldcalculator",
             {
@@ -106,7 +104,7 @@ class PDFExporter:
                 "FIELD_TYPE": 1,
                 "FIELD_LENGTH": 0,
                 "FIELD_PRECISION": 0,
-                "FORMULA": score_formula,
+                "FORMULA": self._make_hazard_scores_formula(),
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
@@ -256,71 +254,83 @@ class PDFExporter:
         root.setCustomLayerOrder(order)
 
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
-        set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG01_ans")
+        if self.main.checkBox_hmg01.isChecked():
+            set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG01_ans")
 
         # HNG02_base : gsi standard
-        set_hmg02_base(gsi_std_lyr)
-        self._export_pdf("HMG02_base")
+        if self.main.checkBox_hmg02.isChecked():
+            set_hmg02_base(gsi_std_lyr)
+            self._export_pdf("HMG02_base")
 
         # HMG02_base2: gsi standard and hillshade
-        set_hmg02_base_hillshade(gsi_std_lyr, gsi_hillshade_lyr)
-        self._export_pdf("HMG02_base2")
+        if self.main.checkBox_hmg02b.isChecked():
+            set_hmg02_base_hillshade(gsi_std_lyr, gsi_hillshade_lyr)
+            self._export_pdf("HMG02_base2")
 
         # HMG03_tile: gsi_standard, turn off mesh id label
-        set_hmg03_tile(gsi_std_lyr)
-        self._export_pdf("HMG03_tile")
+        if self.main.checkBox_hmg03.isChecked():
+            set_hmg03_tile(gsi_std_lyr)
+            self._export_pdf("HMG03_tile")
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
-        set_hmg04_landuse(gsi_std_lyr)
-        self._export_pdf("HMG04_use")
+        if self.main.checkBox_hmg04.isChecked():
+            set_hmg04_landuse(gsi_std_lyr)
+            self._export_pdf("HMG04_use")
 
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
-        set_hmg05_elev(gsi_std_lyr)
-        self._export_pdf("HMG05_elev")
+        if self.main.checkBox_hmg05.isChecked():
+            set_hmg05_elev(gsi_std_lyr)
+            self._export_pdf("HMG05_elev")
 
         # HMG06_g04: slope symbol & score, gsi_standard 50%
-        set_hmg06_slope(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG06_g04")
+        if self.main.checkBox_hmg06.isChecked():
+            set_hmg06_slope(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG06_g04")
 
         # HMG07_b01: quake symbol & score, gsi_standard 50%
-        set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG07_b01")
+        if self.main.checkBox_hmg07.isChecked():
+            set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG07_b01")
 
         # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
-        set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG08_a30")
+        if self.main.checkBox_hmg08.isChecked():
+            set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG08_a30")
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
-        set_hmg09_flood(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG09_a31")
+        if self.main.checkBox_hmg09.isChecked():
+            set_hmg09_flood(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG09_a31")
 
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
-        set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG10_a33")
+        if self.main.checkBox_hmg10.isChecked():
+            set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG10_a33")
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
-        if self.main.radioButton_hmg11_tsunami.isChecked():
-            hmg11_field = constants.field_tsunami
-        elif self.main.radioButton_hmg11_surge.isChecked():
-            hmg11_field = constants.field_surge
-        else:
-            error_message = "HMG11_a31の対象カラムが指定していません。\n"
-            error_message += "津波に指定します。"
-            QMessageBox.information(None, "エラー", error_message)
+        if self.main.checkBox_hmg11.isChecked():
+            if self.main.radioButton_hmg11_tsunami.isChecked():
+                hmg11_field = constants.field_tsunami
+            elif self.main.radioButton_hmg11_surge.isChecked():
+                hmg11_field = constants.field_surge
+            else:
+                error_message = "HMG11_a31の対象カラムが指定していません。\n"
+                error_message += "津波に指定します。"
+                QMessageBox.information(None, "エラー", error_message)
 
-        set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
-        self._export_pdf("HMG11_a40")
+            set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
+            self._export_pdf("HMG11_a40")
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
-        set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG12_a46")
+        if self.main.checkBox_hmg12.isChecked():
+            set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG12_a46")
 
         # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
-        set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
-        self._export_pdf("HMG13_a48")
-
-        return
+        if self.main.checkBox_hmg13.isChecked():
+            set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
+            self._export_pdf("HMG13_a48")
 
     def _export_pdf(self, map_title):
         project = QgsProject.instance()
@@ -382,3 +392,35 @@ class PDFExporter:
             pdf_file_name,
         )
         exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+
+    def _make_hazard_scores_formula(self):
+        target_fields = []
+        if self.main.checkBox_hmg06.isChecked():
+            target_fields.append(f"t_{constants.field_slope}")
+        if self.main.checkBox_hmg07.isChecked():
+            target_fields.append(f"t_{constants.field_earthquake}")
+        if self.main.checkBox_hmg08.isChecked():
+            target_fields.append(f"t_{constants.field_tornado}")
+        if self.main.checkBox_hmg09.isChecked():
+            target_fields.append(f"t_{constants.field_kozui}")
+        if self.main.checkBox_hmg10.isChecked():
+            target_fields.append(f"t_{constants.field_sediments}")
+        if (
+            self.main.checkBox_hmg11.isChecked()
+            and self.main.radioButton_hmg11_tsunami.isChecked()
+        ):
+            target_fields.append(f"t_{constants.field_tsunami}")
+        if (
+            self.main.checkBox_hmg11.isChecked()
+            and self.main.radioButton_hmg11_surge.isChecked()
+        ):
+            target_fields.append(f"t_{constants.field_surge}")
+        if self.main.checkBox_hmg12.isChecked():
+            target_fields.append(f"t_{constants.field_jisuberi}")
+        if self.main.checkBox_hmg13.isChecked():
+            target_fields.append(f"t_{constants.field_saigai}")
+
+        score_formula = '" + "'.join(target_fields)
+        print(score_formula)
+        # score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
+        return ' "' + score_formula + '" '
