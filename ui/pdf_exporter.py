@@ -441,6 +441,13 @@ class PDFExporter:
         if self.main.checkBox_hmg13.isChecked():
             target_fields.append(f"t_{constants.field_saigai}")
 
+        # handle if no hazard
+        if len(target_fields) == 0:
+            error_message = (
+                "選択した出力項目に災害地図が無いため、合計点数が0になります。"
+            )
+            QMessageBox.information(None, "お知らせ", error_message)
+            return "0"
         score_formula = '" + "'.join(target_fields)
 
         return ' "' + score_formula + '" '
