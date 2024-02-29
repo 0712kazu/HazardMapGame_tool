@@ -30,6 +30,9 @@ from converter.mesh_maker import (
     exclude_offshore_mesh,
     set_mesh_id,
 )
+
+from converter.mesh_score_classifier import calculate_tcg_score
+
 from utils import set_map_canvas_to_webmercator
 from maptool import POIMapTool
 
@@ -658,6 +661,9 @@ class HMGDataGenerator:
             message = "Seamless dataがありませんでした。"
             QMessageBox.information(None, "完了", message)
             return
+
+        # Calculate TCG score
+        calculate_tcg_score(mesh_lyr, self.main.custom_hmg_fieldname.text())
 
         # Add hazard layers to map
         for hazard in hmg_processed:

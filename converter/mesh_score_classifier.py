@@ -7,8 +7,11 @@ from qgis.core import (
     QgsPalLayerSettings,
     QgsTextFormat,
     QgsVectorLayerSimpleLabeling,
+    QgsField,
+    QgsFeatureRequest,
 )
 from qgis.PyQt.QtGui import QFont
+from PyQt5.QtCore import QVariant
 
 import numpy as np
 import constants
@@ -232,6 +235,55 @@ def get_tcg_ranks(values: list) -> list:
         tcg_ranks.append(tcg_values_dict[value])
 
     return tcg_ranks
+
+
+def calculate_tcg_score(
+    mesh_score_layer: QgsVectorLayer, custom_field_name: str
+) -> list:
+    # list of added fields
+    tcg_rank_fields_added = []
+    for hazard in constants.hazards_ui_names:
+        # get mesh_score target field name
+        if hazard == "custom":
+            target_field = custom_field_name
+        else:
+            target_field = getattr(constants, f"field_{hazard}")
+
+        if target_field in mesh_score_layer.fields().names():
+            field_values = [
+                feature[target_field] for feature in mesh_score_layer.getFeatures()
+            ]
+            y_values = sorted(field_values)
+        else:
+            continue
+        # get ranks from values
+        tcg_ranks = get_tcg_ranks(y_values)
+        tcg_rank_field = f"t_{target_field}"
+
+        # add tcg rank field if not exists
+        if tcg_rank_field not in mesh_score_layer.fields().names():
+            mesh_score_layer.startEditing()
+            mesh_score_layer.addAttribute(QgsField(tcg_rank_field, QVariant.Int))
+            mesh_score_layer.commitChanges()
+
+        # calculate tcg rank
+        mesh_score_layer.startEditing()
+        # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
+        # associated tcg_ranks : [0,1,2,4,4,6]
+        # Sort the features based on hazard score ascending order
+        request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
+        features = mesh_score_layer.getFeatures(request)
+
+        # Update the tcg rank field based on the sorting order
+        for index, feature in enumerate(features):
+            feature.setAttribute(tcg_rank_field, tcg_ranks[index])
+            mesh_score_layer.updateFeature(feature)
+
+        # Stop editing and save changes
+        mesh_score_layer.commitChanges()
+
+        tcg_rank_fields_added.append(tcg_rank_field)
+    return tcg_rank_fields_added
 
 
 def get_color_from_range(break_id: int, nb_breaks: int) -> str:
