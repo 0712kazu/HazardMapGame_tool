@@ -108,6 +108,12 @@ def add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
     layer.setOpacity(0.5)
 
 
+def remove_layer(layer_name: str) -> None:
+    if QgsProject.instance().mapLayersByName(layer_name):
+        remove_lyr = QgsProject.instance().mapLayersByName(layer_name)[0]
+        QgsProject.instance().removeMapLayer(remove_lyr.id())
+
+
 def set_map_canvas_to_webmercator():
     webmercator_crs = QgsCoordinateReferenceSystem("EPSG:3857")
     if iface.mapCanvas().mapSettings().destinationCrs() != webmercator_crs:
@@ -128,8 +134,7 @@ def add_xyz_basemap_layer(url: str, layer_name: str) -> QgsRasterLayer:
     url = f"type=xyz&url={url}&zmax=15&zmin=0&crs=EPSG3857"
     xyz_layer = QgsRasterLayer(url, layer_name, "wms")
     QgsProject.instance().addMapLayer(xyz_layer)
-    # root = QgsProject.instance().layerTreeRoot()
-    # root.insertChildNode(-1, QgsLayerTreeLayer(xyz_layer))
+
     return xyz_layer
 
 

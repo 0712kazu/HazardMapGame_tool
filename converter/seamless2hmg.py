@@ -14,7 +14,7 @@ from qgis.gui import QgisInterface
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 import constants
-from utils import add_to_map
+from utils import add_to_map, remove_layer
 
 
 def _clip_with_valid_geometries(
@@ -593,12 +593,14 @@ def seamless2hmg_kosui(
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
 
     # remove temporary layers
-    tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
-    QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
-    tmp_flood_cliped_lyr = QgsProject.instance().mapLayersByName(
-        f"tmp_clipped_{constants.field_kozui}"
-    )[0]
-    QgsProject.instance().removeMapLayer(tmp_flood_cliped_lyr.id())
+    remove_layer("tmp_point_cliped")
+    remove_layer(f"tmp_clipped_{constants.field_kozui}")
+    # tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
+    # QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
+    # tmp_flood_cliped_lyr = QgsProject.instance().mapLayersByName(
+    #     f"tmp_clipped_{constants.field_kozui}"
+    # )[0]
+    # QgsProject.instance().removeMapLayer(tmp_flood_cliped_lyr.id())
 
     return inland_calculated_mesh
 

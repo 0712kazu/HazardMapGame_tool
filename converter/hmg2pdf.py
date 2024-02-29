@@ -27,7 +27,6 @@ from qgis.core import (
 from qgis.PyQt.QtGui import QFont, QColor, QPainter
 
 import constants
-from utils import add_xyz_basemap_layer
 
 
 def label_pt_mesh(layer: QgsVectorLayer, expression: str, color: str) -> None:

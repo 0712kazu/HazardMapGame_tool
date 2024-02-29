@@ -37,7 +37,13 @@ from converter.hmg2pdf import (
     set_hmg13_disaster,
     calculate_hazard_rank,
 )
-from utils import get_layer_orientation, add_xyz_basemap_layer, add_to_map, find
+from utils import (
+    get_layer_orientation,
+    add_xyz_basemap_layer,
+    add_to_map,
+    remove_layer,
+    find,
+)
 
 
 class PDFExporter:
@@ -86,6 +92,7 @@ class PDFExporter:
             QMessageBox.information(None, "エラー", error_message)
             return
 
+        # style mesh_score and waku layers
         qml_file = os.path.join(
             os.path.dirname(__file__),
             constants.data_dir,
@@ -139,6 +146,9 @@ class PDFExporter:
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
+
+        # remove layer if already exists
+        remove_layer("hazard_score")
         add_to_map(hazard_lyr, "hazard_score")
 
         # make labels
@@ -151,6 +161,8 @@ class PDFExporter:
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer("label_id")
         add_to_map(label_mesh_id, "label_id")
         label_pt_mesh(label_mesh_id, '"id"', "#686868")
         label_mesh_id.setOpacity(0)
@@ -171,6 +183,8 @@ class PDFExporter:
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer("label_score")
         add_to_map(label_mesh_score, "label_score")
 
         label_pt_mesh(label_mesh_score, '"t_refuge"', "red")
@@ -188,25 +202,32 @@ class PDFExporter:
                 "OUTPUT": "TEMPORARY_OUTPUT",
             },
         )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer(f"label_{constants.field_refuge}")
         add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
 
         label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
         label_hinan_count.setOpacity(0)
 
         # import basemaps
+
         # basemap: gsi standard
+        # remove layer if already exists
+        remove_layer("basemap_standard")
         gsi_std_lyr = add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png",
             "basemap_standard",
         )
 
         # basemap: gsi coloured elevation
+        remove_layer("basemap_relief")
         gsi_relief_lyr = add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png",
             "basemap_relief",
         )
 
         # basemap: gsi hillshade
+        remove_layer("basemap_hillshade")
         gsi_hillshade_lyr = add_xyz_basemap_layer(
             "https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png",
             "basemap_hillshade",
@@ -421,6 +442,5 @@ class PDFExporter:
             target_fields.append(f"t_{constants.field_saigai}")
 
         score_formula = '" + "'.join(target_fields)
-        print(score_formula)
-        # score_formula = ' "t_slope" + "t_quake" + "t_flood" + "t_sediment" + "t_tsunami" + "t_surge" '
+
         return ' "' + score_formula + '" '
