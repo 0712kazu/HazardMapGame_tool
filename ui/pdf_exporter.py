@@ -390,11 +390,8 @@ class PDFExporter:
         map_item.zoomToExtent(waku_lyr.extent())
 
         # retrieve text object and set text
-        # txt_title_item = layout.itemById("map_title")
-        # txt_title_item.setText(self.main.pdf_map_title.text())
-
-        # txt_hazard_item = layout.itemById("map_title")
-        # txt_hazard_item.setText(map_title)
+        txt_title_item = layout.itemById("map_title")
+        txt_title_item.setText(self.main.pdf_map_title.text())
 
         txt_year_item = layout.itemById("copyright")
         copyright_txt = f"ハザードマップゲーム {str(datetime.date.today().year)} 東京カートグラフィック株式会社"
