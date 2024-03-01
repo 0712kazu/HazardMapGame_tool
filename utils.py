@@ -9,7 +9,6 @@ from qgis.core import (
     QgsVectorLayer,
     QgsCoordinateReferenceSystem,
     QgsRasterLayer,
-    QgsLayerTreeLayer,
 )
 from qgis.utils import iface
 
