@@ -5,8 +5,6 @@ from qgis.core import (
     QgsVectorLayer,
     QgsProject,
     QgsGraduatedSymbolRenderer,
-    QgsClassificationRange,
-    QgsRendererRange,
     QgsGradientColorRamp,
     QgsSingleSymbolRenderer,
     QgsSymbol,
@@ -111,26 +109,6 @@ def _symbolize_fill_layer_simple(
     layer: QgsVectorLayer, fill_color: str, stroke_color: str, stroke_width: float
 ) -> None:
     symbol = _add_simple_fill_symbol_renderer(fill_color, stroke_color, stroke_width)
-    renderer = QgsSingleSymbolRenderer(symbol)
-    layer.setRenderer(renderer)
-    layer.triggerRepaint()
-
-
-def _symbolize_point_layer_simple(
-    layer: QgsVectorLayer,
-    shape: str,
-    color: str,
-    stroke_color: str,
-    stroke_width: float,
-    size_mm: float,
-) -> None:
-    symbol = _add_point_symbol_renderer(
-        shape,
-        color,
-        stroke_color,
-        stroke_width,
-        size_mm,
-    )
     renderer = QgsSingleSymbolRenderer(symbol)
     layer.setRenderer(renderer)
     layer.triggerRepaint()

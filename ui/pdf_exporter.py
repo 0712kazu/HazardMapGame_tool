@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from PyQt5.QtCore import QVariant
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
