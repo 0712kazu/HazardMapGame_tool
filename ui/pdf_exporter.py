@@ -99,6 +99,15 @@ class PDFExporter:
             QMessageBox.information(None, "エラー", error_message)
             return
 
+        # check fields
+        missing_fields = self._check_hazard_fields(mesh_lyr)
+        if len(missing_fields) > 0:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "mesh_scoreレイヤに以下の属性が足りません。\n\n"
+            error_message += "\n".join(missing_fields)
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
         # List of missing layers to message at the end of process
         missing_layers = []
 
@@ -376,8 +385,8 @@ class PDFExporter:
         message = "PDFの出力が完了しました。\n"
         if len(missing_layers) > 0:
             message += "\n以下のレイヤが足りないため、PDFに表示しません。\n"
-            for missing_layer in missing_layers:
-                message += f"{missing_layer}\n"
+            message += "\n".join(missing_layers)
+
         QMessageBox.information(None, "エラー", message)
 
     def _export_pdf(self, map_title):
@@ -475,3 +484,58 @@ class PDFExporter:
         score_formula = '" + "'.join(target_fields)
 
         return ' "' + score_formula + '" '
+
+    def _check_hazard_fields(self, mesh_lyr: QgsVectorLayer) -> list:
+        """Return hazard score fields which are missing"""
+        missing_fields = []
+        mesh_lyr_fields = mesh_lyr.fields().names()
+
+        if (
+            self.main.checkBox_hmg06.isChecked()
+            and f"t_{constants.field_slope}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_slope}")
+        if (
+            self.main.checkBox_hmg07.isChecked()
+            and f"t_{constants.field_earthquake}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_earthquake}")
+        if (
+            self.main.checkBox_hmg08.isChecked()
+            and f"t_{constants.field_tornado}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_tornado}")
+        if (
+            self.main.checkBox_hmg09.isChecked()
+            and f"t_{constants.field_kozui}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_kozui}")
+        if (
+            self.main.checkBox_hmg10.isChecked()
+            and f"t_{constants.field_sediments}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_sediments}")
+        if (
+            self.main.checkBox_hmg11.isChecked()
+            and self.main.radioButton_hmg11_tsunami.isChecked()
+            and f"t_{constants.field_tsunami}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_tsunami}")
+        if (
+            self.main.checkBox_hmg11.isChecked()
+            and self.main.radioButton_hmg11_surge.isChecked()
+            and f"t_{constants.field_surge}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_surge}")
+        if (
+            self.main.checkBox_hmg12.isChecked()
+            and f"t_{constants.field_jisuberi}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_jisuberi}")
+        if (
+            self.main.checkBox_hmg13.isChecked()
+            and f"t_{constants.field_saigai}" not in mesh_lyr_fields
+        ):
+            missing_fields.append(f"t_{constants.field_saigai}")
+
+        return missing_fields

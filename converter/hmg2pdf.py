@@ -416,7 +416,6 @@ def set_hmg06_slope(
 
     target_field = constants.field_slope
     # label_score
-    # TODO : check target field
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless slope opacity 0.5
@@ -454,7 +453,6 @@ def set_hmg07_earthquake(
 
     target_field = constants.field_earthquake
     # label_score
-    # TODO : check target field
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless earthquake opacity 0.5
@@ -494,7 +492,6 @@ def set_hmg08_tornado(
 
     target_field = constants.field_tornado
     # label_score
-    # TODO : check target field
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless tornado opacity 0.5
@@ -531,9 +528,8 @@ def set_hmg09_flood(
     miss_lyr = []
 
     target_field = constants.field_kozui
-    # label_score
-    # TODO : check target field
 
+    # label_score
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless flood opacity 0.5
@@ -576,9 +572,8 @@ def set_hmg10_sediments(
     miss_lyr = []
 
     target_field = constants.field_sediments
-    # label_score
-    # TODO : check target field
 
+    # label_score
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless sediments opacity 0.5
@@ -615,8 +610,6 @@ def set_hmg11_tsunami(
     miss_lyr = []
 
     # label_score
-    # TODO : check target field
-
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless tsunami or surge opacity 0.5
@@ -656,8 +649,6 @@ def set_hmg12_landslip(
 
     target_field = constants.field_jisuberi
     # label_score
-    # TODO : check target field
-
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless landslip opacity 0.5
@@ -695,8 +686,6 @@ def set_hmg13_disaster(
 
     target_field = constants.field_saigai
     # label_score
-    # TODO : check target field
-
     label_pt_mesh(label_mesh_score, f'"t_{target_field}"', "red")
 
     # symbolyze seamless disaster opacity 0.5
@@ -728,6 +717,7 @@ def set_hmg13_disaster(
 def calculate_hazard_rank(scored_hazard_lyr: QgsVectorLayer) -> QgsVectorLayer:
     hazard_score_field = constants.field_hazard_score
     rank_score_field = constants.field_hazard_rank
+
     field_values = [
         feature[hazard_score_field] for feature in scored_hazard_lyr.getFeatures()
     ]

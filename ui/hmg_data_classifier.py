@@ -477,52 +477,6 @@ class HMGDataClassifier:
         self._display_only("mesh_score", target_field)
         self._display_only("seamless", target_field)
 
-    # def calculate_tcg_score(self, mesh_score_layer: QgsVectorLayer) -> list:
-    #     # list of added fields
-    #     tcg_rank_fields_added = []
-    #     for hazard in constants.hazards_ui_names:
-    #         # get mesh_score target field name
-    #         if hazard == "custom":
-    #             target_field = self.main.custom_hmg_fieldname.text()
-    #         else:
-    #             target_field = getattr(constants, f"field_{hazard}")
-
-    #         if target_field in mesh_score_layer.fields().names():
-    #             field_values = [
-    #                 feature[target_field] for feature in mesh_score_layer.getFeatures()
-    #             ]
-    #             y_values = sorted(field_values)
-    #         else:
-    #             continue
-    #         # get ranks from values
-    #         tcg_ranks = get_tcg_ranks(y_values)
-    #         tcg_rank_field = f"t_{target_field}"
-
-    #         # add tcg rank field if not exists
-    #         if tcg_rank_field not in mesh_score_layer.fields().names():
-    #             mesh_score_layer.startEditing()
-    #             mesh_score_layer.addAttribute(QgsField(tcg_rank_field, QVariant.Int))
-    #             mesh_score_layer.commitChanges()
-
-    #         # calculate tcg rank
-    #         mesh_score_layer.startEditing()
-    #         # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
-    #         # associated tcg_ranks : [0,1,2,4,4,6]
-    #         # Sort the features based on hazard score ascending order
-    #         request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
-    #         features = mesh_score_layer.getFeatures(request)
-
-    #         # Update the tcg rank field based on the sorting order
-    #         for index, feature in enumerate(features):
-    #             feature.setAttribute(tcg_rank_field, tcg_ranks[index])
-    #             mesh_score_layer.updateFeature(feature)
-
-    #         # Stop editing and save changes
-    #         mesh_score_layer.commitChanges()
-
-    #         tcg_rank_fields_added.append(tcg_rank_field)
-    #     return tcg_rank_fields_added
-
     def classify_data_tcg(self):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
