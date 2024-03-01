@@ -291,7 +291,7 @@ class PDFExporter:
         # 変更されたレイヤー順序を適用
         root.setCustomLayerOrder(order)
 
-        # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
+        # HMG01_ans : gsi standard only, refuge score colors&count, total hazard score
         if self.main.checkBox_hmg01.isChecked():
             miss_lyrs = set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)

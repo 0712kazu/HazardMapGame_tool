@@ -188,7 +188,7 @@ def _symbolize_point_layer_categorized(
 def set_hmg01_ans_refuge(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
-    # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
+    # HMG01_ans : gsi standard only, refuges score & count, total hazard score, colors
     # return result as list of missing layers text
 
     miss_lyr = []
