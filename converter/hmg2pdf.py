@@ -1,6 +1,5 @@
 import os
 
-from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QVariant
 from qgis.core import (
     QgsVectorLayer,
@@ -210,9 +209,11 @@ def _symbolize_point_layer_categorized(
 
 def set_hmg01_ans_refuge(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
+    # return result as list of missing layers text
 
+    miss_lyr = []
     # symbolize total score with label_id layer
     label_pt_mesh(label_mesh_score, f'"{constants.field_hazard_score}"', "red")
 
@@ -251,8 +252,8 @@ def set_hmg01_ans_refuge(
         hazard_score_lyr.setOpacity(1)
         hazard_score_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = "「hazard_score」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        # return missing layer to add in list
+        miss_lyr.append["hazard_score"]
 
     # symbolize POINT refuge
     target_field = constants.field_refuge
@@ -277,8 +278,7 @@ def set_hmg01_ans_refuge(
         seamless_lyr.setOpacity(1)
 
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -293,6 +293,8 @@ def set_hmg01_ans_refuge(
         ]
     )
     gsi_std_lyr.setOpacity(1)
+
+    return miss_lyr
 
 
 def set_hmg02_base(gsi_std_lyr: QgsVectorLayer) -> None:
@@ -340,8 +342,11 @@ def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
     gsi_std_lyr.setOpacity(1)
 
 
-def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> list:
     # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_landuse
 
     # symbolize seamless_landuse by category and symbolize as 0.7 opacity
@@ -370,8 +375,7 @@ def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
         seamless_lyr.setOpacity(0.7)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -384,6 +388,8 @@ def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> None:
     )
 
     gsi_std_lyr.setOpacity(0.5)
+
+    return miss_lyr
 
 
 def set_hmg05_elev(gsi_std_lyr: QgsVectorLayer) -> None:
@@ -403,8 +409,11 @@ def set_hmg05_elev(gsi_std_lyr: QgsVectorLayer) -> None:
 
 def set_hmg06_slope(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG06_g04: slope symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_slope
     # label_score
     # TODO : check target field
@@ -419,8 +428,7 @@ def set_hmg06_slope(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -434,12 +442,16 @@ def set_hmg06_slope(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg07_earthquake(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG07_b01: quake symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_earthquake
     # label_score
     # TODO : check target field
@@ -456,8 +468,7 @@ def set_hmg07_earthquake(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -471,12 +482,16 @@ def set_hmg07_earthquake(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg08_tornado(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG08_a30: tornado symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_tornado
     # label_score
     # TODO : check target field
@@ -491,8 +506,7 @@ def set_hmg08_tornado(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -506,12 +520,16 @@ def set_hmg08_tornado(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg09_flood(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG09_a31 : flood symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_kozui
     # label_score
     # TODO : check target field
@@ -533,8 +551,7 @@ def set_hmg09_flood(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -548,12 +565,16 @@ def set_hmg09_flood(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg10_sediments(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG10_a33 : sediment symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_sediments
     # label_score
     # TODO : check target field
@@ -569,8 +590,7 @@ def set_hmg10_sediments(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -584,12 +604,15 @@ def set_hmg10_sediments(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg11_tsunami(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer, target_field: str
-) -> None:
+) -> list:
     #  HMG11_a40 : tsunami OR surge symbol (target_field) & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
 
     # label_score
     # TODO : check target field
@@ -607,8 +630,7 @@ def set_hmg11_tsunami(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -622,12 +644,16 @@ def set_hmg11_tsunami(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg12_landslip(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG12_a46 : landslip symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_jisuberi
     # label_score
     # TODO : check target field
@@ -643,8 +669,7 @@ def set_hmg12_landslip(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -658,12 +683,16 @@ def set_hmg12_landslip(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def set_hmg13_disaster(
     gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
-) -> None:
+) -> list:
     # HMG13_a48 : disaster symbol & score, gsi_standard 50%
+    # return result as list of missing layers)
+    miss_lyr = []
+
     target_field = constants.field_saigai
     # label_score
     # TODO : check target field
@@ -679,8 +708,7 @@ def set_hmg13_disaster(
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
-        error_message = f"「seamless_{target_field}」レイヤが足りません。"
-        QMessageBox.information(None, "エラー", error_message)
+        miss_lyr.append(f"seamless_{target_field}")
 
     _display_only_layers(
         [
@@ -694,6 +722,7 @@ def set_hmg13_disaster(
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    return miss_lyr
 
 
 def calculate_hazard_rank(scored_hazard_lyr: QgsVectorLayer) -> QgsVectorLayer:

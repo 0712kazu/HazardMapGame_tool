@@ -77,6 +77,13 @@ class PDFExporter:
         self.main.radioButton_hmg11_tsunami.setChecked(True)
 
     def _on_export_pdf_clicked(self):
+        # check parameters
+        if not self.main.pdf_folder.filePath():
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "出力PDFフォルダーが設定していません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
         # set style to mesh_score and waku
         if QgsProject.instance().mapLayersByName("waku"):
             waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
@@ -91,6 +98,9 @@ class PDFExporter:
             error_message = "「mesh_score」レイヤが足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
+
+        # List of missing layers to message at the end of process
+        missing_layers = []
 
         # style mesh_score and waku layers
         qml_file = os.path.join(
@@ -268,18 +278,18 @@ class PDFExporter:
             if hinan_idx > -1:
                 order.insert(0, order.pop(hinan_idx))
         else:
-            error_message = f"「seamless_{constants.field_refuge}」レイヤが足りません。"
-            QMessageBox.information(None, "エラー", error_message)
+            missing_layers.append(f"seamless_{constants.field_refuge}")
 
         # 変更されたレイヤー順序を適用
         root.setCustomLayerOrder(order)
 
         # HMG01_ans : gsi standard only, refuges score and number, total hazard score, colors
         if self.main.checkBox_hmg01.isChecked():
-            set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG01_ans")
 
-        # HNG02_base : gsi standard
+        # HMG02_base : gsi standard
         if self.main.checkBox_hmg02.isChecked():
             set_hmg02_base(gsi_std_lyr)
             self._export_pdf("HMG02_base")
@@ -296,7 +306,8 @@ class PDFExporter:
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
         if self.main.checkBox_hmg04.isChecked():
-            set_hmg04_landuse(gsi_std_lyr)
+            miss_lyrs = set_hmg04_landuse(gsi_std_lyr)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG04_use")
 
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
@@ -306,27 +317,32 @@ class PDFExporter:
 
         # HMG06_g04: slope symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg06.isChecked():
-            set_hmg06_slope(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg06_slope(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG06_g04")
 
         # HMG07_b01: quake symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg07.isChecked():
-            set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG07_b01")
 
         # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg08.isChecked():
-            set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG08_a30")
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg09.isChecked():
-            set_hmg09_flood(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg09_flood(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG09_a31")
 
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg10.isChecked():
-            set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG10_a33")
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
@@ -340,18 +356,29 @@ class PDFExporter:
                 error_message += "津波に指定します。"
                 QMessageBox.information(None, "エラー", error_message)
 
-            set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
+            miss_lyrs = set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG11_a40")
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg12.isChecked():
-            set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG12_a46")
 
         # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg13.isChecked():
-            set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
+            miss_lyrs = set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
+            missing_layers.extend(miss_lyrs)
             self._export_pdf("HMG13_a48")
+
+        # End process message
+        message = "PDFの出力が完了しました。\n"
+        if len(missing_layers) > 0:
+            message += "\n以下のレイヤが足りないため、PDFに表示しません。\n"
+            for missing_layer in missing_layers:
+                message += f"{missing_layer}\n"
+        QMessageBox.information(None, "エラー", message)
 
     def _export_pdf(self, map_title):
         project = QgsProject.instance()
