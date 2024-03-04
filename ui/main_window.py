@@ -6,6 +6,7 @@ from qgis.PyQt import uic
 from .hmg_data_generator import HMGDataGenerator
 from .preprocessor import Preprocessor
 from .hmg_data_classifier import HMGDataClassifier
+from .pdf_exporter import PDFExporter
 
 
 class MainWindow(QDialog):
@@ -18,3 +19,4 @@ class MainWindow(QDialog):
         self.preprocessor = Preprocessor(self)
         self.hmg_data_generator = HMGDataGenerator(self)
         self.hmg_data_classifier = HMGDataClassifier(self)
+        self.pdf_exporter = PDFExporter(self)

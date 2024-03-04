@@ -4,7 +4,12 @@ import subprocess
 import zipfile
 from osgeo import ogr
 
-from qgis.core import QgsProject, QgsVectorLayer, QgsCoordinateReferenceSystem
+from qgis.core import (
+    QgsProject,
+    QgsVectorLayer,
+    QgsCoordinateReferenceSystem,
+    QgsRasterLayer,
+)
 from qgis.utils import iface
 
 
@@ -102,7 +107,45 @@ def add_to_map(layer: QgsVectorLayer, layer_name: str) -> None:
     layer.setOpacity(0.5)
 
 
+def remove_layer(layer_name: str) -> None:
+    if QgsProject.instance().mapLayersByName(layer_name):
+        remove_lyr = QgsProject.instance().mapLayersByName(layer_name)[0]
+        QgsProject.instance().removeMapLayer(remove_lyr.id())
+
+
 def set_map_canvas_to_webmercator():
     webmercator_crs = QgsCoordinateReferenceSystem("EPSG:3857")
     if iface.mapCanvas().mapSettings().destinationCrs() != webmercator_crs:
         iface.mapCanvas().setDestinationCrs(webmercator_crs)
+
+
+def get_layer_orientation(layer: QgsVectorLayer) -> str:
+    """return layer extent orientation"""
+    rectangle = layer.extent()
+    if rectangle.width() >= rectangle.height():
+        return "landscape"
+    else:
+        return "portrait"
+
+
+def add_xyz_basemap_layer(url: str, layer_name: str) -> QgsRasterLayer:
+    """add a xyz layer from URL, at the bottom of layer tree"""
+    url = f"type=xyz&url={url}&zmax=15&zmin=0&crs=EPSG3857"
+    xyz_layer = QgsRasterLayer(url, layer_name, "wms")
+    QgsProject.instance().addMapLayer(xyz_layer)
+
+    return xyz_layer
+
+
+def find(list: list, x) -> int:
+    """
+    https://note.nkmk.me/python-list-index/
+    配列から要素を検索し、存在すればそのインデックスを返す
+    存在しなければ-1を返す
+    Args:
+        list ([type]): 検索対象の配列
+        x ([type]): 検索する値
+    Returns:
+        int: 見つかった最初の要素のインデックス
+    """
+    return list.index(x) if x in list else -1

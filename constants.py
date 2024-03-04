@@ -39,5 +39,22 @@ field_surge = "surge"
 field_earthquake = "quake"
 field_slope = "slope"
 field_refuge = "refuge"
+field_landuse = "landuse"
+# total hazard score fields
+field_hazard_score = "hazard"
+field_hazard_rank = "rank"
 
+hazards_ui_names = [
+    "tornado",
+    "kozui",
+    "sediments",
+    "tsunami",
+    "jisuberi",
+    "saigai",
+    "surge",
+    "earthquake",
+    "slope",
+    "refuge",
+    "custom",
+]
 MAP_MIN_VALUE = 0.001

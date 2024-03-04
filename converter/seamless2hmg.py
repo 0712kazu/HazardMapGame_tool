@@ -14,7 +14,7 @@ from qgis.gui import QgisInterface
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 import constants
-from utils import add_to_map
+from utils import add_to_map, remove_layer
 
 
 def _clip_with_valid_geometries(
@@ -457,7 +457,7 @@ def seamless2hmg_kosui(
         },
     )["OUTPUT"]
 
-    add_to_map(kozui_cliped_fixed, f"seamless_{constants.field_kozui}")
+    add_to_map(kozui_cliped_fixed, f"tmp_clipped_{constants.field_kozui}")
 
     # 標準化
     kozui_standard = processing.run(
@@ -487,6 +487,8 @@ def seamless2hmg_kosui(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
+
+    add_to_map(kozui_standard, f"seamless_{constants.field_kozui}")
 
     # 20m間隔ポイントを作成
     pnt_lyr_raw = processing.run(
@@ -522,7 +524,7 @@ def seamless2hmg_kosui(
         processing.run("native:createspatialindex", {"INPUT": pnt_lyr})
 
     except Exception as e:
-        # When "Could not create the combined clip geometry" error occursm skip it
+        # When "Could not create the combined clip geometry" error occurs skip it
         print(f"pnt clip error: {e}")
         pnt_lyr = pnt_lyr_raw
 
@@ -591,8 +593,8 @@ def seamless2hmg_kosui(
     inland_calculated_mesh = _adjust_inland_score(kozui_mesh, constants.field_kozui)
 
     # remove temporary layers
-    tmp_point_cliped_lyr = QgsProject.instance().mapLayersByName("tmp_point_cliped")[0]
-    QgsProject.instance().removeMapLayer(tmp_point_cliped_lyr.id())
+    remove_layer("tmp_point_cliped")
+    remove_layer(f"tmp_clipped_{constants.field_kozui}")
 
     return inland_calculated_mesh
 
@@ -1056,3 +1058,10 @@ def seamless2hmg_custom(
         mesh_custom = _adjust_inland_score(mesh_custom, custom_field)
 
     return mesh_custom
+
+
+def seamless2hmg_landuse(landuse_lyr: QgsVectorLayer, waku_lyr: QgsVectorLayer) -> None:
+    # clip seamless data only and add to map
+    landuse_clipped = _clip_with_valid_geometries(landuse_lyr, waku_lyr)
+
+    add_to_map(landuse_clipped, f"seamless_{constants.field_landuse}")

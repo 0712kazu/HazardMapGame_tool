@@ -33,7 +33,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_2">
+     <widget class="QWidget" name="tab_1_seamless">
       <attribute name="title">
        <string>シームレスデータ作成</string>
       </attribute>
@@ -461,7 +461,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab_2_mesh_maker">
       <attribute name="title">
        <string>メッシュ作成</string>
       </attribute>
@@ -830,7 +830,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab_class">
+     <widget class="QWidget" name="tab_3_hmg_data_generator">
       <attribute name="title">
        <string>HMGデータ作成</string>
       </attribute>
@@ -3931,14 +3931,14 @@
        <!-- LAUNCH / CLOSE BUTTONS -->
          <item row="4" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <spacer name="horizontalSpacer_3">
+        <item>
+          <spacer name="horizontalSpacer_6">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="sizeHint" stdset="0">
             <size>
-             <width>60</width>
+             <width>40</width>
              <height>20</height>
             </size>
            </property>
@@ -3951,7 +3951,7 @@
               </property>
              </widget>
             </item>
-         <item>
+           <item>
           <widget class="QPushButton" name="pushButton_cancel">
            <property name="text">
             <string>閉じる</string>
@@ -3962,6 +3962,361 @@
        </item>
          </layout>
        </widget>
+
+<!-- PDF TAB -->
+    <widget class="QWidget" name="tab_4_pdf">
+      <attribute name="title">
+       <string>PDF出力</string>
+      </attribute>
+      <layout class="QGridLayout" name="gridLayout_9">
+   
+       <item row="0" column="0">
+        <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+           <widget class="QLabel" name="label_maptitle">
+            <property name="text">
+             <string>PDFタイトル</string>
+            </property>
+           </widget>
+          </item>
+        <item>
+             <widget class="QLineEdit" name="pdf_map_title">
+            </widget>
+            </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+           <widget class="QLabel" name="label_pdffolder">
+            <property name="text">
+             <string>PDF出力フォルダー</string>
+            </property>
+           </widget>
+          </item>
+       <item>
+           <widget class="QgsFileWidget" name="pdf_folder">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>30</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+          <widget class="QLabel" name="label_options">
+           <property name="text">
+            <string>出力項目</string>
+           </property>
+          </widget>
+     </item>
+
+     <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="0" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg01">
+           <property name="text">
+            <string>HMG_01_ans</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_hmg01">
+           <property name="text">
+            <string>答え(フル)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg02">
+           <property name="text">
+            <string>HMG_02_base</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="label_hmg02">
+           <property name="text">
+            <string>タイル番号</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg02b">
+           <property name="text">
+            <string>HMG_02_base2</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QLabel" name="label_hmg02b">
+           <property name="text">
+            <string>タイル番号(陰影)</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg03">
+           <property name="text">
+            <string>HMG_03_tile</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QLabel" name="label_hmg03">
+           <property name="text">
+            <string>タイル</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg04">
+           <property name="text">
+            <string>HMG_04_use</string>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QLabel" name="label_hmg04">
+           <property name="text">
+            <string>土地利用</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg05">
+           <property name="text">
+            <string>HMG_05_elev</string>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="1">
+          <widget class="QLabel" name="label_hmg05">
+           <property name="text">
+            <string>標高</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg06">
+           <property name="text">
+            <string>HMG_06_g04</string>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QLabel" name="label_hmg06">
+           <property name="text">
+            <string>傾斜</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg07">
+           <property name="text">
+            <string>HMG_07_g01</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="1">
+          <widget class="QLabel" name="label_hmg07">
+           <property name="text">
+            <string>地震</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg08">
+           <property name="text">
+            <string>HMG_08_a30</string>
+           </property>
+          </widget>
+         </item>
+         <item row="8" column="1">
+          <widget class="QLabel" name="label_hmg08">
+           <property name="text">
+            <string>竜巻</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg09">
+           <property name="text">
+            <string>HMG_09_a31</string>
+           </property>
+          </widget>
+         </item>
+         <item row="9" column="1">
+          <widget class="QLabel" name="label_hmg09">
+           <property name="text">
+            <string>洪水</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg10">
+           <property name="text">
+            <string>HMG_10_a33</string>
+           </property>
+          </widget>
+         </item>
+         <item row="10" column="1">
+          <widget class="QLabel" name="label_hmg10">
+           <property name="text">
+            <string>土砂</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg11">
+           <property name="text">
+            <string>HMG11_a40</string>
+           </property>
+          </widget>
+         </item>
+         <item row="11" column="1">
+          <widget class="QRadioButton" name="radioButton_hmg11_tsunami">
+           <property name="text">
+            <string>津波</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_hmg11_option</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="11" column="2">
+          <widget class="QRadioButton" name="radioButton_hmg11_surge">
+           <property name="text">
+            <string>高潮 (東京都の場合)</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_hmg11_option</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="12" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg12">
+           <property name="text">
+            <string>HMG12_a46</string>
+           </property>
+          </widget>
+         </item>
+         <item row="12" column="1">
+          <widget class="QLabel" name="label_hmg12">
+           <property name="text">
+            <string>地すべり</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="0">
+          <widget class="QCheckBox" name="checkBox_hmg13">
+           <property name="text">
+            <string>HMG13_a48</string>
+           </property>
+          </widget>
+         </item>
+         <item row="13" column="1">
+          <widget class="QLabel" name="label_hmg13">
+           <property name="text">
+            <string>災害危険</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>900</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>300</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+     </item>
+    </layout>
+       </item>
+       <item row="45" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+             <widget class="QPushButton" name="pushButton_export_pdf">
+             <property name="geometry">
+              <rect>
+                <x>530</x>
+                <y>500</y>
+                <width>801</width>
+                <height>41</height>
+              </rect>
+              </property>
+              <property name="text">
+               <string>PDF作成を始める</string>
+              </property>
+             </widget>
+            </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_cancel_pdf">
+           <property name="text">
+            <string>閉じる</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+<!-- END PDF TAB -->
     </widget>
    </item>
   </layout>
