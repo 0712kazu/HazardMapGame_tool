@@ -260,7 +260,6 @@ def set_hmg01_ans_refuge(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"label_{target_field}",
@@ -279,7 +278,6 @@ def set_hmg02_base(gsi_std_lyr: QgsVectorLayer) -> None:
     # HNG02_base : gsi standard
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             "label_id",
@@ -295,7 +293,6 @@ def set_hmg02_base_hillshade(
     # HMG02_base2: gsi standard and hillshade
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             "basemap_hillshade",
@@ -311,7 +308,6 @@ def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
     # HMG03_tile: gsi_standard, turn off mesh id label
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
         ]
@@ -357,7 +353,6 @@ def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> list:
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -374,7 +369,6 @@ def set_hmg05_elev(gsi_std_lyr: QgsVectorLayer) -> None:
     # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             "basemap_relief",
@@ -409,7 +403,6 @@ def set_hmg06_slope(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -448,7 +441,6 @@ def set_hmg07_earthquake(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -485,7 +477,6 @@ def set_hmg08_tornado(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -529,7 +520,6 @@ def set_hmg09_flood(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -567,7 +557,6 @@ def set_hmg10_sediments(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -605,7 +594,6 @@ def set_hmg11_tsunami(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -642,7 +630,6 @@ def set_hmg12_landslip(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",
@@ -679,7 +666,6 @@ def set_hmg13_disaster(
 
     _display_only_layers(
         [
-            "waku",
             "mesh_score",
             "basemap_standard",
             f"seamless_{target_field}",

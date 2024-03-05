@@ -110,7 +110,7 @@ class PDFExporter:
         # List of missing layers to message at the end of process
         missing_layers = []
 
-        # style mesh_score and waku layers
+        # style mesh_score layer
         qml_file = os.path.join(
             os.path.dirname(__file__),
             constants.data_dir,
@@ -118,7 +118,6 @@ class PDFExporter:
             "mesh_pdf_style.qml",
         )
         mesh_lyr.loadNamedStyle(qml_file)
-        waku_lyr.loadNamedStyle(qml_file)
 
         # calculate total hazard score
         scored_hazard = processing.run(
