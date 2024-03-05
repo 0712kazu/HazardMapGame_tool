@@ -75,6 +75,11 @@ class PDFExporter:
         # set tsunami radiobutton as default for hmg11
         self.main.radioButton_hmg11_tsunami.setChecked(True)
 
+        # set default copyright
+        self.main.pdf_map_copyright.setText(
+            "©ハザードマップゲーム2022 ディレクティングマップ"
+        )
+
     def _on_export_pdf_clicked(self):
         # check parameters
         if not self.main.pdf_folder.filePath():
@@ -83,10 +88,8 @@ class PDFExporter:
             QMessageBox.information(None, "エラー", error_message)
             return
 
-        # set style to mesh_score and waku
-        if QgsProject.instance().mapLayersByName("waku"):
-            waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
-        else:
+        # check waku
+        if not QgsProject.instance().mapLayersByName("waku"):
             error_message = "「waku」レイヤが足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
@@ -326,31 +329,31 @@ class PDFExporter:
         if self.main.checkBox_hmg06.isChecked():
             miss_lyrs = set_hmg06_slope(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG06_g04")
+            self._export_pdf("HMG06_g04", constants.field_slope)
 
         # HMG07_b01: quake symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg07.isChecked():
             miss_lyrs = set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG07_b01")
+            self._export_pdf("HMG07_b01", constants.field_earthquake)
 
         # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg08.isChecked():
             miss_lyrs = set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG08_a30")
+            self._export_pdf("HMG08_a30", constants.field_tornado)
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg09.isChecked():
             miss_lyrs = set_hmg09_flood(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG09_a31")
+            self._export_pdf("HMG09_a31", constants.field_kozui)
 
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg10.isChecked():
             miss_lyrs = set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG10_a33")
+            self._export_pdf("HMG10_a33", constants.field_sediments)
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg11.isChecked():
@@ -365,19 +368,19 @@ class PDFExporter:
 
             miss_lyrs = set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG11_a40")
+            self._export_pdf("HMG11_a40", hmg11_field)
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg12.isChecked():
             miss_lyrs = set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG12_a46")
+            self._export_pdf("HMG12_a46", constants.field_jisuberi)
 
         # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg13.isChecked():
             miss_lyrs = set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG13_a48")
+            self._export_pdf("HMG13_a48", constants.field_saigai)
 
         # End process message
         message = "PDFの出力が完了しました。\n"
@@ -387,7 +390,14 @@ class PDFExporter:
 
         QMessageBox.information(None, "エラー", message)
 
-    def _export_pdf(self, map_title):
+    def _export_pdf(self, map_id: str, hazard_name="") -> None:
+        """Export pdf from a template layout.
+        input :
+        - map_id : for PDF file name
+        - hazard_name (optional) : add to map if specified
+        output:
+        - No variable, but PDF file
+        """
         project = QgsProject.instance()
 
         if QgsProject.instance().mapLayersByName("waku"):
@@ -428,13 +438,15 @@ class PDFExporter:
         txt_title_item.setText(self.main.pdf_map_title.text())
 
         txt_year_item = layout.itemById("copyright")
-        copyright_txt = f"ハザードマップゲーム {str(datetime.date.today().year)} 東京カートグラフィック株式会社"
-        txt_year_item.setText(copyright_txt)
+        txt_year_item.setText(self.main.pdf_map_copyright.text())
+
+        txt_year_item = layout.itemById("hazard_name")
+        txt_year_item.setText(hazard_name)
 
         # Export PDF
         exporter = QgsLayoutExporter(layout)
 
-        pdf_file_name = f"{self.main.pdf_map_title.text()}_{map_title}.pdf"
+        pdf_file_name = f"{self.main.pdf_map_title.text()}_{map_id}.pdf"
         if self.main.pdf_map_title.text() == "":
             # remove first "_" if title is empty
             pdf_file_name = pdf_file_name[1:]
