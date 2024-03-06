@@ -140,10 +140,16 @@ class PDFExporter:
         ranked_hazard = calculate_hazard_rank(scored_hazard)
 
         # export mesh as shapefile
-        shp_file_name = f"{self.main.pdf_map_title.text()}_HMG_hazard_score.shp"
+
+        # set file prefix
+        file_prefix = self.main.pdf_map_title.text()
+
         if self.main.pdf_map_title.text() == "":
-            # remove first "_" if title is empty
-            shp_file_name = shp_file_name[1:]
+            # set timestamp as prefix if no pdf title
+            timestamp = datetime.datetime.now()
+            file_prefix = timestamp.strftime("%Y%m%d%H%M%S")
+
+        shp_file_name = f"{file_prefix}_HMG_hazard_score.shp"
 
         shp_path = os.path.join(
             self.main.pdf_folder.filePath(),
@@ -297,63 +303,63 @@ class PDFExporter:
         if self.main.checkBox_hmg01.isChecked():
             miss_lyrs = set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG01_ans")
+            self._export_pdf(f"{file_prefix}_HMG01_ans.pdf")
 
         # HMG02_base : gsi standard
         if self.main.checkBox_hmg02.isChecked():
             set_hmg02_base(gsi_std_lyr)
-            self._export_pdf("HMG02_base")
+            self._export_pdf(f"{file_prefix}_HMG02_base.pdf")
 
         # HMG02_base2: gsi standard and hillshade
         if self.main.checkBox_hmg02b.isChecked():
             set_hmg02_base_hillshade(gsi_std_lyr, gsi_hillshade_lyr)
-            self._export_pdf("HMG02_base2")
+            self._export_pdf(f"{file_prefix}_HMG02_base2.pdf")
 
         # HMG03_tile: gsi_standard, turn off mesh id label
         if self.main.checkBox_hmg03.isChecked():
             set_hmg03_tile(gsi_std_lyr)
-            self._export_pdf("HMG03_tile")
+            self._export_pdf(f"{file_prefix}_HMG03_tile.pdf")
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
         if self.main.checkBox_hmg04.isChecked():
             miss_lyrs = set_hmg04_landuse(gsi_std_lyr)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG04_use")
+            self._export_pdf(f"{file_prefix}_HMG04_use.pdf")
 
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
         if self.main.checkBox_hmg05.isChecked():
             set_hmg05_elev(gsi_std_lyr)
-            self._export_pdf("HMG05_elev")
+            self._export_pdf(f"{file_prefix}_HMG05_elev.pdf")
 
         # HMG06_g04: slope symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg06.isChecked():
             miss_lyrs = set_hmg06_slope(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG06_g04", constants.field_slope)
+            self._export_pdf(f"{file_prefix}_HMG06_g04.pdf", constants.field_slope)
 
         # HMG07_b01: quake symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg07.isChecked():
             miss_lyrs = set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG07_b01", constants.field_earthquake)
+            self._export_pdf(f"{file_prefix}_HMG07_b01.pdf", constants.field_earthquake)
 
         # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg08.isChecked():
             miss_lyrs = set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG08_a30", constants.field_tornado)
+            self._export_pdf(f"{file_prefix}_HMG08_a30.pdf", constants.field_tornado)
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg09.isChecked():
             miss_lyrs = set_hmg09_flood(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG09_a31", constants.field_kozui)
+            self._export_pdf(f"{file_prefix}_HMG09_a31.pdf", constants.field_kozui)
 
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg10.isChecked():
             miss_lyrs = set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG10_a33", constants.field_sediments)
+            self._export_pdf(f"{file_prefix}_HMG10_a33.pdf", constants.field_sediments)
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg11.isChecked():
@@ -368,19 +374,19 @@ class PDFExporter:
 
             miss_lyrs = set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG11_a40", hmg11_field)
+            self._export_pdf(f"{file_prefix}_HMG11_a40.pdf", hmg11_field)
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg12.isChecked():
             miss_lyrs = set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG12_a46", constants.field_jisuberi)
+            self._export_pdf(f"{file_prefix}_HMG12_a46.pdf", constants.field_jisuberi)
 
         # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg13.isChecked():
             miss_lyrs = set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG13_a48", constants.field_saigai)
+            self._export_pdf(f"{file_prefix}_HMG13_a48.pdf", constants.field_saigai)
 
         # End process message
         message = "PDFの出力が完了しました。\n"
@@ -390,10 +396,10 @@ class PDFExporter:
 
         QMessageBox.information(None, "エラー", message)
 
-    def _export_pdf(self, map_id: str, hazard_name="") -> None:
+    def _export_pdf(self, pdf_file_name: str, hazard_name="") -> None:
         """Export pdf from a template layout.
         input :
-        - map_id : for PDF file name
+        - pdf_name : raw PDF file name
         - hazard_name (optional) : add to map if specified
         output:
         - No variable, but PDF file
@@ -445,11 +451,6 @@ class PDFExporter:
 
         # Export PDF
         exporter = QgsLayoutExporter(layout)
-
-        pdf_file_name = f"{self.main.pdf_map_title.text()}_{map_id}.pdf"
-        if self.main.pdf_map_title.text() == "":
-            # remove first "_" if title is empty
-            pdf_file_name = pdf_file_name[1:]
 
         pdf_path = os.path.join(
             self.main.pdf_folder.filePath(),
