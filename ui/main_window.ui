@@ -4069,7 +4069,7 @@
          <item row="0" column="0">
           <widget class="QCheckBox" name="checkBox_hmg01">
            <property name="text">
-            <string>HMG_01_ans</string>
+            <string>HMG01_ans</string>
            </property>
           </widget>
          </item>
@@ -4083,7 +4083,7 @@
          <item row="1" column="0">
           <widget class="QCheckBox" name="checkBox_hmg02">
            <property name="text">
-            <string>HMG_02_base</string>
+            <string>HMG02_base</string>
            </property>
           </widget>
          </item>
@@ -4097,7 +4097,7 @@
          <item row="2" column="0">
           <widget class="QCheckBox" name="checkBox_hmg02b">
            <property name="text">
-            <string>HMG_02_base2</string>
+            <string>HMG02_base2</string>
            </property>
           </widget>
          </item>
@@ -4111,7 +4111,7 @@
          <item row="3" column="0">
           <widget class="QCheckBox" name="checkBox_hmg03">
            <property name="text">
-            <string>HMG_03_tile</string>
+            <string>HMG03_tile</string>
            </property>
           </widget>
          </item>
@@ -4125,7 +4125,7 @@
          <item row="4" column="0">
           <widget class="QCheckBox" name="checkBox_hmg04">
            <property name="text">
-            <string>HMG_04_use</string>
+            <string>HMG04_use</string>
            </property>
           </widget>
          </item>
@@ -4139,7 +4139,7 @@
          <item row="5" column="0">
           <widget class="QCheckBox" name="checkBox_hmg05">
            <property name="text">
-            <string>HMG_05_elev</string>
+            <string>HMG05_elev</string>
            </property>
           </widget>
          </item>
@@ -4153,7 +4153,7 @@
          <item row="6" column="0">
           <widget class="QCheckBox" name="checkBox_hmg06">
            <property name="text">
-            <string>HMG_06_g04</string>
+            <string>HMG06_g04</string>
            </property>
           </widget>
          </item>
@@ -4167,7 +4167,7 @@
          <item row="7" column="0">
           <widget class="QCheckBox" name="checkBox_hmg07">
            <property name="text">
-            <string>HMG_07_g01</string>
+            <string>HMG07_g01</string>
            </property>
           </widget>
          </item>
@@ -4181,7 +4181,7 @@
          <item row="8" column="0">
           <widget class="QCheckBox" name="checkBox_hmg08">
            <property name="text">
-            <string>HMG_08_a30</string>
+            <string>HMG08_a30</string>
            </property>
           </widget>
          </item>
@@ -4195,7 +4195,7 @@
          <item row="9" column="0">
           <widget class="QCheckBox" name="checkBox_hmg09">
            <property name="text">
-            <string>HMG_09_a31</string>
+            <string>HMG09_a31</string>
            </property>
           </widget>
          </item>
@@ -4209,7 +4209,7 @@
          <item row="10" column="0">
           <widget class="QCheckBox" name="checkBox_hmg10">
            <property name="text">
-            <string>HMG_10_a33</string>
+            <string>HMG10_a33</string>
            </property>
           </widget>
          </item>
