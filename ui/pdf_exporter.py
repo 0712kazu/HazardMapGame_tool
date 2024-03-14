@@ -394,7 +394,7 @@ class PDFExporter:
             message += "\n以下のレイヤが足りないため、PDFに表示しません。\n"
             message += "\n".join(missing_layers)
 
-        QMessageBox.information(None, "エラー", message)
+        QMessageBox.information(None, "完了", message)
 
     def _export_pdf(self, pdf_file_name: str, hazard_name="") -> None:
         """Export pdf from a template layout.
