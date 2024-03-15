@@ -426,7 +426,7 @@ class HMGDataGenerator:
 
         add_to_map(mesh_lyr, "mesh")
 
-        QMessageBox.information(None, "お知らせ", "メッシュの作成が完了しました。")
+        QMessageBox.information(None, "完了", "メッシュの作成が完了しました。")
 
     def process_hmg(self):
         # error handling

@@ -75,6 +75,11 @@ class PDFExporter:
         # set tsunami radiobutton as default for hmg11
         self.main.radioButton_hmg11_tsunami.setChecked(True)
 
+        # set default copyright
+        self.main.pdf_map_copyright.setText(
+            "©ハザードマップゲーム2022 ディレクティングマップ"
+        )
+
     def _on_export_pdf_clicked(self):
         # check parameters
         if not self.main.pdf_folder.filePath():
@@ -83,10 +88,8 @@ class PDFExporter:
             QMessageBox.information(None, "エラー", error_message)
             return
 
-        # set style to mesh_score and waku
-        if QgsProject.instance().mapLayersByName("waku"):
-            waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
-        else:
+        # check waku
+        if not QgsProject.instance().mapLayersByName("waku"):
             error_message = "「waku」レイヤが足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
@@ -110,7 +113,7 @@ class PDFExporter:
         # List of missing layers to message at the end of process
         missing_layers = []
 
-        # style mesh_score and waku layers
+        # style mesh_score layer
         qml_file = os.path.join(
             os.path.dirname(__file__),
             constants.data_dir,
@@ -118,7 +121,6 @@ class PDFExporter:
             "mesh_pdf_style.qml",
         )
         mesh_lyr.loadNamedStyle(qml_file)
-        waku_lyr.loadNamedStyle(qml_file)
 
         # calculate total hazard score
         scored_hazard = processing.run(
@@ -138,10 +140,16 @@ class PDFExporter:
         ranked_hazard = calculate_hazard_rank(scored_hazard)
 
         # export mesh as shapefile
-        shp_file_name = f"{self.main.pdf_map_title.text()}_HMG_hazard_score.shp"
+
+        # set file prefix
+        file_prefix = self.main.pdf_map_title.text()
+
         if self.main.pdf_map_title.text() == "":
-            # remove first "_" if title is empty
-            shp_file_name = shp_file_name[1:]
+            # set timestamp as prefix if no pdf title
+            timestamp = datetime.datetime.now()
+            file_prefix = timestamp.strftime("%Y%m%d%H%M%S")
+
+        shp_file_name = f"{file_prefix}_HMG_hazard_score.shp"
 
         shp_path = os.path.join(
             self.main.pdf_folder.filePath(),
@@ -295,63 +303,63 @@ class PDFExporter:
         if self.main.checkBox_hmg01.isChecked():
             miss_lyrs = set_hmg01_ans_refuge(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG01_ans")
+            self._export_pdf(f"{file_prefix}_HMG01_ans.pdf")
 
         # HMG02_base : gsi standard
         if self.main.checkBox_hmg02.isChecked():
             set_hmg02_base(gsi_std_lyr)
-            self._export_pdf("HMG02_base")
+            self._export_pdf(f"{file_prefix}_HMG02_base.pdf")
 
         # HMG02_base2: gsi standard and hillshade
         if self.main.checkBox_hmg02b.isChecked():
             set_hmg02_base_hillshade(gsi_std_lyr, gsi_hillshade_lyr)
-            self._export_pdf("HMG02_base2")
+            self._export_pdf(f"{file_prefix}_HMG02_base2.pdf")
 
         # HMG03_tile: gsi_standard, turn off mesh id label
         if self.main.checkBox_hmg03.isChecked():
             set_hmg03_tile(gsi_std_lyr)
-            self._export_pdf("HMG03_tile")
+            self._export_pdf(f"{file_prefix}_HMG03_tile.pdf")
 
         # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
         if self.main.checkBox_hmg04.isChecked():
             miss_lyrs = set_hmg04_landuse(gsi_std_lyr)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG04_use")
+            self._export_pdf(f"{file_prefix}_HMG04_use.pdf")
 
         # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
         if self.main.checkBox_hmg05.isChecked():
             set_hmg05_elev(gsi_std_lyr)
-            self._export_pdf("HMG05_elev")
+            self._export_pdf(f"{file_prefix}_HMG05_elev.pdf")
 
         # HMG06_g04: slope symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg06.isChecked():
             miss_lyrs = set_hmg06_slope(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG06_g04")
+            self._export_pdf(f"{file_prefix}_HMG06_g04.pdf", constants.field_slope)
 
         # HMG07_b01: quake symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg07.isChecked():
             miss_lyrs = set_hmg07_earthquake(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG07_b01")
+            self._export_pdf(f"{file_prefix}_HMG07_b01.pdf", constants.field_earthquake)
 
         # HMG08_a30 (OPTION): tornado symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg08.isChecked():
             miss_lyrs = set_hmg08_tornado(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG08_a30")
+            self._export_pdf(f"{file_prefix}_HMG08_a30.pdf", constants.field_tornado)
 
         # HMG09_a31 : flood symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg09.isChecked():
             miss_lyrs = set_hmg09_flood(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG09_a31")
+            self._export_pdf(f"{file_prefix}_HMG09_a31.pdf", constants.field_kozui)
 
         # HMG10_a33 : sediment symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg10.isChecked():
             miss_lyrs = set_hmg10_sediments(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG10_a33")
+            self._export_pdf(f"{file_prefix}_HMG10_a33.pdf", constants.field_sediments)
 
         # HMG11_a40 : tsunami OR surge symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg11.isChecked():
@@ -366,19 +374,19 @@ class PDFExporter:
 
             miss_lyrs = set_hmg11_tsunami(gsi_std_lyr, label_mesh_score, hmg11_field)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG11_a40")
+            self._export_pdf(f"{file_prefix}_HMG11_a40.pdf", hmg11_field)
 
         # HMG12_a46 (OPTION): landslip symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg12.isChecked():
             miss_lyrs = set_hmg12_landslip(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG12_a46")
+            self._export_pdf(f"{file_prefix}_HMG12_a46.pdf", constants.field_jisuberi)
 
         # HMG13_a48 (OPTION): disaster symbol & score, gsi_standard 50%
         if self.main.checkBox_hmg13.isChecked():
             miss_lyrs = set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
             missing_layers.extend(miss_lyrs)
-            self._export_pdf("HMG13_a48")
+            self._export_pdf(f"{file_prefix}_HMG13_a48.pdf", constants.field_saigai)
 
         # End process message
         message = "PDFの出力が完了しました。\n"
@@ -386,9 +394,16 @@ class PDFExporter:
             message += "\n以下のレイヤが足りないため、PDFに表示しません。\n"
             message += "\n".join(missing_layers)
 
-        QMessageBox.information(None, "エラー", message)
+        QMessageBox.information(None, "完了", message)
 
-    def _export_pdf(self, map_title):
+    def _export_pdf(self, pdf_file_name: str, hazard_name="") -> None:
+        """Export pdf from a template layout.
+        input :
+        - pdf_name : raw PDF file name
+        - hazard_name (optional) : add to map if specified
+        output:
+        - No variable, but PDF file
+        """
         project = QgsProject.instance()
 
         if QgsProject.instance().mapLayersByName("waku"):
@@ -429,16 +444,13 @@ class PDFExporter:
         txt_title_item.setText(self.main.pdf_map_title.text())
 
         txt_year_item = layout.itemById("copyright")
-        copyright_txt = f"ハザードマップゲーム {str(datetime.date.today().year)} 東京カートグラフィック株式会社"
-        txt_year_item.setText(copyright_txt)
+        txt_year_item.setText(self.main.pdf_map_copyright.text())
+
+        txt_year_item = layout.itemById("hazard_name")
+        txt_year_item.setText(hazard_name)
 
         # Export PDF
         exporter = QgsLayoutExporter(layout)
-
-        pdf_file_name = f"{self.main.pdf_map_title.text()}_{map_title}.pdf"
-        if self.main.pdf_map_title.text() == "":
-            # remove first "_" if title is empty
-            pdf_file_name = pdf_file_name[1:]
 
         pdf_path = os.path.join(
             self.main.pdf_folder.filePath(),

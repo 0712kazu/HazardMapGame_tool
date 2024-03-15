@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QAction
 
 from ui.main_window import MainWindow
 
-PLUGIN_NAME = "sample"
+PLUGIN_NAME = "HMGデータ作成"
 
 
 class Sample:
@@ -13,6 +13,7 @@ class Sample:
         self.iface = iface
         self.win = self.iface.mainWindow()
         self.plugin_dir = os.path.dirname(__file__)
+        self.icon_path = os.path.join(self.plugin_dir, "imgs", "icon.png")
         self.actions = []
         self.menu = PLUGIN_NAME
         self.toolbar = self.iface.addToolBar(PLUGIN_NAME)
@@ -49,7 +50,7 @@ class Sample:
 
     def initGui(self):
         self.add_action(
-            icon_path="",
+            icon_path=os.path.join(self.plugin_dir, "imgs", "icon.png"),
             text="HMGデータ作成",
             callback=self.show_data_generator_window,
             parent=self.win,

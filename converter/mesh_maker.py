@@ -16,7 +16,7 @@ from qgis.utils import iface
 
 
 def _get_a1_paper_size():
-    return [0.841, 0.584]  # in meters
+    return [0.841, 0.594]  # in meters
 
 
 def _create_grid(grid_extent_str: str, grid_map_size: float) -> QgsVectorLayer:
