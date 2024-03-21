@@ -1,4 +1,3 @@
-{To do : 目次}
 ## 1. プログラム概要
 
 ### 前提条件
@@ -22,6 +21,7 @@
 ![Alt text](imgs/image-2.png)
 
 - インストールが完了すると、メニューバーの「プラグイン」に「HMGデータ作成」が追加される。
+
 ![Alt text](imgs/image-3.png)
 
 
@@ -269,6 +269,7 @@ HMG05_elev : 地理院標高地図が重なるタイル番号
 ![Alt text](imgs/image-22.png)
 
 HMG07_g01 : 地震
+
 ![Alt text](imgs/image-23.png)
 
 HMG09_a31 : 洪水
