@@ -13,15 +13,15 @@
 同梱のtcg-hmg-qgis.zipがアプリケーション本体です。PC内の任意の場所に配置してください。zipファイルの解凍は不要です。
 
 - 下記の手順でQGISにインストールします。
-![Alt text](image.png)
+![Alt text](imgs/image.png)
 - 左メニューの「ZIPからインストールする」を開き、tcg-hmg-qgis.zipを選択しインストールします。
-![Alt text](image-1.png)
+![Alt text](imgs/image-1.png)
 
 - 「インストール済み」を開き、「HMG DATA GENERATOR」をチェックします。
-![Alt text](image-2.png)
+![Alt text](imgs/image-2.png)
 
 - インストールが完了すると、メニューバーの「プラグイン」に「HMGデータ作成」が追加されます。
-![Alt text](image-3.png)
+![Alt text](imgs/image-3.png)
 
 
 
@@ -31,7 +31,7 @@
 - ② メッシュ作成
 - ③ ハザードマップゲームデータの作成
 - ④ PDFとシェープファイルの出力
-![Alt text](image-4.png)
+![Alt text](imgs/image-4.png)
 
 ## 2. シームレスデータの作成
 この処理がダウンロードしたデータを解凍し、まとめて一つのジオパッケージファイルを作成。
@@ -40,15 +40,15 @@
 
 ### 前準備
 - 対象データがZIP形式でダウンロードされます。
-![Alt text](image-7.png)
+![Alt text](imgs/image-7.png)
 - TO DO : ダウンロード先URL
 
 ### 出力ファイル
 - フォルダー指定した各項目のシームレスデータ(ジオパッケージ形式：.gpkg)
-![Alt text](image-6.png)
+![Alt text](imgs/image-6.png)
 
 ### 画面構成とその手順
-![Alt text](image-5.png)
+![Alt text](imgs/image-5.png)
 - ① 出力シームレスデータフォルダーを指定
 - ② 入力データフォルダー
   - フォルダーを指定した項目だけが処理されてます。
@@ -73,14 +73,14 @@
   - ②に指定したフォルダーの項目を処理されます。
   - データ量によると1~30分かかります。
   - 処理が完了すると、作成したファイル名が表示されます。
-  ![Alt text](image-8.png)
+  ![Alt text](imgs/image-8.png)
 - ⑤ 追加災害 (任意)
   - カスタマイズ項目を作成する場合以下の項目を指定してください。
     - フォルダー先（中身にZIPファイルが格納必須）
     - シームレスファイル名
     - ジオメトリの種類（ポリゴンかポイント）
     - ファイル形式 (CSV形式の場合、ジオメトリがポイントになり、XYのカラム指定が必須)
-    ![Alt text](image-9.png)
+    ![Alt text](imgs/image-9.png)
 
 ## 3. メッシュ作成
 - 指定した市区町村の領域から、または指定した中心点座標からHMGの対象エリアの枠と升(メッシュ)を作成。
@@ -96,7 +96,7 @@ QGISプロジェクト
 - 「mesh」仮レイヤ : HMGデータの指定メッシュ
 
 ### 画面構成とその手順
-![Alt text](image-10.png)
+![Alt text](imgs/image-10.png)
 - ① シームレスデータフォルダーを指定
   - 指定したシームレスフォルダーの中にjapan_cities.csvをUIの市区町村一覧に反映する。
   - japan_cities.csvが無い場合、プラグイン自体のdata/japancities.csvを指定される。
@@ -126,8 +126,8 @@ QGISプロジェクト
   - デフォルト陸域率：10%
 - ⑥ メッシュ作成ボタンを押すと実行されて枠とメッシュが作成される。
 
-![Alt text](image-11.png)
-![Alt text](image-12.png)
+![Alt text](imgs/image-11.png)
+![Alt text](imgs/image-12.png)
 
 
 ## 4. ハザードマップゲームデータの作成
@@ -136,7 +136,7 @@ QGISプロジェクト
 - 各ハザードに「waku」レイヤにクリップしたシームレスデータを追加
 - 参考：計算ロジック{spec URL TODO}
 
-![Alt text](image-15.png)
+![Alt text](imgs/image-15.png)
 
 ### 前準備
 - QGISプロジェクトに[3. メッシュ作成](3. メッシュ作成)で作成した「waku」と「mesh」レイヤ
@@ -148,7 +148,7 @@ QGISプロジェクト
 
 
 ### 画面構成と手順
-![Alt text](image-13.png)
+![Alt text](imgs/image-13.png)
 - ① シームレスデータフォルダーを指定
 - ② 追加災害 (任意) カスタマイズ災害のシームレスデータを作成した場合以下の項目を指定
   - シームレスファイル名：指定したシームレスデータフォルダーのカスタマイズデータファイル名（.gpkgを抜ける）
@@ -158,7 +158,7 @@ QGISプロジェクト
 - ③ HMGデータの作成を開始するボタンをクリックするとハザードスコアとTCG方式点数を計算される
   - 処理が終わったら以下の追加属性が表示されて、各ハザードのmesh_scoreレイヤとシームレスレイヤが追加される
 
-  ![Alt text](image-14.png)
+  ![Alt text](imgs/image-14.png)
 
 - ④ グラフ可視化と地図可視化の対象レイヤ
   - ③の処理が完了すると、自動で「mesh_score」に指定される。
@@ -224,7 +224,7 @@ QGISプロジェクト
   - PDF タイトルを指定しない場合タイムスタンプを付ける： {YYYYMMDDhhmmss}_HMG〇〇.pdf
 
 ### 画面構成と手順
-![Alt text](image-16.png)
+![Alt text](imgs/image-16.png)
 - ① PDF出力フォルダー
   - ④に選択する項目が指定したフォルダーに格納される
   - シェープファイルも指定したフォルダーに格納される
@@ -238,25 +238,25 @@ QGISプロジェクト
 - ⑤ PDF作成を始めるボタンを押すと出力処理を実行する
   - 選択項目数によると数分で完了する
 
-  ![Alt text](image-17.png)
+  ![Alt text](imgs/image-17.png)
 
 ### 出力PDFの事例
 「Sapporo」というのPDFタイトルを指定した出力事例
 
 HMG01_ans : 災害点数合計と避難所数
-![Alt text](image-18.png)
+![Alt text](imgs/image-18.png)
 
 HMG02b_base2 : 地理院陰影地図が重なるタイル番号
-![Alt text](image-19.png)
+![Alt text](imgs/image-19.png)
 
 HMG04_use : 土地利用
-![Alt text](image-21.png)
+![Alt text](imgs/image-21.png)
 
 HMG05_elev : 地理院標高地図が重なるタイル番号
-![Alt text](image-22.png)
+![Alt text](imgs/image-22.png)
 
 HMG07_g01 : 地震
-![Alt text](image-23.png)
+![Alt text](imgs/image-23.png)
 
 HMG09_a31 : 洪水
-![Alt text](image-20.png)
+![Alt text](imgs/image-20.png)
