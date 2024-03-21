@@ -13,11 +13,15 @@
 
 
 - 以下の手順に従って、QGISにインストールする。
+
 ![Alt text](imgs/image.png)
+
 - 左メニューの「ZIPからインストールする」を開き、tcg-hmg-qgis.zipを選択しインストール。
+
 ![Alt text](imgs/image-1.png)
 
 - 「インストール済み」を開き、「HMG DATA GENERATOR」をチェック。
+
 ![Alt text](imgs/image-2.png)
 
 - インストールが完了すると、メニューバーの「プラグイン」に「HMGデータ作成」が追加される。
@@ -46,6 +50,7 @@
 
 ### 出力ファイル
 - 各項目のシームレスデータ（ジオパッケージ形式：.gpkg）：指定したフォルダーに保存される。
+
 ![Alt text](imgs/image-6.png)
 
 ### 画面構成と手順
@@ -257,15 +262,19 @@ QGISプロジェクト
 「Sapporo」というのPDFタイトルを指定した出力事例
 
 HMG01_ans : 災害点数合計と避難所数
+
 ![Alt text](imgs/image-18.png)
 
 HMG02b_base2 : 地理院陰影地図が重なるタイル番号
+
 ![Alt text](imgs/image-19.png)
 
 HMG04_use : 土地利用
+
 ![Alt text](imgs/image-21.png)
 
 HMG05_elev : 地理院標高地図が重なるタイル番号
+
 ![Alt text](imgs/image-22.png)
 
 HMG07_g01 : 地震
@@ -273,4 +282,5 @@ HMG07_g01 : 地震
 ![Alt text](imgs/image-23.png)
 
 HMG09_a31 : 洪水
+
 ![Alt text](imgs/image-20.png)
