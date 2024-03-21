@@ -179,12 +179,49 @@ QGISプロジェクト
 - ⑦ TCG方式の点数化を始める
   - ④の対象レイヤにTCG方式を再計算
 ## 5. PDFとシェープファイル出力
-｛概要｝
-### 画面構成
+- 以下の項目を選択し、PDFを出力
+  - HMG01_ans : 災害点数合計と避難所数
+    - 災害点数合計はHMG06~HMG13に選択した項目を合計
+    - 災害点数合計は「mesh_score」レイヤに「hazard」属性追加されてシェープファイル形式で出力される
+  - HMG02_base : タイル番号のみ
+  - HMG02b_base2 : 地理院陰影地図が重なるタイル番号
+  - HMG03_tile : タイルのみ（番号なし）
+  - HMG04_use : 土地利用 
+  - HMG05_elev : 地理院標高地図が重なるタイル番号
+  - HMG06_g04 : 傾斜
+    - seamless_slopeレイヤをグラデーションでシンボライズ
+    - mesh_scoreレイヤのt_slope属性で点数を表示
+  - HMG07_g01 : 地震
+    - seamless_quakeレイヤをグラデーションでシンボライズ
+    - mesh_scoreレイヤのt_quake属性で点数を表示
+  - HMG08_a30 : 竜巻
+    - seamless_tornadoレイヤをシンボライズ
+    - mesh_scoreレイヤのt_tornado属性で点数を表示
+  - HMG09_a31 : 洪水
+    - seamless_floodレイヤをグラデーションでシンボライズ
+    - mesh_scoreレイヤのt_flood属性で点数を表示
+  - HMG10_a33 : 土砂
+    - seamless_sedimentレイヤをシンボライズ
+    - mesh_scoreレイヤのt_sediment属性で点数を表示
+  - HMG11_a40 : 津波か高潮
+    - seamless_tsunamiかseamless_surgeレイヤをグラデーションでシンボライズ
+    - mesh_scoreレイヤのt_tsunamiかt_surge属性で点数を表示
+  - HMG12_a46 : 地すべり
+    - seamless_landslipレイヤをシンボライズ
+    - mesh_scoreレイヤのt_landslip属性で点数を表示
+  - HMG13_a48 : 災害危険
+    - seamless_disasterレイヤをシンボライズ
+    - mesh_scoreレイヤのt_disaster属性で点数を表示
+- すべてのPDFが地理院地図を背景地図で使用される
+
 ### 前準備
 - QGISプロジェクトに[3. メッシュ作成](3. メッシュ作成)で作成した「waku」レイヤ
 - QGISプロジェクトに[4. ハザードマップゲームデータの作成](4. ハザードマップゲームデータの作成)で作成した「mesh_score」レイヤ
+
 ### 出力ファイル
 - 選択したPDFファイル
   - PDF タイトルを指定した場合： {PDFタイトル}_HMG〇〇.pdf
   - PDF タイトルを指定しない場合タイムスタンプを付ける： {YYYYMMDDhhmmss}_HMG〇〇.pdf
+
+### 画面構成と手順
+
