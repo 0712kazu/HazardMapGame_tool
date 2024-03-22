@@ -83,7 +83,11 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 ![Alt text](image-6.png)
 ### 2.2. 作成処理フロー（中心点指定） 
 ![Alt text](image-7.png)
-
+### 2.3. 履歴指定
+- mesh_production_log.csvのカラム構成
+![Alt text](image-8.png)
+- メッシュ・ワク作成処理フロー
+![Alt text](image-9.png)
 ## 3. ハザードマップゲームデータ作成
 
 - 点数付与処理
