@@ -8,13 +8,13 @@
 ## 1. シムレースデータ作成
 
 
-### 入力データ構成
+### 1.1. 入力データ構成
 
 フォルダー構成によって、各項目が自動的に指定される。
 フォルダー名を変更可能が、UIに個別で指定必要がある。
 ![Alt text](image.png)
 
-### 入力データのダウンロードURL
+### 1.2. 入力データのダウンロードURL
 各項目の参考なダウンロードURL。
 バージョンが変わる可能性がある。
 ZIP形式で上記のフォルダーへダウンロードし、解凍が不要。
@@ -32,7 +32,52 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 | P20 | 避難所  | 避難施設         | [https://www.gsi.go.jp/bousaichiri/hinanbasho.html#info2](https://www.gsi.go.jp/bousaichiri/hinanbasho.html#info2)                       |             |
 | G04 | 傾斜度  | 標高・傾斜度5次メッシュ | [https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-G04-d.html](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-G04-d.html)           |             |
 | L03 | 土地利用 | 土地利用細分メッシュ   | [https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html) |
-#### 1.2.2 ハザードマップゲームデータ作成
+
+### 1.3. 出力データ構成
+以下のファイル名が合わないとハザードマップゲームの処理ができない。
+![Alt text](image-1.png)
+
+### 1.4. シームレスデータ作成処理の仕様
+#### 1.4.1. ポリゴン系の項目
+
+![Alt text](image-2.png)
+
+| 対象項目 | 出力ファイル               |
+| ---- | -------------------- |
+| 土地利用 | l03_landuse.gpkg     |
+| 洪水   | a31_flood.gpkg       |
+| 土砂   | a33_sediments.gpkg   |
+| 津波   | a40_tsunami.gpkg     |
+| 地すべり | a46_landslip.gpkg    |
+| 災害危険 | a48_disaster.gpkg    |
+| 高潮   | a49_storm_surge.gpkg |
+| 地震   | b01_earthquake.gpkg  |
+| 傾斜度  | g04_slope.gpkg |
+
+#### 1.4.2. 竜巻
+- 2種類のポイントを１つにマージ
+- 500mのバッファを発生させる
+![Alt text](image-3.png)
+
+| 対象項目 | 出力ファイル               |
+| ---- | -------------------- |
+| 竜巻 | a30_tornado.gpkg     |
+
+#### 1.4.3. 避難施設
+- CSVの経度、緯度からポイントを生成する
+    - CSVファイルの経度カラム名：`経度`
+    - CSVファイルの緯度カラム名：`緯度`
+![Alt text](image-4.png)
+
+| 対象項目 | 出力ファイル               |
+| ---- | -------------------- |
+| 避難施設 | p20_refuge.gpkg     |
+
+
+#### 1.4.4. 市区町村
+![Alt text](image-5.png)
+
+#### 2. ハザードマップゲームデータ作成
 - メッシュ・ワクの作成
 - 点数付与処理
 
