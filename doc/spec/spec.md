@@ -147,8 +147,11 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 #### 津波
 #### 高潮
 #### 地震
+![Alt text](image-18.png)
 #### 傾斜度
+![Alt text](image-17.png)
 #### 避難施設
+![Alt text](image-16.png)
 
 ## 4. PDF
 
