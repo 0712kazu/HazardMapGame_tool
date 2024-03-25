@@ -145,6 +145,7 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 #### 災害危険
 ![Alt text](image-15.png)
 #### 津波
+![Alt text](image-19.png)
 #### 高潮
 #### 地震
 ![Alt text](image-18.png)
