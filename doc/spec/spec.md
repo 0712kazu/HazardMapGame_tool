@@ -155,28 +155,32 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 #### 避難施設
 ![Alt text](image-16.png)
 
-## 4. PDF
-### 
+## 4. PDFとSHP出力
+- 出力はマップのエクスポートでA1/300DPIのPDFで出力。
+- HMGデータより、背景地図やラベルレイヤの追加が必要。
+
 ### 4.1. 追加レイヤ
-label_score
-label_refuge
-label_id
-basemap_standard
-basemap_relief
-basemap_hillshade
+
+#### ラベル
+
+| レイヤ名         | 内容         | 色             | フォント                  | サイズ  | バッファ    | 対象属性   | 位置                          |
+| ------------ | ---------- | ------------- | --------------------- | ---- | ------- | ------ | --------------------------- |
+| label_id     | タイル番号      | #686868 (グレー) | Arial Rounded MT Bold | 26pt | 1.5mm 白 | id     | メッシュの中心点                    |
+| label_score  | タイルのハザード点数 | #ff0000 (赤)   | Arial Rounded MT Bold | 26pt | 1.5mm 白 | TBC    | メッシュの中心点からメッシュの1/5の長辺を下へずらす |
+| label_refuge | タイル内の避難所数  | #0070ff (緑)   | Arial Rounded MT Bold | 26pt | 1.5mm 白 | refuge | メッシュの中心点からメッシュの1/5の長辺を上へずらす |
 
 ### 4.1. 各種PDFの仕様
 |                   |  PDF項目            | HMG01<br>ans  | HMG02<br>base | HMG02b<br>base2 | HMG03<br>tile | HMG04<br>use | HMG05<br>elev | HMG06<br>g04   | HMG07<br>b01   | HMG08<br>a30    | HMG09<br>a31   | HMG10<br>a33      | HMG11<br>a40               | HMG12<br>a46      | HMG13<br>a48      |
 | ----------------- | ------------ | ------ | ----- | ------ | ----- | ----- | ----- | ------- | ------- | --------- | ------- | ---------- | ------------------- | ---------- | ---------- |
 |                   | デフォルト        | ✔      | ✔     | ✔      | ✔     | ✔     | ✔     | ✔       | ✔       |           | ✔       | ✔          | ✔                   |            |            |
 | レイヤ               | 内容           | 答え(フル) | タイル番号 | タイル番号  | タイル   | 土地利用  | 標高    | 傾斜      | 地震      | 竜巻        | 洪水      | 土砂         | 津波                  | 地すべり       | 災害危険       |
-| label_score       | タイル_点数       | hazard |       |        |       |       |       | t_slope | t_quake | t_tornado | t_flood | t_sediment | t_tsunami / t_surge | t_landslip | t_disaster |
-| label_refuge      | タイル_避難所数     | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
+| label_score       | タイル_点数       | hazard |       |        |       |       |       | t_slope | t_quake | t_tornado | t_flood | t_sediment | t_tsunami<br>かt_surge | t_landslip | t_disaster |
+| seamless_refuge   | 避難所          | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
+| label_refuge      | タイル_避難所数     | t_refuge      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
 | label_id          | タイル_番号       | 〇      | 〇     | 〇      |       | 〇     | 〇     | 〇       | 〇       | 〇         | 〇       | 〇          | 〇                   | 〇          | 〇          |
 | mesh_score        | タイル_枠線       | 70%    | 70%   | 70%    | 70%   | 70%   | 70%   | 70%     | 70%     | 70%       | 70%     | 70%        | 70%                 | 70%        | 70%        |
 | hazard_score      | タイル_点数ランク色わけ | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
 | waku              | 用紙枠線         |        |       |        |       |       |       |         |         |           |         |            |                     |            |            |
-| seamless_refuge   | 避難所          | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
 | seamless_slope    | 傾斜度          |        |       |        |       |       |       | 50% ※1  |         |           |         |            |                     |            |            |
 | seamless_quake    | 確立論的地震動予測    |        |       |        |       |       |       |         | 50% ※1  |           |         |            |                     |            |            |
 | seamless_tornado  | 竜巻等の突風       |        |       |        |       |       |       |         |         | 50%       |         |            |                     |            |            |
@@ -191,5 +195,5 @@ basemap_hillshade
 | basemap_relief    | 地理院 色別標高図    |        |       |        |       |       | 〇     |         |         |           |         |            |                     |            |            |
 | basemap_hillshade | 地理院 陰影       |        |       | 〇      |       |       |       |         |         |           |         |            |                     |            |
 
-※1　シンボル数値分類クラス10を都度設定する項目
-※2　東京都の津波浸水想定の代わり
+- ※1　シンボル数値分類クラス10を都度設定する項目
+- ※2　東京都の津波浸水想定の代わり
