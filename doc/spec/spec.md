@@ -169,13 +169,22 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 | label_score  | タイルのハザード点数 | #ff0000 (赤)   | Arial Rounded MT Bold | 26pt | 1.5mm 白 | TBC    | メッシュの中心点からメッシュの1/5の長辺を下へずらす |
 | label_refuge | タイル内の避難所数  | #0070ff (緑)   | Arial Rounded MT Bold | 26pt | 1.5mm 白 | refuge | メッシュの中心点からメッシュの1/5の長辺を上へずらす |
 
+### 背景地図
+
+| レイヤ名              | タイルURL                                                            |
+| ----------------- | ----------------------------------------------------------------- |
+| basemap_standard  | https://cyberjapandata.gsi.go.jp/xyz/std/{z}/{x}/{y}.png          |
+| basemap_relief    | https://cyberjapandata.gsi.go.jp/xyz/relief/{z}/{x}/{y}.png       |
+| basemap_hillshade | https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png |
+
+
 ### 4.1. 各種PDFの仕様
 |                   |  PDF項目            | HMG01<br>ans  | HMG02<br>base | HMG02b<br>base2 | HMG03<br>tile | HMG04<br>use | HMG05<br>elev | HMG06<br>g04   | HMG07<br>b01   | HMG08<br>a30    | HMG09<br>a31   | HMG10<br>a33      | HMG11<br>a40               | HMG12<br>a46      | HMG13<br>a48      |
 | ----------------- | ------------ | ------ | ----- | ------ | ----- | ----- | ----- | ------- | ------- | --------- | ------- | ---------- | ------------------- | ---------- | ---------- |
 |                   | デフォルト        | ✔      | ✔     | ✔      | ✔     | ✔     | ✔     | ✔       | ✔       |           | ✔       | ✔          | ✔                   |            |            |
 | レイヤ               | 内容           | 答え(フル) | タイル番号 | タイル番号  | タイル   | 土地利用  | 標高    | 傾斜      | 地震      | 竜巻        | 洪水      | 土砂         | 津波                  | 地すべり       | 災害危険       |
-| label_score       | タイル_点数       | hazard |       |        |       |       |       | t_slope | t_quake | t_tornado | t_flood | t_sediment | t_tsunami<br>かt_surge | t_landslip | t_disaster |
 | seamless_refuge   | 避難所          | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
+| label_score       | タイル_点数       | hazard |       |        |       |       |       | t_slope | t_quake | t_tornado | t_flood | t_sediment | t_tsunami<br>かt_surge | t_landslip | t_disaster |
 | label_refuge      | タイル_避難所数     | t_refuge      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
 | label_id          | タイル_番号       | 〇      | 〇     | 〇      |       | 〇     | 〇     | 〇       | 〇       | 〇         | 〇       | 〇          | 〇                   | 〇          | 〇          |
 | mesh_score        | タイル_枠線       | 70%    | 70%   | 70%    | 70%   | 70%   | 70%   | 70%     | 70%     | 70%       | 70%     | 70%        | 70%                 | 70%        | 70%        |
