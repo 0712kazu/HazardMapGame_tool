@@ -271,16 +271,57 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 
 ### 4.4. 出力PDFの事例
   - HMG01_ans : 災害点数合計と避難所数
+
+![Alt text](imgs/pdf_hmg_01.jpg)
+
   - HMG02_base : タイル番号のみ
+
+![Alt text](imgs/pdf_hmg_02.jpg)
+
   - HMG02b_base2 : 地理院陰影地図が重なるタイル番号
+  
+  ![Alt text](imgs/pdf_hmg_03.jpg)
+  
   - HMG03_tile : タイルのみ（番号なし）
+  
+  ![Alt text](imgs/pdf_hmg_04.jpg)
+  
   - HMG04_use : 土地利用 
+  
+  ![Alt text](imgs/pdf_hmg_05.jpg)
+  
   - HMG05_elev : 地理院標高地図が重なるタイル番号
+  
+  ![Alt text](imgs/pdf_hmg_06.jpg)
+  
   - HMG06_g04 : 傾斜
+  
+  ![Alt text](imgs/pdf_hmg_07.jpg)
+  
   - HMG07_g01 : 地震
+  
+  ![Alt text](imgs/pdf_hmg_08.jpg)
+  
   - HMG08_a30 : 竜巻
+  
+  ![Alt text](imgs/pdf_hmg_09.jpg)
+  
   - HMG09_a31 : 洪水
+  
+  ![Alt text](imgs/pdf_hmg_10.jpg)
+  
   - HMG10_a33 : 土砂
+  
+  ![Alt text](imgs/pdf_hmg_11.jpg)
+  
   - HMG11_a40 : 津波か高潮
+  
+  ![Alt text](imgs/pdf_hmg_12.jpg)
+  
   - HMG12_a46 : 地すべり
+  
+  ![Alt text](imgs/pdf_hmg_13.jpg)
+  
   - HMG13_a48 : 災害危険
+
+  ![Alt text](imgs/pdf_hmg_14.jpg)
