@@ -4,7 +4,7 @@
 - ② メッシュの作成
 - ③ ハザードマップゲームデータの作成
 - ④ PDFとシェープファイルの出力
-![Alt text](../manual/imgs/image-4.png)
+![Alt text](imgs/../manual/imgs/image-4.png)
 
 ## 1. シムレースデータ作成
 
@@ -12,7 +12,7 @@
 
 - フォルダー構成によって、各項目が自動的に指定される。
 - フォルダー名を変更可能が、UIに個別で指定必要がある。
-![Alt text](image.png)
+![Alt text](imgs/image.png)
 
 ### 1.2. 入力データのダウンロードURL
 各項目の参考なダウンロードURL。
@@ -35,12 +35,12 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 
 ### 1.3. 出力データ構成
 以下のファイル名が合わないとハザードマップゲームの処理ができない。
-![Alt text](image-1.png)
+![Alt text](imgs/image-1.png)
 
 ### 1.4. シームレスデータ作成処理の仕様
 #### 1.4.1. ポリゴン系の項目
 
-![Alt text](image-2.png)
+![Alt text](imgs/image-2.png)
 
 | 対象項目 | 出力ファイル               |
 | ---- | -------------------- |
@@ -57,7 +57,7 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 #### 1.4.2. 竜巻
 - 2種類のポイントを１つにマージ
 - 500mの融合したバッファを発生させる
-![Alt text](image-3.png)
+![Alt text](imgs/image-3.png)
 
 | 対象項目 | 出力ファイル               |
 | ---- | -------------------- |
@@ -67,7 +67,7 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 - CSVの経度、緯度からポイントを生成する
     - CSVファイルの経度カラム名：`経度`
     - CSVファイルの緯度カラム名：`緯度`
-![Alt text](image-4.png)
+![Alt text](imgs/image-4.png)
 
 | 対象項目 | 出力ファイル               |
 | ---- | -------------------- |
@@ -75,21 +75,21 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 
 
 #### 1.4.4. 市区町村
-![Alt text](image-5.png)
+![Alt text](imgs/image-5.png)
 
 ## 2. メッシュ・ワクの作成
 - ワクのA1サイズ：841mm x 594mm
 - メッシュIDを左上から右、その下の段の左から右、の順番に付与する
 
 ### 2.1. 作成処理フロー（市区町村指定） 
-![Alt text](image-6.png)
+![Alt text](imgs/image-6.png)
 ### 2.2. 作成処理フロー（中心点指定） 
-![Alt text](image-7.png)
+![Alt text](imgs/image-7.png)
 ### 2.3. 履歴指定
 - mesh_production_log.csvのカラム構成
-![Alt text](image-8.png)
+![Alt text](imgs/image-8.png)
 - メッシュ・ワク作成処理フロー
-![Alt text](image-9.png)
+![Alt text](imgs/image-9.png)
 ## 3. ハザードマップゲームデータ作成
 
 ### 3.1. 点数付与処理ロジック
@@ -134,27 +134,27 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 ### 3.2. 各種類の点数付与処理の仕様
 
 #### 土地利用
-![Alt text](image-10.png)
+![Alt text](imgs/image-10.png)
 #### 竜巻
-![Alt text](image-12.png)
+![Alt text](imgs/image-12.png)
 #### 洪水
-![Alt text](image-11.png)
+![Alt text](imgs/image-11.png)
 #### 土砂
-![Alt text](image-13.png)
+![Alt text](imgs/image-13.png)
 #### 地すべり
-![Alt text](image-14.png)
+![Alt text](imgs/image-14.png)
 #### 災害危険
-![Alt text](image-15.png)
+![Alt text](imgs/image-15.png)
 #### 津波
-![Alt text](image-19.png)
+![Alt text](imgs/image-19.png)
 #### 高潮
-![Alt text](image-20.png)
+![Alt text](imgs/image-20.png)
 #### 地震
-![Alt text](image-18.png)
+![Alt text](imgs/image-18.png)
 #### 傾斜度
-![Alt text](image-17.png)
+![Alt text](imgs/image-17.png)
 #### 避難施設
-![Alt text](image-16.png)
+![Alt text](imgs/image-16.png)
 
 ## 4. PDFとSHP出力
 - 出力はマップのエクスポートでA1/300DPIのPDFで出力。
@@ -267,7 +267,7 @@ ZIP形式で上記のフォルダーへダウンロードし、解凍が不要�
 | 0000     | 不明      | #e8e8e8 |
 
 ### 4.3. 出力処理フロー
-![Alt text](image-21.png)
+![Alt text](imgs/image-21.png)
 
 ### 4.4. 出力PDFの事例
   - HMG01_ans : 災害点数合計と避難所数
