@@ -4,7 +4,7 @@
 - ② メッシュの作成
 - ③ ハザードマップゲームデータの作成
 - ④ PDFとシェープファイルの出力
-![Alt text](imgs/../manual/imgs/image-4.png)
+![Alt text](../manual/imgs/image-4.png)
 
 ## 1. シムレースデータ作成
 
