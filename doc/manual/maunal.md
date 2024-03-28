@@ -39,14 +39,15 @@
 ![Alt text](imgs/image-4.png)
 
 ## 2. シームレスデータの作成
-この処理がダウンロードしたデータを解凍し、まとめて一つのジオパッケージファイルを作成。
-市区町村の場合、CSV形式で作成されます。
-<!--- TODO: Spec link (各項目の変換ロジック) --->
+- この処理がダウンロードしたデータを解凍し、まとめて一つのジオパッケージファイルを作成。
+- 市区町村の場合、CSV形式で作成されます。
+- [参考: シームレスデータデータ作成処理の仕様](../spec/spec.md#1-シムレースデータ作成)
 
 ### 前準備
 - 対象データがZIP形式でダウンロードされる。
+- [参考: 元データのダウンロード先](../spec/spec.md#12-入力データのダウンロードurl)
+
 ![Alt text](imgs/image-7.png)
-<!--- TODO: Spec link (Download URL references) --->
 
 ### 出力ファイル
 - 各項目のシームレスデータ（ジオパッケージ形式：.gpkg）：指定したフォルダーに保存される。
@@ -140,7 +141,7 @@ QGISプロジェクト
 - ハザードシームレスデータを利用して、「mesh」レイヤにハザードスコアとTCG方式の点数を計算。
 - 各ハザードスコアの結果を分類し、地図とグラフで可視化する。
 - 各ハザードに対して、「waku」レイヤにクリップしたシームレスデータを追加される。
-<!--- TODO: Spec link (Score calculation logic) --->
+- [参考: ハザードマップゲームデータの作成処理の仕様](../spec/spec.md#32-各種類の点数付与処理の仕様)
 
 ![Alt text](imgs/image-15.png)
 
@@ -172,7 +173,7 @@ QGISプロジェクト
 - ⑤ 各ハザードのグラフ可視化と地図可視化の設定
   - a. 分類方法：
     - 標準偏差
-    - TCG方式 <!--- TODO: Spec link (TCG方式ロジック) --->
+    - TCG方式 ([参考: TCG方式計算ロジック](../spec/spec.md#2-ランク計算ロジック))
     - カスタム：d.で比率を編集する。
   - b. 最大分類数
   - c. 画像作成
@@ -221,6 +222,8 @@ QGISプロジェクト
     - mesh_scoreレイヤのt_disaster属性で点数を表示
 - すべてのPDFには地理院地図が背景地図として使用される。
 
+- [参考: 出力PDFの事例](../spec/spec.md#44-出力pdfの事例)
+
 ### 前準備
 - QGISプロジェクトに作成した「waku」レイヤ
 - QGISプロジェクトにハザードマップゲームデータを作成した「mesh_score」レイヤ
@@ -257,30 +260,3 @@ QGISプロジェクト
   - 選択項目数によっては数分で完了する。
 
   ![Alt text](imgs/image-17.png)
-
-### 出力PDFの事例
-「Sapporo」というのPDFタイトルを指定した出力事例
-
-HMG01_ans : 災害点数合計と避難所数
-
-![Alt text](imgs/image-18.png)
-
-HMG02b_base2 : 地理院陰影地図が重なるタイル番号
-
-![Alt text](imgs/image-19.png)
-
-HMG04_use : 土地利用
-
-![Alt text](imgs/image-21.png)
-
-HMG05_elev : 地理院標高地図が重なるタイル番号
-
-![Alt text](imgs/image-22.png)
-
-HMG07_g01 : 地震
-
-![Alt text](imgs/image-23.png)
-
-HMG09_a31 : 洪水
-
-![Alt text](imgs/image-20.png)
