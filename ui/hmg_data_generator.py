@@ -233,6 +233,8 @@ class HMGDataGenerator:
         self.main.comboBox_pref.clear()
         self.main.filter_pref.clear()
         self.main.filter_city.clear()
+        # add default value
+        self.main.comboBox_pref.addItem("都道府県を選択")
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
@@ -242,6 +244,8 @@ class HMGDataGenerator:
     def _on_pref_filter_changed(self):
         text = self.main.filter_pref.text()
         self.main.comboBox_pref.clear()
+        # add default value
+        self.main.comboBox_city.addItem("都道府県を選択")
 
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
@@ -258,10 +262,14 @@ class HMGDataGenerator:
             for name in names:
                 self.main.comboBox_pref.addItem(name)
         self.main.filter_city.clear()
+        # add default value
+        self.main.comboBox_city.addItem("市区町村を選択")
 
     def _on_city_filter_changed(self):
         text = self.main.filter_city.text()
         self.main.comboBox_city.clear()
+        # add default value
+        self.main.comboBox_city.addItem("市区町村を選択")
 
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
@@ -280,6 +288,8 @@ class HMGDataGenerator:
 
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
+        # add default value
+        self.main.comboBox_city.addItem("市区町村を選択")
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             names = list(
@@ -367,6 +377,23 @@ class HMGDataGenerator:
 
         if self.main.radioButton_city.isChecked():
             # 市区町村からメッシュを作成する
+
+            # check selected pref city
+            if self.main.comboBox_pref.currentText() == "都道府県を選択":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "都道府県が指定していません。",
+                )
+                return
+            if self.main.comboBox_city.currentText() == "市区町村を選択":
+                QMessageBox.information(
+                    None,
+                    "エラー",
+                    "市区町村が指定していません。",
+                )
+                return
+
             mesh_lyr = generate_mesh_city(
                 self.main.comboBox_pref.currentText(),
                 self.main.comboBox_city.currentText(),
