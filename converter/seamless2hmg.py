@@ -28,7 +28,7 @@ def _clip_with_valid_geometries(
                 selectedFeaturesOnly=False,
                 featureLimit=-1,
                 flags=qpfsd.FlagOverrideDefaultGeometryCheck,
-                geometryCheck=QgsFeatureRequest.GeometryNoCheck,
+                geometryCheck=QgsFeatureRequest.GeometrySkipInvalid,
             ),
             "OVERLAY": overlay_layer,
             "OUTPUT": "TEMPORARY_OUTPUT",
