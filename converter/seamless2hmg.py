@@ -426,7 +426,7 @@ def seamless2hmg_kosui(
                 selectedFeaturesOnly=False,
                 featureLimit=-1,
                 flags=qpfsd.FlagOverrideDefaultGeometryCheck,
-                geometryCheck=QgsFeatureRequest.GeometryNoCheck,
+                geometryCheck=QgsFeatureRequest.GeometrySkipInvalid,
             ),
             "PREDICATE": [0],
             "INTERSECT": waku_lyr,
