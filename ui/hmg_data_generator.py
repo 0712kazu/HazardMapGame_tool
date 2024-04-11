@@ -374,86 +374,98 @@ class HMGDataGenerator:
     def generate_mesh(self):
         # set map to webmercator
         set_map_canvas_to_webmercator()
+        try:
+            if self.main.radioButton_city.isChecked():
+                # 市区町村からメッシュを作成する
 
-        if self.main.radioButton_city.isChecked():
-            # 市区町村からメッシュを作成する
+                # check selected pref city
+                if self.main.comboBox_pref.currentText() == "都道府県を選択":
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "都道府県が指定していません。",
+                    )
+                    return
+                if self.main.comboBox_city.currentText() == "市区町村を選択":
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "市区町村が指定していません。",
+                    )
+                    return
 
-            # check selected pref city
-            if self.main.comboBox_pref.currentText() == "都道府県を選択":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "都道府県が指定していません。",
+                mesh_lyr = generate_mesh_city(
+                    self.main.comboBox_pref.currentText(),
+                    self.main.comboBox_city.currentText(),
+                    self.pref_city_csv,
                 )
-                return
-            if self.main.comboBox_city.currentText() == "市区町村を選択":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "市区町村が指定していません。",
+
+            elif self.main.radioButton_point.isChecked():
+                if (
+                    self.main.lineEdit_x.text() == ""
+                    or self.main.lineEdit_y.text() == ""
+                ):
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "中心点が指定していません。",
+                    )
+                    return
+                # 中心点座標からメッシュを作成する
+                mesh_lyr = generate_mesh_point(
+                    float(self.main.lineEdit_x.text()),
+                    float(self.main.lineEdit_y.text()),
+                    self.main.nb_mesh1.value(),
+                    self.main.nb_mesh2.value(),
+                    self.main.comboBox_orientation.currentText(),
+                    self.main.a1_scale_widget.scale(),
                 )
-                return
 
-            mesh_lyr = generate_mesh_city(
-                self.main.comboBox_pref.currentText(),
-                self.main.comboBox_city.currentText(),
-                self.pref_city_csv,
+            # exclude offshore mesh (more than 90% of water)
+            landuse_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_LANDUSE,
             )
-
-        elif self.main.radioButton_point.isChecked():
-            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "中心点が指定していません。",
+            if os.path.exists(landuse_path):
+                landuse_lyr = QgsVectorLayer(
+                    landuse_path,
+                    "landuse_merged",
+                    "ogr",
                 )
-                return
-            # 中心点座標からメッシュを作成する
-            mesh_lyr = generate_mesh_point(
-                float(self.main.lineEdit_x.text()),
-                float(self.main.lineEdit_y.text()),
-                self.main.nb_mesh1.value(),
-                self.main.nb_mesh2.value(),
-                self.main.comboBox_orientation.currentText(),
-                self.main.a1_scale_widget.scale(),
+                mesh_lyr = exclude_offshore_mesh(
+                    mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
+                )
+            else:
+                message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
+                message += "マスに陸域率を100%に指定します。"
+                QMessageBox.information(None, "お知らせ", message)
+                mesh_lyr = processing.run(
+                    "native:fieldcalculator",
+                    {
+                        "INPUT": mesh_lyr,
+                        "FIELD_NAME": "land_rate",
+                        "FIELD_TYPE": 0,
+                        "FIELD_LENGTH": 0,
+                        "FIELD_PRECISION": 0,
+                        "FORMULA": "1",
+                        "OUTPUT": "TEMPORARY_OUTPUT",
+                    },
+                )["OUTPUT"]
+
+            # set mesh_id with left to right then up to bottom order
+            set_mesh_id(mesh_lyr)
+
+            add_to_map(mesh_lyr, "mesh")
+
+            QMessageBox.information(None, "完了", "メッシュの作成が完了しました。")
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
             )
-
-        # exclude offshore mesh (more than 90% of water)
-        landuse_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDUSE
-        )
-        if os.path.exists(landuse_path):
-            landuse_lyr = QgsVectorLayer(
-                landuse_path,
-                "landuse_merged",
-                "ogr",
-            )
-            mesh_lyr = exclude_offshore_mesh(
-                mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
-            )
-        else:
-            message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
-            message += "マスに陸域率を100%に指定します。"
-            QMessageBox.information(None, "お知らせ", message)
-            mesh_lyr = processing.run(
-                "native:fieldcalculator",
-                {
-                    "INPUT": mesh_lyr,
-                    "FIELD_NAME": "land_rate",
-                    "FIELD_TYPE": 0,
-                    "FIELD_LENGTH": 0,
-                    "FIELD_PRECISION": 0,
-                    "FORMULA": "1",
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-
-        # set mesh_id with left to right then up to bottom order
-        set_mesh_id(mesh_lyr)
-
-        add_to_map(mesh_lyr, "mesh")
-
-        QMessageBox.information(None, "完了", "メッシュの作成が完了しました。")
+            return
 
     def process_hmg(self):
         # error handling
