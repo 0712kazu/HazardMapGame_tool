@@ -7,11 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>851</width>
-    <height>843</height>
+    <height>700</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>HMGデータ作成</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
@@ -30,6 +33,18 @@
    </item>
    <item row="2" column="0">
     <widget class="QTabWidget" name="tabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>700</height>
+      </size>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -834,6 +849,48 @@
       <attribute name="title">
        <string>HMGデータ作成</string>
       </attribute>
+
+      <!-- SCROLL FUNCTION -->
+          <widget class="QScrollArea" name="scrollArea">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>1310</horstretch>
+           <verstretch>500</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>1310</width>
+           <height>700</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>10000</width>
+           <height>700</height>
+          </size>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOn</enum>
+         </property>
+         <property name="sizeAdjustPolicy">
+          <enum>QAbstractScrollArea::AdjustToContents</enum>
+         </property>
+         <property name="widgetResizable">
+          <bool>true</bool>
+         </property>
+         <widget class="QWidget" name="scrollAreaWidgetContents">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1294</width>
+            <height>100</height>
+           </rect>
+          </property>
       <layout class="QGridLayout" name="gridLayout_2">
         <item row="2" column="0">
           <layout class="QHBoxLayout" name="horizontalLayout">
@@ -1006,7 +1063,7 @@
         <widget class="QGroupBox" name="groupBox_5">
          <property name="title">
           <string>分類設定</string>
-         </property>
+         </property>          
          <!-- title, max breaks, show graph button line -->
          <layout class="QGridLayout" name="gridLayout_classifwidget">
          <!-- Classification 1: Tornado  -->
@@ -3925,8 +3982,8 @@
               </widget>
             </item>
           </layout>
-
-        </widget>
+          </widget>
+       
        </item> 
        <!-- LAUNCH / CLOSE BUTTONS -->
          <item row="4" column="0">
@@ -3960,8 +4017,25 @@
          </item>
         </layout>
        </item>
+        <item>
+        <item row="5" column="0">
+          <spacer name="horizontalSpacer">
+          <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+            <size>
+            <width>40</width>
+            <height>40</height>
+            </size>
+          </property>
+          </spacer>
+        </item>
+        </item>
          </layout>
        </widget>
+         </widget>
+        </widget>
 
 <!-- PDF TAB -->
     <widget class="QWidget" name="tab_4_pdf">
@@ -4300,7 +4374,7 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>40</width>
-         <height>300</height>
+         <height>100</height>
         </size>
        </property>
       </spacer>

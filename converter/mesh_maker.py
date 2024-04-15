@@ -10,9 +10,11 @@ from qgis.core import (
     QgsVectorLayer,
     QgsProcessing,
     QgsFeatureRequest,
+    QgsProcessingFeatureSourceDefinition,
 )
 
 from qgis.utils import iface
+from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 
 def _get_a1_paper_size():
@@ -229,7 +231,13 @@ def exclude_offshore_mesh(
     landuse_clipped = processing.run(
         "native:clip",
         {
-            "INPUT": landuse_lyr,
+            "INPUT": QgsProcessingFeatureSourceDefinition(
+                landuse_lyr.source(),
+                selectedFeaturesOnly=False,
+                featureLimit=-1,
+                flags=qpfsd.FlagOverrideDefaultGeometryCheck,
+                geometryCheck=QgsFeatureRequest.GeometrySkipInvalid,
+            ),
             "OVERLAY": mesh_lyr,
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
@@ -250,12 +258,21 @@ def exclude_offshore_mesh(
         },
     )["OUTPUT"]
 
+    landuse_fixed = processing.run(
+        "native:fixgeometries",
+        {
+            "INPUT": landuse_reprojected,
+            "METHOD": 1,
+            "OUTPUT": "TEMPORARY_OUTPUT",
+        },
+    )["OUTPUT"]
+
     # intersect with mesh CRS
     landuse_intersected = processing.run(
         "native:intersection",
         {
             "INPUT": mesh_lyr,
-            "OVERLAY": landuse_reprojected,
+            "OVERLAY": landuse_fixed,
             "INPUT_FIELDS": [],
             "OVERLAY_FIELDS": ["土地利用種"],
             "OVERLAY_FIELDS_PREFIX": "",

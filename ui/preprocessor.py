@@ -5,7 +5,7 @@ import subprocess
 import csv
 
 from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
-
+from PyQt5.QtCore import Qt
 
 from constants import (
     INPUT_DIR_TATUMAKI,
@@ -45,6 +45,11 @@ from utils import (
 class Preprocessor:
     def __init__(self, main: QDialog):
         self.main = main
+        self.main.setWindowFlags(
+            Qt.WindowMinimizeButtonHint
+            | Qt.WindowCloseButtonHint
+            | Qt.WindowMaximizeButtonHint
+        )
 
         self.main.pushButton_run_2.clicked.connect(self.run)
         self.main.pushButton_cancel.clicked.connect(self.main.close)
