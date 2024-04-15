@@ -132,7 +132,8 @@ def add_xyz_basemap_layer(url: str, layer_name: str) -> QgsRasterLayer:
     """add a xyz layer from URL, at the bottom of layer tree"""
     url = f"type=xyz&url={url}&zmax=15&zmin=0&crs=EPSG3857"
     xyz_layer = QgsRasterLayer(url, layer_name, "wms")
-    QgsProject.instance().addMapLayer(xyz_layer)
+    QgsProject.instance().addMapLayer(xyz_layer, False)
+    QgsProject.instance().layerTreeRoot().addLayer(xyz_layer)
 
     return xyz_layer
 
