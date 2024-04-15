@@ -127,90 +127,99 @@ class Preprocessor:
 
         # process list
         self.seamless_processed = []
-        if self.main.QgsFileWidget_tatumaki.filePath():
-            self.preprocess_tatumaki(
-                self.main.QgsFileWidget_tatumaki.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+        try:
+            if self.main.QgsFileWidget_tatumaki.filePath():
+                self.preprocess_tatumaki(
+                    self.main.QgsFileWidget_tatumaki.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_kozui.filePath():
-            self.preprocess_kozui(
-                self.main.QgsFileWidget_kozui.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_kozui.filePath():
+                self.preprocess_kozui(
+                    self.main.QgsFileWidget_kozui.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_sediments.filePath():
-            self.preprocess_sediments(
-                self.main.QgsFileWidget_sediments.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_sediments.filePath():
+                self.preprocess_sediments(
+                    self.main.QgsFileWidget_sediments.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_tsunami.filePath():
-            self.preprocess_tsunami(
-                self.main.QgsFileWidget_tsunami.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_tsunami.filePath():
+                self.preprocess_tsunami(
+                    self.main.QgsFileWidget_tsunami.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_jisuberi.filePath():
-            self.preprocess_jisuberi(
-                self.main.QgsFileWidget_jisuberi.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_jisuberi.filePath():
+                self.preprocess_jisuberi(
+                    self.main.QgsFileWidget_jisuberi.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_saigai.filePath():
-            self.preprocess_saigai(
-                self.main.QgsFileWidget_saigai.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_saigai.filePath():
+                self.preprocess_saigai(
+                    self.main.QgsFileWidget_saigai.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_surge.filePath():
-            self.preprocess_surge(
-                self.main.QgsFileWidget_surge.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_surge.filePath():
+                self.preprocess_surge(
+                    self.main.QgsFileWidget_surge.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_earthquake.filePath():
-            self.preprocess_earthquake(
-                self.main.QgsFileWidget_earthquake.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_earthquake.filePath():
+                self.preprocess_earthquake(
+                    self.main.QgsFileWidget_earthquake.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_slope.filePath():
-            self.preprocess_slope(
-                self.main.QgsFileWidget_slope.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_slope.filePath():
+                self.preprocess_slope(
+                    self.main.QgsFileWidget_slope.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_refuge.filePath():
-            self.preprocess_refuge(
-                self.main.QgsFileWidget_refuge.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_refuge.filePath():
+                self.preprocess_refuge(
+                    self.main.QgsFileWidget_refuge.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_tochiriyou.filePath():
-            self.preprocess_tochiriyou(
-                self.main.QgsFileWidget_tochiriyou.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_tochiriyou.filePath():
+                self.preprocess_tochiriyou(
+                    self.main.QgsFileWidget_tochiriyou.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_shikuchoson.filePath():
-            self.preprocess_shikuchoson(
-                self.main.QgsFileWidget_shikuchoson.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_shikuchoson.filePath():
+                self.preprocess_shikuchoson(
+                    self.main.QgsFileWidget_shikuchoson.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        if self.main.QgsFileWidget_custom.filePath():
-            self.preprocess_custom(
-                self.main.QgsFileWidget_custom.filePath(),
-                self.main.FileWidgetSeamlessDir.filePath(),
-            )
+            if self.main.QgsFileWidget_custom.filePath():
+                self.preprocess_custom(
+                    self.main.QgsFileWidget_custom.filePath(),
+                    self.main.FileWidgetSeamlessDir.filePath(),
+                )
 
-        message = "シムレスデータの作成が完了しました。\n"
-        for seamless_data in self.seamless_processed:
-            message += f"{seamless_data}\n"
-        if len(self.seamless_processed) == 0:
-            message = "データがありませんでした。"
-        QMessageBox.information(None, "完了", message)
+            message = "シムレスデータの作成が完了しました。\n"
+            for seamless_data in self.seamless_processed:
+                message += f"{seamless_data}\n"
+            if len(self.seamless_processed) == 0:
+                message = "データがありませんでした。"
+            QMessageBox.information(None, "完了", message)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
+            return
 
     def preprocess_tochiriyou(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")

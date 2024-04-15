@@ -374,86 +374,98 @@ class HMGDataGenerator:
     def generate_mesh(self):
         # set map to webmercator
         set_map_canvas_to_webmercator()
+        try:
+            if self.main.radioButton_city.isChecked():
+                # 市区町村からメッシュを作成する
 
-        if self.main.radioButton_city.isChecked():
-            # 市区町村からメッシュを作成する
+                # check selected pref city
+                if self.main.comboBox_pref.currentText() == "都道府県を選択":
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "都道府県が指定していません。",
+                    )
+                    return
+                if self.main.comboBox_city.currentText() == "市区町村を選択":
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "市区町村が指定していません。",
+                    )
+                    return
 
-            # check selected pref city
-            if self.main.comboBox_pref.currentText() == "都道府県を選択":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "都道府県が指定していません。",
+                mesh_lyr = generate_mesh_city(
+                    self.main.comboBox_pref.currentText(),
+                    self.main.comboBox_city.currentText(),
+                    self.pref_city_csv,
                 )
-                return
-            if self.main.comboBox_city.currentText() == "市区町村を選択":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "市区町村が指定していません。",
+
+            elif self.main.radioButton_point.isChecked():
+                if (
+                    self.main.lineEdit_x.text() == ""
+                    or self.main.lineEdit_y.text() == ""
+                ):
+                    QMessageBox.information(
+                        None,
+                        "エラー",
+                        "中心点が指定していません。",
+                    )
+                    return
+                # 中心点座標からメッシュを作成する
+                mesh_lyr = generate_mesh_point(
+                    float(self.main.lineEdit_x.text()),
+                    float(self.main.lineEdit_y.text()),
+                    self.main.nb_mesh1.value(),
+                    self.main.nb_mesh2.value(),
+                    self.main.comboBox_orientation.currentText(),
+                    self.main.a1_scale_widget.scale(),
                 )
-                return
 
-            mesh_lyr = generate_mesh_city(
-                self.main.comboBox_pref.currentText(),
-                self.main.comboBox_city.currentText(),
-                self.pref_city_csv,
+            # exclude offshore mesh (more than 90% of water)
+            landuse_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_LANDUSE,
             )
-
-        elif self.main.radioButton_point.isChecked():
-            if self.main.lineEdit_x.text() == "" or self.main.lineEdit_y.text() == "":
-                QMessageBox.information(
-                    None,
-                    "エラー",
-                    "中心点が指定していません。",
+            if os.path.exists(landuse_path):
+                landuse_lyr = QgsVectorLayer(
+                    landuse_path,
+                    "landuse_merged",
+                    "ogr",
                 )
-                return
-            # 中心点座標からメッシュを作成する
-            mesh_lyr = generate_mesh_point(
-                float(self.main.lineEdit_x.text()),
-                float(self.main.lineEdit_y.text()),
-                self.main.nb_mesh1.value(),
-                self.main.nb_mesh2.value(),
-                self.main.comboBox_orientation.currentText(),
-                self.main.a1_scale_widget.scale(),
+                mesh_lyr = exclude_offshore_mesh(
+                    mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
+                )
+            else:
+                message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
+                message += "マスに陸域率を100%に指定します。"
+                QMessageBox.information(None, "お知らせ", message)
+                mesh_lyr = processing.run(
+                    "native:fieldcalculator",
+                    {
+                        "INPUT": mesh_lyr,
+                        "FIELD_NAME": "land_rate",
+                        "FIELD_TYPE": 0,
+                        "FIELD_LENGTH": 0,
+                        "FIELD_PRECISION": 0,
+                        "FORMULA": "1",
+                        "OUTPUT": "TEMPORARY_OUTPUT",
+                    },
+                )["OUTPUT"]
+
+            # set mesh_id with left to right then up to bottom order
+            set_mesh_id(mesh_lyr)
+
+            add_to_map(mesh_lyr, "mesh")
+
+            QMessageBox.information(None, "完了", "メッシュの作成が完了しました。")
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
             )
-
-        # exclude offshore mesh (more than 90% of water)
-        landuse_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDUSE
-        )
-        if os.path.exists(landuse_path):
-            landuse_lyr = QgsVectorLayer(
-                landuse_path,
-                "landuse_merged",
-                "ogr",
-            )
-            mesh_lyr = exclude_offshore_mesh(
-                mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
-            )
-        else:
-            message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
-            message += "マスに陸域率を100%に指定します。"
-            QMessageBox.information(None, "お知らせ", message)
-            mesh_lyr = processing.run(
-                "native:fieldcalculator",
-                {
-                    "INPUT": mesh_lyr,
-                    "FIELD_NAME": "land_rate",
-                    "FIELD_TYPE": 0,
-                    "FIELD_LENGTH": 0,
-                    "FIELD_PRECISION": 0,
-                    "FORMULA": "1",
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-
-        # set mesh_id with left to right then up to bottom order
-        set_mesh_id(mesh_lyr)
-
-        add_to_map(mesh_lyr, "mesh")
-
-        QMessageBox.information(None, "完了", "メッシュの作成が完了しました。")
+            return
 
     def process_hmg(self):
         # error handling
@@ -478,235 +490,251 @@ class HMGDataGenerator:
         # list of hazard processed
         hmg_processed = []
 
-        waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
-        mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
+        try:
+            waku_lyr = QgsProject.instance().mapLayersByName("waku")[0]
+            mesh_lyr = QgsProject.instance().mapLayersByName("mesh")[0]
 
-        # 土地利用
-        # clip data seamless data only
-        landuse_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDUSE
-        )
-        if os.path.exists(landuse_path):
-            landuse_lyr = QgsVectorLayer(
-                landuse_path,
-                "landuse_merged",
-                "ogr",
+            # 土地利用
+            # clip data seamless data only
+            landuse_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_LANDUSE,
             )
-            if landuse_lyr:
-                seamless2hmg_landuse(landuse_lyr, waku_lyr)
-
-        # 竜巻
-        tornado_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_TORNADO
-        )
-        if os.path.exists(tornado_path):
-            tornado_lyr = QgsVectorLayer(
-                tornado_path,
-                "tornado_merged",
-                "ogr",
-            )
-            if tornado_lyr:
-                mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_tornado)
-
-        # 洪水
-        kouzui_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_FLOOD
-        )
-        if os.path.exists(kouzui_path):
-            kouzui_lyr = QgsVectorLayer(
-                kouzui_path,
-                "kouzui_merged",
-                "ogr",
-            )
-            mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
-            hmg_processed.append(constants.field_kozui)
-
-        # 土砂
-        sediments_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_SEDIMENTS,
-        )
-        if os.path.exists(sediments_path):
-            sediments_lyr = QgsVectorLayer(
-                sediments_path,
-                "sediments_merged",
-                "ogr",
-            )
-            if sediments_lyr:
-                mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_sediments)
-
-        # 津波
-        tsunami_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_TSUNAMI,
-        )
-        if os.path.exists(tsunami_path):
-            tsunami_lyr = QgsVectorLayer(
-                tsunami_path,
-                "tsunami_merged",
-                "ogr",
-            )
-            if tsunami_lyr:
-                mesh_lyr = seamless2hmg_tsunami(tsunami_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_tsunami)
-
-        # 地すべり
-        jisuberi_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_LANDSLIP
-        )
-        if os.path.exists(jisuberi_path):
-            jisuberi_lyr = QgsVectorLayer(
-                jisuberi_path,
-                "jisuberi_merged",
-                "ogr",
-            )
-            if jisuberi_lyr:
-                mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_jisuberi)
-
-        # 災害危険
-        saigai_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(), constants.SEAMLESS_FILE_DISASTER
-        )
-        if os.path.exists(saigai_path):
-            saigai_lyr = QgsVectorLayer(
-                saigai_path,
-                "saigai_merged",
-                "ogr",
-            )
-            if saigai_lyr:
-                mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_saigai)
-
-        # 高潮
-        surge_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_SURGE,
-        )
-        if os.path.exists(surge_path):
-            surge_lyr = QgsVectorLayer(
-                surge_path,
-                "surge_merged",
-                "ogr",
-            )
-            if surge_lyr:
-                mesh_lyr = seamless2hmg_surge(surge_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_surge)
-
-        # 地震
-        earthquake_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_EARTHQUAKE,
-        )
-        if os.path.exists(earthquake_path):
-            earthquake_lyr = QgsVectorLayer(
-                earthquake_path,
-                "earthquake_merged",
-                "ogr",
-            )
-            if earthquake_lyr:
-                mesh_lyr = seamless2hmg_earthquake(earthquake_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_earthquake)
-
-        # 傾斜度
-        slope_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_SLOPE,
-        )
-        if os.path.exists(slope_path):
-            slope_lyr = QgsVectorLayer(
-                slope_path,
-                "slope_merged",
-                "ogr",
-            )
-            if slope_lyr:
-                mesh_lyr = seamless2hmg_slope(slope_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_slope)
-
-        # 避難施設
-        refuge_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            constants.SEAMLESS_FILE_REFUGE,
-        )
-        if os.path.exists(refuge_path):
-            refuge_lyr = QgsVectorLayer(
-                refuge_path,
-                "refuge_merged",
-                "ogr",
-            )
-            if refuge_lyr:
-                mesh_lyr = seamless2hmg_refuge(refuge_lyr, mesh_lyr, waku_lyr)
-                hmg_processed.append(constants.field_refuge)
-
-        # 追加災害
-        custom_path = os.path.join(
-            self.main.FileWidgetSeamlessDir.filePath(),
-            self.main.custom_hmg_seamlessfilename.text() + ".gpkg",
-        )
-        print(custom_path)
-        if os.path.exists(custom_path):
-            custom_lyr = QgsVectorLayer(
-                custom_path,
-                "hazard_custom_merged",
-                "ogr",
-            )
-            custom_field = self.main.custom_hmg_fieldname.text()
-            if custom_lyr and custom_field != "":
-                # checked calculation method
-                if self.main.btn_custom_calc_sumsurf.isChecked():
-                    calc_method = "sum_surfaces"
-                if self.main.btn_custom_calc_sumsurfvalue.isChecked():
-                    calc_method = "sum_surfaces_values"
-                if self.main.btn_custom_calc_centroidmean.isChecked():
-                    calc_method = "centroid_value_mean"
-                if self.main.btn_custom_calc_countpoints.isChecked():
-                    calc_method = "count_points"
-
-                mesh_lyr = seamless2hmg_custom(
-                    custom_lyr,
-                    mesh_lyr,
-                    waku_lyr,
-                    custom_field,
-                    calc_method,
-                    self.main.custom_seamless_fieldname.text(),
-                    self.main.custom_inland_adjust_checkbox.isChecked(),
+            if os.path.exists(landuse_path):
+                landuse_lyr = QgsVectorLayer(
+                    landuse_path,
+                    "landuse_merged",
+                    "ogr",
                 )
-                hmg_processed.append(custom_field)
-                # change name of classification class
-                self.main.label_classif_title_custom.setText(
-                    self.main.custom_hmg_seamlessfilename.text()
+                if landuse_lyr:
+                    seamless2hmg_landuse(landuse_lyr, waku_lyr)
+
+            # 竜巻
+            tornado_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_TORNADO,
+            )
+            if os.path.exists(tornado_path):
+                tornado_lyr = QgsVectorLayer(
+                    tornado_path,
+                    "tornado_merged",
+                    "ogr",
                 )
-            elif custom_lyr and custom_field == "":
-                message = "追加災害の属性名が記入されてません。"
-                QMessageBox.information(None, "お知らせ", message)
+                if tornado_lyr:
+                    mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_tornado)
+
+            # 洪水
+            kouzui_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_FLOOD,
+            )
+            if os.path.exists(kouzui_path):
+                kouzui_lyr = QgsVectorLayer(
+                    kouzui_path,
+                    "kouzui_merged",
+                    "ogr",
+                )
+                mesh_lyr = seamless2hmg_kosui(kouzui_lyr, waku_lyr, mesh_lyr, iface)
+                hmg_processed.append(constants.field_kozui)
+
+            # 土砂
+            sediments_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_SEDIMENTS,
+            )
+            if os.path.exists(sediments_path):
+                sediments_lyr = QgsVectorLayer(
+                    sediments_path,
+                    "sediments_merged",
+                    "ogr",
+                )
+                if sediments_lyr:
+                    mesh_lyr = seamless2hmg_sediments(sediments_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_sediments)
+
+            # 津波
+            tsunami_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_TSUNAMI,
+            )
+            if os.path.exists(tsunami_path):
+                tsunami_lyr = QgsVectorLayer(
+                    tsunami_path,
+                    "tsunami_merged",
+                    "ogr",
+                )
+                if tsunami_lyr:
+                    mesh_lyr = seamless2hmg_tsunami(tsunami_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_tsunami)
+
+            # 地すべり
+            jisuberi_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_LANDSLIP,
+            )
+            if os.path.exists(jisuberi_path):
+                jisuberi_lyr = QgsVectorLayer(
+                    jisuberi_path,
+                    "jisuberi_merged",
+                    "ogr",
+                )
+                if jisuberi_lyr:
+                    mesh_lyr = seamless2hmg_jisuberi(jisuberi_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_jisuberi)
+
+            # 災害危険
+            saigai_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_DISASTER,
+            )
+            if os.path.exists(saigai_path):
+                saigai_lyr = QgsVectorLayer(
+                    saigai_path,
+                    "saigai_merged",
+                    "ogr",
+                )
+                if saigai_lyr:
+                    mesh_lyr = seamless2hmg_saigai(saigai_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_saigai)
+
+            # 高潮
+            surge_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_SURGE,
+            )
+            if os.path.exists(surge_path):
+                surge_lyr = QgsVectorLayer(
+                    surge_path,
+                    "surge_merged",
+                    "ogr",
+                )
+                if surge_lyr:
+                    mesh_lyr = seamless2hmg_surge(surge_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_surge)
+
+            # 地震
+            earthquake_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_EARTHQUAKE,
+            )
+            if os.path.exists(earthquake_path):
+                earthquake_lyr = QgsVectorLayer(
+                    earthquake_path,
+                    "earthquake_merged",
+                    "ogr",
+                )
+                if earthquake_lyr:
+                    mesh_lyr = seamless2hmg_earthquake(
+                        earthquake_lyr, mesh_lyr, waku_lyr
+                    )
+                    hmg_processed.append(constants.field_earthquake)
+
+            # 傾斜度
+            slope_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_SLOPE,
+            )
+            if os.path.exists(slope_path):
+                slope_lyr = QgsVectorLayer(
+                    slope_path,
+                    "slope_merged",
+                    "ogr",
+                )
+                if slope_lyr:
+                    mesh_lyr = seamless2hmg_slope(slope_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_slope)
+
+            # 避難施設
+            refuge_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                constants.SEAMLESS_FILE_REFUGE,
+            )
+            if os.path.exists(refuge_path):
+                refuge_lyr = QgsVectorLayer(
+                    refuge_path,
+                    "refuge_merged",
+                    "ogr",
+                )
+                if refuge_lyr:
+                    mesh_lyr = seamless2hmg_refuge(refuge_lyr, mesh_lyr, waku_lyr)
+                    hmg_processed.append(constants.field_refuge)
+
+            # 追加災害
+            custom_path = os.path.join(
+                self.main.FileWidgetSeamlessDir.filePath(),
+                self.main.custom_hmg_seamlessfilename.text() + ".gpkg",
+            )
+            print(custom_path)
+            if os.path.exists(custom_path):
+                custom_lyr = QgsVectorLayer(
+                    custom_path,
+                    "hazard_custom_merged",
+                    "ogr",
+                )
+                custom_field = self.main.custom_hmg_fieldname.text()
+                if custom_lyr and custom_field != "":
+                    # checked calculation method
+                    if self.main.btn_custom_calc_sumsurf.isChecked():
+                        calc_method = "sum_surfaces"
+                    if self.main.btn_custom_calc_sumsurfvalue.isChecked():
+                        calc_method = "sum_surfaces_values"
+                    if self.main.btn_custom_calc_centroidmean.isChecked():
+                        calc_method = "centroid_value_mean"
+                    if self.main.btn_custom_calc_countpoints.isChecked():
+                        calc_method = "count_points"
+
+                    mesh_lyr = seamless2hmg_custom(
+                        custom_lyr,
+                        mesh_lyr,
+                        waku_lyr,
+                        custom_field,
+                        calc_method,
+                        self.main.custom_seamless_fieldname.text(),
+                        self.main.custom_inland_adjust_checkbox.isChecked(),
+                    )
+                    hmg_processed.append(custom_field)
+                    # change name of classification class
+                    self.main.label_classif_title_custom.setText(
+                        self.main.custom_hmg_seamlessfilename.text()
+                    )
+                elif custom_lyr and custom_field == "":
+                    message = "追加災害の属性名が記入されてません。"
+                    QMessageBox.information(None, "お知らせ", message)
+                    return
+
+            # if no seamless data , message it
+            if len(hmg_processed) == 0:
+                message = "Seamless dataがありませんでした。"
+                QMessageBox.information(None, "完了", message)
                 return
 
-        # if no seamless data , message it
-        if len(hmg_processed) == 0:
-            message = "Seamless dataがありませんでした。"
+            # Calculate TCG score
+            calculate_tcg_score(mesh_lyr, self.main.custom_hmg_fieldname.text())
+
+            # Add hazard layers to map
+            for hazard in hmg_processed:
+                hazard_lyr = mesh_lyr.clone()
+                add_to_map(hazard_lyr, f"mesh_score_{hazard}")
+
+            # Add final mesh score (all) layer to map
+            add_to_map(mesh_lyr, "mesh_score")
+
+            # set for HMG classifier
+            score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
+            if score_layer:
+                self.main.mesh_score_layer_combobox.setLayer(score_layer)
+
+            # message end
+            message = "HMGデータの作成が完了しました。\n計算した属性:\n"
+            for hazard_processed in hmg_processed:
+                message += f"{hazard_processed}\n"
             QMessageBox.information(None, "完了", message)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
             return
-
-        # Calculate TCG score
-        calculate_tcg_score(mesh_lyr, self.main.custom_hmg_fieldname.text())
-
-        # Add hazard layers to map
-        for hazard in hmg_processed:
-            hazard_lyr = mesh_lyr.clone()
-            add_to_map(hazard_lyr, f"mesh_score_{hazard}")
-
-        # Add final mesh score (all) layer to map
-        add_to_map(mesh_lyr, "mesh_score")
-
-        # set for HMG classifier
-        score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
-        if score_layer:
-            self.main.mesh_score_layer_combobox.setLayer(score_layer)
-
-        # message end
-        message = "HMGデータの作成が完了しました。\n計算した属性:\n"
-        for hazard_processed in hmg_processed:
-            message += f"{hazard_processed}\n"
-        QMessageBox.information(None, "完了", message)

@@ -132,38 +132,45 @@ class HMGDataClassifier:
         stdev_radio_btn = getattr(self.main, f"radiobutton_stdev_{hazard}")
         tcg_radio_btn = getattr(self.main, f"radiobutton_tcg_{hazard}")
 
-        if stdev_radio_btn.isChecked() and not self.stdev_calculating:
-            nbmax_box.setReadOnly(False)
-            self._set_percentages_stdev(hazard)
+        try:
+            if stdev_radio_btn.isChecked() and not self.stdev_calculating:
+                nbmax_box.setReadOnly(False)
+                self._set_percentages_stdev(hazard)
 
-        if tcg_radio_btn.isChecked():
-            nbmax_box.setReadOnly(True)
-            self._set_percentages_tcg(hazard)
+            if tcg_radio_btn.isChecked():
+                nbmax_box.setReadOnly(True)
+                self._set_percentages_tcg(hazard)
 
-        if custom_radio_btn.isChecked():
-            nbmax_box.setReadOnly(False)
-
-        for n in range(0, 11):
-            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-
-            # lock box if box ID >=  designated max box
-            # and if classification method is not custom
-            if n > nbmax_box.value():
-                percentage_box.setValue(0)
-                percentage_box.setReadOnly(True)
-            elif custom_radio_btn.isChecked() is False:
-                # lock if it is not custom mode
-                percentage_box.setReadOnly(True)
-            else:
-                percentage_box.setReadOnly(False)
-
-            # set digits rules for custom classification
             if custom_radio_btn.isChecked():
-                # set 100 as max value
-                if n == nbmax_box.value():
-                    percentage_box.setValue(100)
-                # TBC: make digit to be up to previous one
-                # TO DO: set nbmax_box = n when 100% is written (now bugging)
+                nbmax_box.setReadOnly(False)
+
+            for n in range(0, 11):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+
+                # lock box if box ID >=  designated max box
+                # and if classification method is not custom
+                if n > nbmax_box.value():
+                    percentage_box.setValue(0)
+                    percentage_box.setReadOnly(True)
+                elif custom_radio_btn.isChecked() is False:
+                    # lock if it is not custom mode
+                    percentage_box.setReadOnly(True)
+                else:
+                    percentage_box.setReadOnly(False)
+
+                # set digits rules for custom classification
+                if custom_radio_btn.isChecked():
+                    # set 100 as max value
+                    if n == nbmax_box.value():
+                        percentage_box.setValue(100)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
+            return
 
     def classify_stdev_tornado(self):
         self._set_percentages_stdev("tornado")
@@ -203,35 +210,45 @@ class HMGDataClassifier:
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
-        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
-        # get mesh_score target field name
-        if hazard == "custom":
-            target_field = self.main.custom_hmg_fieldname.text()
-        else:
-            target_field = getattr(constants, f"field_{hazard}")
 
-        if target_field in mesh_score_layer.fields().names():
-            field_values = [
-                feature[target_field] for feature in mesh_score_layer.getFeatures()
-            ]
-            y_values = sorted(field_values)
-        else:
-            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
-            QMessageBox.information(None, "エラー", error_message)
+        try:
+            mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
+            # get mesh_score target field name
+            if hazard == "custom":
+                target_field = self.main.custom_hmg_fieldname.text()
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
+
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
+            else:
+                error_message = f"対象レイヤに「{target_field}」の属性がありません。"
+                QMessageBox.information(None, "エラー", error_message)
+                return
+
+            nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+            percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
+
+            if len(percentages_classes) - 1 != nbmax_box.value():
+                self.stdev_calculating = True
+                nbmax_box.setValue(len(percentages_classes) - 1)
+
+            for n in range(0, len(percentages_classes)):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percentage_box.setValue(percentages_classes[n])
+
+            self.stdev_calculating = False
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
             return
-
-        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
-        percentages_classes = classify_values_stdev(y_values, nbmax_box.value())
-
-        if len(percentages_classes) - 1 != nbmax_box.value():
-            self.stdev_calculating = True
-            nbmax_box.setValue(len(percentages_classes) - 1)
-
-        for n in range(0, len(percentages_classes)):
-            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setValue(percentages_classes[n])
-
-        self.stdev_calculating = False
 
     def classify_tcg_tornado(self):
         self._set_percentages_tcg("tornado")
@@ -271,48 +288,58 @@ class HMGDataClassifier:
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
-        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        # get mesh_score target field name
-        if hazard == "custom":
-            target_field = self.main.custom_hmg_fieldname.text()
-        else:
-            target_field = getattr(constants, f"field_{hazard}")
+        try:
+            mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        if target_field in mesh_score_layer.fields().names():
-            field_values = [
-                feature[target_field] for feature in mesh_score_layer.getFeatures()
-            ]
-            y_values = sorted(field_values)
+            # get mesh_score target field name
+            if hazard == "custom":
+                target_field = self.main.custom_hmg_fieldname.text()
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
 
-        else:
-            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
-            QMessageBox.information(None, "エラー", error_message)
-            return
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
 
-        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+            else:
+                error_message = f"対象レイヤに「{target_field}」の属性がありません。"
+                QMessageBox.information(None, "エラー", error_message)
+                return
 
-        # test if all are equals
-        equal_values = y_values.count(y_values[0]) == len(y_values)
-        if equal_values:
-            nbmax_box.setValue(1)
+            nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+
+            # test if all are equals
+            equal_values = y_values.count(y_values[0]) == len(y_values)
+            if equal_values:
+                nbmax_box.setValue(1)
+                nbmax_box.setReadOnly(True)
+                percentage_box = getattr(self.main, f"classif_percent_1_{hazard}")
+                percentage_box.setValue(100)
+                return
+
+            # classify if values are not equals
+            percentages_classes = classify_values_tcg(y_values)
+
+            if len(percentages_classes) - 1 != nbmax_box.value():
+                nbmax_box.setValue(len(percentages_classes) - 1)
+
+            # update UI
             nbmax_box.setReadOnly(True)
-            percentage_box = getattr(self.main, f"classif_percent_1_{hazard}")
-            percentage_box.setValue(100)
+
+            for n in range(0, len(percentages_classes)):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percentage_box.setValue(percentages_classes[n])
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
             return
-
-        # classify if values are not equals
-        percentages_classes = classify_values_tcg(y_values)
-
-        if len(percentages_classes) - 1 != nbmax_box.value():
-            nbmax_box.setValue(len(percentages_classes) - 1)
-
-        # update UI
-        nbmax_box.setReadOnly(True)
-
-        for n in range(0, len(percentages_classes)):
-            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percentage_box.setValue(percentages_classes[n])
 
     def show_chart_tornado(self):
         self._set_chart("竜巻", "tornado")
@@ -367,144 +394,168 @@ class HMGDataClassifier:
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
-        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        # get mesh_score target field name
-        if hazard == "custom":
-            target_field = self.main.custom_hmg_fieldname.text()
-        else:
-            target_field = getattr(constants, f"field_{hazard}")
+        try:
+            mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        if target_field in mesh_score_layer.fields().names():
-            field_values = [
-                feature[target_field] for feature in mesh_score_layer.getFeatures()
-            ]
-            y_values = sorted(field_values)
-            x_values = list(range(1, len(field_values) + 1))
-        else:
-            error_message = f"対象レイヤに「{target_field}」の属性がありません。"
-            QMessageBox.information(None, "エラー", error_message)
-            return
+            # get mesh_score target field name
+            if hazard == "custom":
+                target_field = self.main.custom_hmg_fieldname.text()
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
 
-        if self.plot_widget:
-            # if plot exists, update
-            self.plot_widget.clear()
-        else:
-            # If plot not exists Create a Pyqtgraph PlotWidget
-            # Switch to using white background and black foreground
-            pg.setConfigOption("background", "w")
-            pg.setConfigOption("foreground", "k")
-            self.plot_widget = pg.plot(title="HMGデータグラフ")
-            self.plot_widget.closeEvent = self._handle_plot_close
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
+                x_values = list(range(1, len(field_values) + 1))
+            else:
+                error_message = f"対象レイヤに「{target_field}」の属性がありません。"
+                QMessageBox.information(None, "エラー", error_message)
+                return
 
-        # Add scatter plot to the Pyqtgraph PlotWidget
-        scatter = pg.ScatterPlotItem(
-            x=x_values,
-            y=y_values,
-            size=5,
-            pen=pg.mkPen(None),
-            brush=pg.mkBrush(0, 0, 255),
-            name=chart_title,
-        )
-        self.plot_widget.addItem(scatter)
-        self.plot_widget.getPlotItem().getViewBox().setRange(yRange=[0, max(y_values)])
+            if self.plot_widget:
+                # if plot exists, update
+                self.plot_widget.clear()
+            else:
+                # If plot not exists Create a Pyqtgraph PlotWidget
+                # Switch to using white background and black foreground
+                pg.setConfigOption("background", "w")
+                pg.setConfigOption("foreground", "k")
+                self.plot_widget = pg.plot(title="HMGデータグラフ")
+                self.plot_widget.closeEvent = self._handle_plot_close
 
-        # Set axis labels
-        self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
-        self.plot_widget.setLabel("left", "体積", color="blue")
-
-        # set title
-        self.plot_widget.setTitle(chart_title)
-
-        # set default minimum class as 0.001
-        # under minimum is set transparent
-
-        breaks = [[0, constants.MAP_MIN_VALUE, "transparent"]]
-        break_min = 0
-        nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
-
-        for n in range(0, nbmax_box.value() + 1):
-            percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
-            percent_value = percentage_box.value()
-
-            # get mesh value from percentage
-            break_max = get_mesh_value_from_percentage(y_values, percent_value)
-            # first value should be the last 0 value
-            if break_max > 0 and n == 0:
-                break_max = 0
-
-            # get color to show in graph and map
-            color = get_color_from_range(n + 1, nbmax_box.value() + 1)
-
-            # add break_max line as plot
-            line_label = f"{percent_value}% ({round(break_max,1)})"
-            percent_line = self.plot_widget.plot(
-                [0, len(y_values)],
-                [break_max, break_max],
-                pen=pg.mkPen(color, width=2),
-                name=line_label,
+            # Add scatter plot to the Pyqtgraph PlotWidget
+            scatter = pg.ScatterPlotItem(
+                x=x_values,
+                y=y_values,
+                size=5,
+                pen=pg.mkPen(None),
+                brush=pg.mkBrush(0, 0, 255),
+                name=chart_title,
             )
-            # labeling
-            label_item = pg.TextItem(text=line_label, color=color)
-            self.plot_widget.addItem(label_item)
-            label_item.setPos(0, break_max)
+            self.plot_widget.addItem(scatter)
+            self.plot_widget.getPlotItem().getViewBox().setRange(
+                yRange=[0, max(y_values)]
+            )
 
-            self.plot_widget.addItem(percent_line)
+            # Set axis labels
+            self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
+            self.plot_widget.setLabel("left", "体積", color="blue")
 
-            # calculate break for maps
-            breaks.append([break_min, break_max, color])
-            break_min = break_max
+            # set title
+            self.plot_widget.setTitle(chart_title)
 
-        # reflect to map
-        graduate_layer(mesh_score_layer, target_field, breaks)
+            # set default minimum class as 0.001
+            # under minimum is set transparent
 
-        # reflect to hazard mesh layer
-        # create if not exists
-        if not QgsProject.instance().mapLayersByName(f"mesh_score_{target_field}"):
-            add_layer = mesh_score_layer.clone()
-            add_to_map(add_layer, f"mesh_score_{target_field}")
+            breaks = [[0, constants.MAP_MIN_VALUE, "transparent"]]
+            break_min = 0
+            nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
 
-        hazard_mesh_layer = QgsProject.instance().mapLayersByName(
-            f"mesh_score_{target_field}"
-        )[0]
+            for n in range(0, nbmax_box.value() + 1):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percent_value = percentage_box.value()
 
-        graduate_layer(hazard_mesh_layer, target_field, breaks)
+                # get mesh value from percentage
+                break_max = get_mesh_value_from_percentage(y_values, percent_value)
+                # first value should be the last 0 value
+                if break_max > 0 and n == 0:
+                    break_max = 0
 
-        self._display_only("mesh_score", target_field)
-        self._display_only("seamless", target_field)
+                # get color to show in graph and map
+                color = get_color_from_range(n + 1, nbmax_box.value() + 1)
+
+                # add break_max line as plot
+                line_label = f"{percent_value}% ({round(break_max,1)})"
+                percent_line = self.plot_widget.plot(
+                    [0, len(y_values)],
+                    [break_max, break_max],
+                    pen=pg.mkPen(color, width=2),
+                    name=line_label,
+                )
+                # labeling
+                label_item = pg.TextItem(text=line_label, color=color)
+                self.plot_widget.addItem(label_item)
+                label_item.setPos(0, break_max)
+
+                self.plot_widget.addItem(percent_line)
+
+                # calculate break for maps
+                breaks.append([break_min, break_max, color])
+                break_min = break_max
+
+            # reflect to map
+            graduate_layer(mesh_score_layer, target_field, breaks)
+
+            # reflect to hazard mesh layer
+            # create if not exists
+            if not QgsProject.instance().mapLayersByName(f"mesh_score_{target_field}"):
+                add_layer = mesh_score_layer.clone()
+                add_to_map(add_layer, f"mesh_score_{target_field}")
+
+            hazard_mesh_layer = QgsProject.instance().mapLayersByName(
+                f"mesh_score_{target_field}"
+            )[0]
+
+            graduate_layer(hazard_mesh_layer, target_field, breaks)
+
+            self._display_only("mesh_score", target_field)
+            self._display_only("seamless", target_field)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
+            return
 
     def classify_data_tcg(self):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
             return
-        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        # list of added fields
-        tcg_rank_fields_added = calculate_tcg_score(
-            mesh_score_layer, self.main.custom_hmg_fieldname.text()
-        )
+        try:
+            mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
-        # add to each hazard mesh layer
-        for hazard_field in tcg_rank_fields_added:
-            hazard_name = hazard_field.split("_")[1]
-
-            # create if not exists
-            if not QgsProject.instance().mapLayersByName(f"mesh_score_{hazard_name}"):
-                add_layer = mesh_score_layer.clone()
-                add_to_map(add_layer, f"mesh_score_{hazard_name}")
-
-            hazard_mesh_layer = QgsProject.instance().mapLayersByName(
-                f"mesh_score_{hazard_name}"
-            )[0]
-            calculate_tcg_score(
-                hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
+            # list of added fields
+            tcg_rank_fields_added = calculate_tcg_score(
+                mesh_score_layer, self.main.custom_hmg_fieldname.text()
             )
 
-        # message end
-        message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
-        for tcg_field in tcg_rank_fields_added:
-            message += f"{tcg_field}\n"
-        if len(tcg_rank_fields_added) == 0:
-            message += "なし"
-        QMessageBox.information(None, "完了", message)
+            # add to each hazard mesh layer
+            for hazard_field in tcg_rank_fields_added:
+                hazard_name = hazard_field.split("_")[1]
+
+                # create if not exists
+                if not QgsProject.instance().mapLayersByName(
+                    f"mesh_score_{hazard_name}"
+                ):
+                    add_layer = mesh_score_layer.clone()
+                    add_to_map(add_layer, f"mesh_score_{hazard_name}")
+
+                hazard_mesh_layer = QgsProject.instance().mapLayersByName(
+                    f"mesh_score_{hazard_name}"
+                )[0]
+                calculate_tcg_score(
+                    hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
+                )
+
+            # message end
+            message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
+            for tcg_field in tcg_rank_fields_added:
+                message += f"{tcg_field}\n"
+            if len(tcg_rank_fields_added) == 0:
+                message += "なし"
+            QMessageBox.information(None, "完了", message)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
+            return
