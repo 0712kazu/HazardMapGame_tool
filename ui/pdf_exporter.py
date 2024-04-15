@@ -7,7 +7,6 @@ from qgis.core import (
     QgsLayoutExporter,
     QgsVectorFileWriter,
     QgsCoordinateReferenceSystem,
-    QgsLayerTreeLayer,
 )
 from PyQt5.QtXml import QDomDocument
 
@@ -42,7 +41,6 @@ from utils import (
     add_xyz_basemap_layer,
     add_to_map,
     remove_layer,
-    find,
 )
 
 
