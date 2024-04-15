@@ -4046,73 +4046,40 @@
    
        <item row="0" column="0">
         <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_pdffolder">
-       <item>
-           <widget class="QLabel" name="label_pdffolder">
-           <property name="minimumSize">
-                  <size>
-                    <width>100</width>
-                    <height>20</height>
-                  </size>
-                </property>
-            <property name="text">
-             <string>PDF出力フォルダー</string>
-            </property>
-           </widget>
-          </item>
-       <item>
-           <widget class="QgsFileWidget" name="pdf_folder">
-            <property name="storageMode">
-             <enum>QgsFileWidget::GetDirectory</enum>
-            </property>
-           </widget>
-          </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_pdftitle">
-       <item>
-           <widget class="QLabel" name="label_maptitle">
-           <property name="minimumSize">
-                  <size>
-                    <width>100</width>
-                    <height>20</height>
-                  </size>
-                </property>
-            <property name="text">
-             <string>PDFタイトル</string>
-            </property>
-           </widget>
-          </item>
         <item>
-             <widget class="QLineEdit" name="pdf_map_title">
-            </widget>
-            </item>
-      </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_pdfcopyright">
-       <item>
-           <widget class="QLabel" name="label_mapcopyright">
-           <property name="minimumSize">
-                  <size>
-                    <width>100</width>
-                    <height>20</height>
-                  </size>
-                </property>
-            <property name="text">
-             <string>コピーライト</string>
-            </property>
-           </widget>
-          </item>
+        <layout class="QHBoxLayout" name="horizontalLayout_sumhazard">
         <item>
-             <widget class="QLineEdit" name="pdf_map_copyright">
-            </widget>
+             <widget class="QPushButton" name="pushButton_total_hazard">
+             <property name="geometry">
+              <rect>
+                <x>530</x>
+                <y>500</y>
+                <width>901</width>
+                <height>41</height>
+              </rect>
+              </property>
+              <property name="text">
+               <string>選択した項目で点数を集計する</string>
+              </property>
+             </widget>
             </item>
-      </layout>
-     </item>
-     
+         <item>
+          <spacer name="horizontalSpacer_6">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+        </item>
+  
+    <!-- Export selection    -->
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
@@ -4351,6 +4318,7 @@
          </item>
         </layout>
        </item>
+
        <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
@@ -4366,6 +4334,76 @@
        </item>
       </layout>
      </item>
+
+     <!-- PDF export info -->
+      <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_pdffolder">
+       <item>
+           <widget class="QLabel" name="label_pdffolder">
+           <property name="minimumSize">
+                  <size>
+                    <width>100</width>
+                    <height>20</height>
+                  </size>
+                </property>
+            <property name="text">
+             <string>PDF出力フォルダー</string>
+            </property>
+           </widget>
+          </item>
+       <item>
+           <widget class="QgsFileWidget" name="pdf_folder">
+            <property name="storageMode">
+             <enum>QgsFileWidget::GetDirectory</enum>
+            </property>
+           </widget>
+          </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_pdftitle">
+       <item>
+           <widget class="QLabel" name="label_maptitle">
+           <property name="minimumSize">
+                  <size>
+                    <width>100</width>
+                    <height>20</height>
+                  </size>
+                </property>
+            <property name="text">
+             <string>PDFタイトル</string>
+            </property>
+           </widget>
+          </item>
+        <item>
+             <widget class="QLineEdit" name="pdf_map_title">
+            </widget>
+            </item>
+      </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_pdfcopyright">
+       <item>
+           <widget class="QLabel" name="label_mapcopyright">
+           <property name="minimumSize">
+                  <size>
+                    <width>100</width>
+                    <height>20</height>
+                  </size>
+                </property>
+            <property name="text">
+             <string>コピーライト</string>
+            </property>
+           </widget>
+          </item>
+        <item>
+             <widget class="QLineEdit" name="pdf_map_copyright">
+            </widget>
+            </item>
+      </layout>
+     </item>
+
+
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
