@@ -105,6 +105,10 @@ class PDFExporter:
             remove_layer("mesh_score")
             add_to_map(total_score_hazard, "mesh_score")
 
+            # make mesh id and score label
+            label_mesh_id = self._make_label_mesh_id(total_score_hazard)
+            self._make_label_mesh_score(total_score_hazard, label_mesh_id)
+
             message = "点数の集計が完了しました。"
             message += "\n\n追加属性:"
             message += f"\n- {constants.field_hazard_score} (点数合計)"
@@ -204,61 +208,13 @@ class PDFExporter:
 
             # make labels
             # label Mesh ID
-            label_mesh_id = processing.run(
-                "native:pointonsurface",
-                {
-                    "INPUT": ranked_hazard,
-                    "ALL_PARTS": False,
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-            # remove layer if already exists
-            remove_layer("label_id")
-            add_to_map(label_mesh_id, "label_id")
-            label_pt_mesh(label_mesh_id, '"id"', "#686868")
-            label_mesh_id.setOpacity(0)
+            label_mesh_id = self._make_label_mesh_id(ranked_hazard)
 
-            # Label Score
-            # get the distance to translate label from mesh center (1/5 mesh distance)
-            mesh_feature = next(mesh_lyr.getFeatures())
-            mesh_edge_size = mesh_feature.geometry().length() / 4
-            dy = mesh_edge_size / 5
-            label_mesh_score = processing.run(
-                "native:translategeometry",
-                {
-                    "INPUT": label_mesh_id,
-                    "DELTA_X": 0,
-                    "DELTA_Y": -dy,
-                    "DELTA_Z": 0,
-                    "DELTA_M": 0,
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-            # remove layer if already exists
-            remove_layer("label_score")
-            add_to_map(label_mesh_score, "label_score")
-
-            label_pt_mesh(label_mesh_score, '"t_refuge"', "red")
-            label_mesh_score.setOpacity(0)
+            # label score
+            label_mesh_score = self._make_label_mesh_score(mesh_lyr, label_mesh_id)
 
             # Label Hinan #0070ff
-            label_hinan_count = processing.run(
-                "native:translategeometry",
-                {
-                    "INPUT": label_mesh_id,
-                    "DELTA_X": 0,
-                    "DELTA_Y": dy,
-                    "DELTA_Z": 0,
-                    "DELTA_M": 0,
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-            # remove layer if already exists
-            remove_layer(f"label_{constants.field_refuge}")
-            add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
-
-            label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
-            label_hinan_count.setOpacity(0)
+            self._make_label_refuge(mesh_lyr, label_mesh_id)
 
             # import basemaps
 
@@ -383,6 +339,9 @@ class PDFExporter:
                 miss_lyrs = set_hmg13_disaster(gsi_std_lyr, label_mesh_score)
                 missing_layers.extend(miss_lyrs)
                 self._export_pdf(f"{file_prefix}_HMG13_a48.pdf", constants.field_saigai)
+
+            # Last make label score to hazard
+            label_pt_mesh(label_mesh_score, f'"{constants.field_hazard_score}"', "red")
 
             # End process message
             message = "PDFの出力が完了しました。\n"
@@ -574,3 +533,71 @@ class PDFExporter:
             missing_fields.append(f"t_{constants.field_saigai}")
 
         return missing_fields
+
+    def _make_label_mesh_id(self, mesh_lyr: QgsVectorLayer) -> QgsVectorLayer:
+        label_mesh_id = processing.run(
+            "native:pointonsurface",
+            {
+                "INPUT": mesh_lyr,
+                "ALL_PARTS": False,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer("label_id")
+        add_to_map(label_mesh_id, "label_id")
+        label_pt_mesh(label_mesh_id, '"id"', "#686868")
+        label_mesh_id.setOpacity(0)
+
+        return label_mesh_id
+
+    def _make_label_mesh_score(
+        self, mesh_lyr: QgsVectorLayer, mesh_centroid_lyr: QgsVectorLayer
+    ) -> QgsVectorLayer:
+        mesh_feature = next(mesh_lyr.getFeatures())
+        mesh_edge_size = mesh_feature.geometry().length() / 4
+        dy = mesh_edge_size / 5
+        label_mesh_score = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": mesh_centroid_lyr,
+                "DELTA_X": 0,
+                "DELTA_Y": -dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer("label_score")
+        add_to_map(label_mesh_score, "label_score")
+        label_pt_mesh(label_mesh_score, f'"{constants.field_hazard_score}"', "red")
+        label_mesh_score.setOpacity(0)
+
+        return label_mesh_score
+
+    def _make_label_refuge(
+        self, mesh_lyr: QgsVectorLayer, mesh_centroid_lyr: QgsVectorLayer
+    ) -> QgsVectorLayer:
+        mesh_feature = next(mesh_lyr.getFeatures())
+        mesh_edge_size = mesh_feature.geometry().length() / 4
+        dy = mesh_edge_size / 5
+        label_hinan_count = processing.run(
+            "native:translategeometry",
+            {
+                "INPUT": mesh_centroid_lyr,
+                "DELTA_X": 0,
+                "DELTA_Y": dy,
+                "DELTA_Z": 0,
+                "DELTA_M": 0,
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+        # remove layer if already exists
+        remove_layer(f"label_{constants.field_refuge}")
+        add_to_map(label_hinan_count, f"label_{constants.field_refuge}")
+
+        label_pt_mesh(label_hinan_count, f'"{constants.field_refuge}"', "#0070ff")
+        label_hinan_count.setOpacity(0)
+
+        return label_hinan_count
