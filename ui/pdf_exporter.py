@@ -41,7 +41,6 @@ from utils import (
     add_xyz_basemap_layer,
     add_to_map,
     remove_layer,
-    find,
 )
 
 
@@ -260,48 +259,6 @@ class PDFExporter:
                 "basemap_hillshade",
             )
 
-            # 変更前のレイヤー順序を取得
-            root = iface.layerTreeCanvasBridge().rootGroup()
-            root.setCustomLayerOrder(root.layerOrder())
-            root.setHasCustomLayerOrder(True)
-            order = list(
-                map(
-                    lambda list: list.layer(),
-                    QgsProject.instance().layerTreeRoot().findLayers(),
-                )
-            )
-
-            # 地理院標準レイヤーを最後面に
-            std_idx = find(order, gsi_std_lyr)
-            if std_idx > -1:
-                order.insert(-1, order.pop(std_idx))
-
-            # 地理院色別標高レイヤーを最後面に
-            rlf_idx = find(order, gsi_relief_lyr)
-            if std_idx > -1:
-                order.insert(-1, order.pop(rlf_idx))
-
-            # 地理院陰影レイヤーを最後面に
-            hls_idx = find(order, gsi_hillshade_lyr)
-            if hls_idx > -1:
-                order.insert(-1, order.pop(hls_idx))
-
-            # 避難施設所レイヤーを最前面に
-            if QgsProject.instance().mapLayersByName(
-                f"seamless_{constants.field_refuge}"
-            ):
-                hinan_lyr = QgsProject.instance().mapLayersByName(
-                    f"seamless_{constants.field_refuge}"
-                )[0]
-                hinan_idx = find(order, hinan_lyr)
-                if hinan_idx > -1:
-                    order.insert(0, order.pop(hinan_idx))
-            else:
-                missing_layers.append(f"seamless_{constants.field_refuge}")
-
-            # 変更されたレイヤー順序を適用
-            root.setCustomLayerOrder(order)
-
             # HMG01_ans : gsi standard only,
             # refuge score colors&count, total hazard score
             if self.main.checkBox_hmg01.isChecked():
@@ -332,7 +289,7 @@ class PDFExporter:
 
             # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
             if self.main.checkBox_hmg05.isChecked():
-                set_hmg05_elev(gsi_std_lyr)
+                set_hmg05_elev(gsi_std_lyr, gsi_relief_lyr)
                 self._export_pdf(f"{file_prefix}_HMG05_elev.pdf")
 
             # HMG06_g04: slope symbol & score, gsi_standard 50%

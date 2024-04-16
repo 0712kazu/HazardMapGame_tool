@@ -3,6 +3,7 @@ import os
 from PyQt5.QtCore import QVariant
 from qgis.core import (
     QgsVectorLayer,
+    QgsRasterLayer,
     QgsProject,
     QgsGraduatedSymbolRenderer,
     QgsGradientColorRamp,
@@ -186,7 +187,7 @@ def _symbolize_point_layer_categorized(
 
 
 def set_hmg01_ans_refuge(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG01_ans : gsi standard only, refuges score & count, total hazard score, colors
     # return result as list of missing layers text
@@ -274,7 +275,7 @@ def set_hmg01_ans_refuge(
     return miss_lyr
 
 
-def set_hmg02_base(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg02_base(gsi_std_lyr: QgsRasterLayer) -> None:
     # HNG02_base : gsi standard
     _display_only_layers(
         [
@@ -288,7 +289,7 @@ def set_hmg02_base(gsi_std_lyr: QgsVectorLayer) -> None:
 
 
 def set_hmg02_base_hillshade(
-    gsi_std_lyr: QgsVectorLayer, gsi_hillshade_lyr: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, gsi_hillshade_lyr: QgsVectorLayer
 ) -> None:
     # HMG02_base2: gsi standard and hillshade
     _display_only_layers(
@@ -304,7 +305,7 @@ def set_hmg02_base_hillshade(
     gsi_hillshade_lyr.setOpacity(0.5)
 
 
-def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg03_tile(gsi_std_lyr: QgsRasterLayer) -> None:
     # HMG03_tile: gsi_standard, turn off mesh id label
     _display_only_layers(
         [
@@ -316,7 +317,7 @@ def set_hmg03_tile(gsi_std_lyr: QgsVectorLayer) -> None:
     gsi_std_lyr.setOpacity(1)
 
 
-def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> list:
+def set_hmg04_landuse(gsi_std_lyr: QgsRasterLayer) -> list:
     # HMG04_use: Landuse symbol gsi_standard 50%, redisplay mesh_id
     # return result as list of missing layers)
     miss_lyr = []
@@ -365,7 +366,7 @@ def set_hmg04_landuse(gsi_std_lyr: QgsVectorLayer) -> list:
     return miss_lyr
 
 
-def set_hmg05_elev(gsi_std_lyr: QgsVectorLayer) -> None:
+def set_hmg05_elev(gsi_std_lyr: QgsRasterLayer, gsi_relief_lyr: QgsRasterLayer) -> None:
     # HMG05_elev: elevation, gsi_standard 50%, coloured elevation, hillshade
     _display_only_layers(
         [
@@ -377,10 +378,11 @@ def set_hmg05_elev(gsi_std_lyr: QgsVectorLayer) -> None:
     )
 
     gsi_std_lyr.setOpacity(0.5)
+    gsi_relief_lyr.setOpacity(1)
 
 
 def set_hmg06_slope(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG06_g04: slope symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -416,7 +418,7 @@ def set_hmg06_slope(
 
 
 def set_hmg07_earthquake(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG07_b01: quake symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -454,7 +456,7 @@ def set_hmg07_earthquake(
 
 
 def set_hmg08_tornado(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG08_a30: tornado symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -490,7 +492,7 @@ def set_hmg08_tornado(
 
 
 def set_hmg09_flood(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG09_a31 : flood symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -533,7 +535,7 @@ def set_hmg09_flood(
 
 
 def set_hmg10_sediments(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG10_a33 : sediment symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -570,7 +572,7 @@ def set_hmg10_sediments(
 
 
 def set_hmg11_tsunami(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer, target_field: str
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer, target_field: str
 ) -> list:
     #  HMG11_a40 : tsunami OR surge symbol (target_field) & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -607,7 +609,7 @@ def set_hmg11_tsunami(
 
 
 def set_hmg12_landslip(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG12_a46 : landslip symbol & score, gsi_standard 50%
     # return result as list of missing layers)
@@ -643,7 +645,7 @@ def set_hmg12_landslip(
 
 
 def set_hmg13_disaster(
-    gsi_std_lyr: QgsVectorLayer, label_mesh_score: QgsVectorLayer
+    gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
     # HMG13_a48 : disaster symbol & score, gsi_standard 50%
     # return result as list of missing layers)
