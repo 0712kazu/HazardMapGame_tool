@@ -105,7 +105,7 @@ class PDFExporter:
             remove_layer("mesh_score")
             add_to_map(total_score_hazard, "mesh_score")
 
-            message = "点数の集計が完了しました"
+            message = "点数の集計が完了しました。"
             message += "\n\n追加属性:"
             message += f"\n- {constants.field_hazard_score} (点数合計)"
             message += f"\n- {constants.field_hazard_rank} (点数合計のランク)"
