@@ -51,6 +51,7 @@ class PDFExporter:
         self.canvas = iface.mapCanvas()
 
         self.main.pushButton_export_pdf.clicked.connect(self._on_export_pdf_clicked)
+        self.main.pushButton_total_hazard.clicked.connect(self._on_total_hazard_clicked)
         self.main.pushButton_cancel_pdf.clicked.connect(lambda: self.main.close())
 
         # set default checkbox
@@ -78,6 +79,45 @@ class PDFExporter:
         self.main.pdf_map_copyright.setText(
             "©ハザードマップゲーム2022 ディレクティングマップ"
         )
+
+    def _on_total_hazard_clicked(self):
+        # check mesh_score layer
+        if QgsProject.instance().mapLayersByName("mesh_score"):
+            mesh_lyr = QgsProject.instance().mapLayersByName("mesh_score")[0]
+        else:
+            error_message = "「mesh_score」レイヤが足りません。"
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        # check fields
+        missing_fields = self._check_hazard_fields(mesh_lyr)
+        if len(missing_fields) > 0:
+            error_message = "エラーが発生しました。\n\n"
+            error_message += "mesh_scoreレイヤに以下の属性が足りません。\n\n"
+            error_message += "\n".join(missing_fields)
+            QMessageBox.information(None, "エラー", error_message)
+            return
+
+        try:
+            total_score_hazard = self._total_hazard_score(mesh_lyr)
+
+            # replace mesh_score layer with calculated one
+            remove_layer("mesh_score")
+            add_to_map(total_score_hazard, "mesh_score")
+
+            message = "点数の集計が完了しました"
+            message += "\n\n追加属性:"
+            message += f"\n- {constants.field_hazard_score} (点数合計)"
+            message += f"\n- {constants.field_hazard_rank} (点数合計のランク)"
+            QMessageBox.information(None, "完了", message)
+
+        except Exception as e:
+            QMessageBox.information(
+                None,
+                "エラー",
+                f"エラーが発生しました：\n{e}",
+            )
+            return
 
     def _on_export_pdf_clicked(self):
         # check parameters
@@ -123,24 +163,9 @@ class PDFExporter:
             mesh_lyr.loadNamedStyle(qml_file)
 
             # calculate total hazard score
-            scored_hazard = processing.run(
-                "native:fieldcalculator",
-                {
-                    "INPUT": mesh_lyr,
-                    "FIELD_NAME": constants.field_hazard_score,
-                    "FIELD_TYPE": 1,
-                    "FIELD_LENGTH": 0,
-                    "FIELD_PRECISION": 0,
-                    "FORMULA": self._make_hazard_scores_formula(),
-                    "OUTPUT": "TEMPORARY_OUTPUT",
-                },
-            )["OUTPUT"]
-
-            # calculate rank formula
-            ranked_hazard = calculate_hazard_rank(scored_hazard)
+            ranked_hazard = self._total_hazard_score(mesh_lyr)
 
             # export mesh as shapefile
-
             # set file prefix
             file_prefix = self.main.pdf_map_title.text()
 
@@ -436,6 +461,26 @@ class PDFExporter:
             pdf_file_name,
         )
         exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+
+    def _total_hazard_score(self, mesh_lyr: QgsVectorLayer) -> QgsVectorLayer:
+        # calculate total hazard score
+        scored_hazard = processing.run(
+            "native:fieldcalculator",
+            {
+                "INPUT": mesh_lyr,
+                "FIELD_NAME": constants.field_hazard_score,
+                "FIELD_TYPE": 1,
+                "FIELD_LENGTH": 0,
+                "FIELD_PRECISION": 0,
+                "FORMULA": self._make_hazard_scores_formula(),
+                "OUTPUT": "TEMPORARY_OUTPUT",
+            },
+        )["OUTPUT"]
+
+        # calculate rank formula
+        ranked_hazard = calculate_hazard_rank(scored_hazard)
+
+        return ranked_hazard
 
     def _make_hazard_scores_formula(self):
         target_fields = []
