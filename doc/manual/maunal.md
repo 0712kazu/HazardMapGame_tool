@@ -64,7 +64,7 @@
             - a46_landslip : 地すべり
             - a48_disaster : 災害危険
             - a49_storm_surge : 高潮
-            - b01_earthquake : 自身
+            - b01_earthquake : 地震
             - g04_slope : 傾斜
             - p20_refuge : 避難施設
           - 関連項目
