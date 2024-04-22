@@ -1,4 +1,6 @@
+
 # 概要
+
 - この資料は処理・データの仕様をまとめている。
 - このツールの処理は以下の通りである。
     1. シームレスデータ作成
@@ -17,6 +19,7 @@
 ![Alt text](imgs/image.png)
 
 ## 1.2. 入力データのダウンロードURL
+
 - 各項目で使用するデータのダウンロードURLである。
 - いずれもZIP形式でダウンロードされ、シームレスデータ作成に際し解凍は不要である。
 - バージョンは2024年4月19日現在のもの。
@@ -36,6 +39,7 @@
   | L03 | 土地利用 | 土地利用細分メッシュ   | [https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html) |
 
 ## 1.3. 出力データ構成
+
 下記のファイル名と合致しない場合、対象災害のハザードマップゲーム(HMG)データの作成処理は完了しない。
 ![Alt text](imgs/image-1.png)
 
@@ -57,6 +61,7 @@
 | 傾斜度  | g04_slope.gpkg |
 
 ### 1.4.2. 竜巻
+
 - 2種類のポイントを１つにマージする。
 - 500mの融合したバッファを生成する。
 ![Alt text](imgs/image-3.png)
@@ -66,6 +71,7 @@
 | 竜巻 | a30_tornado.gpkg     |
 
 ### 1.4.3. 避難施設
+
 - CSVの経度、緯度からポイントを生成する。
     - CSVファイルの経度カラム名：`経度`
     - CSVファイルの緯度カラム名：`緯度`
@@ -77,24 +83,33 @@
 
 
 ### 1.4.4. 市区町村
+
 ![Alt text](imgs/image-5.png)
 
 # 2. 枠・メッシュの作成
+
 - 枠はA1サイズ（841mm x 594mm）で作成される。
 - メッシュにIDを左上から右、上から下の順番に付与する。
 
 ## 2.1. 作成処理フロー（市区町村指定） 
+
 ![Alt text](imgs/image-6.png)
+
 ## 2.2. 作成処理フロー（中心点指定） 
+
 ![Alt text](imgs/image-7.png)
+
 ## 2.3. 履歴指定
+
 - mesh_production_log.csvのカラム構成
 ![Alt text](imgs/image-8.png)
 - メッシュ・ワク作成処理フロー
 ![Alt text](imgs/image-9.png)
+
 # 3. ハザードマップゲームデータ作成
 
 ## 3.1. 点数付与処理ロジック
+
 - 「mesh_score」レイヤを作成し、シームレスデータからリスク値とそれに応じたランクを付与される。
 
   | 項目   | 入力シームレスデータ           | 図形処理                 | リスク値    | 陸域の調整※1 | リスク値の属性名 | ランクの属性名※2  |
@@ -111,10 +126,13 @@
   | 避難施設 | p20_refuge.gpkg      |                      | 点の数     | ×       | refuge   | t_refuge   |
 
 ### ※1 陸域調整
+
 - 狭域の陸域の危険性が高い場合に、マス自体のリスク値が低くならないよう、災害の値を調整することを目的としている。
 - 調整の計算式は、`（調整後のリスク値）＝（調整前のリスク値）/（陸域のパーセント）` となっている。
 - 各災害のうち割合を示す項目は値の調整は行わない、具体的には、確率的地震動予測と傾斜度のみを対象としている。
+
 ### ※2 ランク計算ロジック
+
 - リスク値の合計に対して、点数の低い順に設定した割合に達するまで同じ点数を付与していく処理である。
 - TCG方式は、割合を固定している。
 
@@ -136,29 +154,52 @@
 ## 3.2. 各種類の点数付与処理の仕様
 
 ### 土地利用
+
 ![Alt text](imgs/image-10.png)
+
 ### 竜巻
+
 ![Alt text](imgs/image-12.png)
+
+
 ### 洪水
+
 ![Alt text](imgs/image-11.png)
+
 ### 土砂
+
 ![Alt text](imgs/image-13.png)
+
 ### 地すべり
+
 ![Alt text](imgs/image-14.png)
+
 ### 災害危険
+
 ![Alt text](imgs/image-15.png)
+
 ### 津波
+
 ![Alt text](imgs/image-19.png)
+
 ### 高潮
+
 ![Alt text](imgs/image-20.png)
+
 ### 地震
+
 ![Alt text](imgs/image-18.png)
+
 ### 傾斜度
+
 ![Alt text](imgs/image-17.png)
+
 ### 避難施設
+
 ![Alt text](imgs/image-16.png)
 
 ## 4. PDFとSHP出力
+
 - 出力はマップのエクスポートでA1サイズ、解像度300DPIのPDFで出力される。
 - HMGデータから背景地図やラベルレイヤが生成され、出力に使用される。
 
@@ -181,6 +222,7 @@
 | basemap_hillshade | https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png |
 
 ### 点数合計ランク
+
 - 出力項目でチェックした項目の災害点数を合計し、3段階のランクに分けて色別の円を表示する。
 - レイヤ名：hazard_score
 - 災害点数の合計の属性名 : hazard
@@ -196,6 +238,7 @@
 
 
 ## 4.2. 各種PDFの仕様
+
 |                   |  PDF項目            | HMG01<br>ans  | HMG02<br>base | HMG02b<br>base2 | HMG03<br>tile | HMG04<br>use | HMG05<br>elev | HMG06<br>g04   | HMG07<br>b01   | HMG08<br>a30    | HMG09<br>a31   | HMG10<br>a33      | HMG11<br>a40               | HMG12<br>a46      | HMG13<br>a48      |
 | ----------------- | ------------ | ------ | ----- | ------ | ----- | ----- | ----- | ------- | ------- | --------- | ------- | ---------- | ------------------- | ---------- | ---------- |
 |                   | デフォルト        | ✔      | ✔     | ✔      | ✔     | ✔     | ✔     | ✔       | ✔       |           | ✔       | ✔          | ✔                   |            |            |
@@ -226,6 +269,7 @@
 - ※3　東京都の津波浸水想定の代わり
 
 ### 避難所のシンボル仕様
+
 - 対象レイヤ：seamless_refuge
 - マーカーサイズ : 5mm
 - マーカーSVGの出典：[避難口誘導灯 (ISO 7010)](https://en.m.wikipedia.org/wiki/File:Emergency_Exit_ISO_Pictogram_(green).svg)
@@ -250,6 +294,7 @@
 | seamless_surge   | h_surge    | #e0e0e  | #3f007d |
 
 ### 土地利用の色設定
+
 - 対象レイヤ：seamless_landuse
 
 | 「土地利用種」の値 | 内容      | 色       |
@@ -269,61 +314,63 @@
 | 0000     | 不明      | #e8e8e8 |
 
 ## 4.3. 出力処理フロー
+
 ![Alt text](imgs/image-21.png)
 
 ## 4.4. 出力PDFの事例
+
   - HMG01_ans : 災害点数合計と避難所数
 
-![Alt text](imgs/pdf_hmg_01.jpg)
+    ![Alt text](imgs/pdf_hmg_01.jpg)
 
   - HMG02_base : タイル番号のみ
 
-![Alt text](imgs/pdf_hmg_02.jpg)
+    ![Alt text](imgs/pdf_hmg_02.jpg)
 
   - HMG02b_base2 : 地理院陰影地図が重なるタイル番号
   
-  ![Alt text](imgs/pdf_hmg_03.jpg)
+    ![Alt text](imgs/pdf_hmg_03.jpg)
   
   - HMG03_tile : タイルのみ（番号なし）
   
-  ![Alt text](imgs/pdf_hmg_04.jpg)
+    ![Alt text](imgs/pdf_hmg_04.jpg)
   
   - HMG04_use : 土地利用 
   
-  ![Alt text](imgs/pdf_hmg_05.jpg)
+    ![Alt text](imgs/pdf_hmg_05.jpg)
   
   - HMG05_elev : 地理院標高地図が重なるタイル番号
   
-  ![Alt text](imgs/pdf_hmg_06.jpg)
+    ![Alt text](imgs/pdf_hmg_06.jpg)
   
   - HMG06_g04 : 傾斜
   
-  ![Alt text](imgs/pdf_hmg_07.jpg)
+    ![Alt text](imgs/pdf_hmg_07.jpg)
   
   - HMG07_g01 : 地震
   
-  ![Alt text](imgs/pdf_hmg_08.jpg)
+    ![Alt text](imgs/pdf_hmg_08.jpg)
   
   - HMG08_a30 : 竜巻
   
-  ![Alt text](imgs/pdf_hmg_09.jpg)
+    ![Alt text](imgs/pdf_hmg_09.jpg)
   
   - HMG09_a31 : 洪水
   
-  ![Alt text](imgs/pdf_hmg_10.jpg)
+    ![Alt text](imgs/pdf_hmg_10.jpg)
   
   - HMG10_a33 : 土砂
   
-  ![Alt text](imgs/pdf_hmg_11.jpg)
+    ![Alt text](imgs/pdf_hmg_11.jpg)
   
   - HMG11_a40 : 津波か高潮
   
-  ![Alt text](imgs/pdf_hmg_12.jpg)
+    ![Alt text](imgs/pdf_hmg_12.jpg)
   
   - HMG12_a46 : 地すべり
   
-  ![Alt text](imgs/pdf_hmg_13.jpg)
+    ![Alt text](imgs/pdf_hmg_13.jpg)
   
   - HMG13_a48 : 災害危険
 
-  ![Alt text](imgs/pdf_hmg_14.jpg)
+    ![Alt text](imgs/pdf_hmg_14.jpg)
