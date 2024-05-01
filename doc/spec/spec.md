@@ -290,8 +290,8 @@
 | seamless_slope   | angle      | #e8dea3 | #65411f |
 | seamless_quake   | T30_I60_PS | #ffc7f0 | #dc00e4 |
 | seamless_flood   | depth      | #aa95c8 | #3f007d |
-| seamless_tsunami | h_tsunami  | #e0e0e  | #3f007d |
-| seamless_surge   | h_surge    | #e0e0e  | #3f007d |
+| seamless_tsunami | h_tsunami  | #bcaed5  | #3f007d |
+| seamless_surge   | h_surge    | #bcaed5  | #3f007d |
 
 ### 土地利用の色設定
 
