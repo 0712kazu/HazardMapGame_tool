@@ -245,7 +245,8 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            QMessageBox.information(None, "お知らせ", "No shapefile in 洪水 directory.")
+            message = "シェープファイルに洪水フォルダーが存在しません。"
+            QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
         merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
