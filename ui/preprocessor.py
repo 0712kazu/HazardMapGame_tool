@@ -227,7 +227,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 土地利用 directory."
+            message = "シェープファイルに土地利用フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -245,7 +245,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            QMessageBox.information(None, "お知らせ", "No shapefile in 洪水 directory.")
+            QMessageBox.information(None, "お知らせ", "シェープファイルに洪水フォルダーが存在しません。")
             shutil.rmtree(extracted_dir)
             return
         merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
@@ -261,7 +261,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 土砂 directory."
+            message = "シェープファイルに土砂フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -284,7 +284,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 津波 directory."
+            message = "シェープファイルに津波フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -307,7 +307,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 地すべり directory."
+            message = "シェープファイルに地すべりフォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -330,7 +330,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 災害危険 directory."
+            message = "シェープファイルに災害危険フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -354,7 +354,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 高潮 directory."
+            message = "シェープファイルに高潮フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -377,7 +377,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 地震 directory."
+            message = "シェープファイルに地震フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -400,7 +400,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "No shapefile in 傾斜度 directory."
+            message = "シェープファイルに傾斜度フォルダーが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -428,7 +428,7 @@ class Preprocessor:
             csvfiles.extend(csv_files)
 
         if len(csvfiles) == 0:
-            message = "No CSV file in 避難施設 directory."
+            message = "避難施設フォルダーにCSVファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -623,7 +623,7 @@ class Preprocessor:
                 csvfiles.extend(csv_files)
 
             if len(csvfiles) == 0:
-                message = "No CSV file in 追加災害 directory."
+                message = "追加災害フォルダーにCSVファイルが存在しません。"
                 QMessageBox.information(None, "お知らせ", message)
                 shutil.rmtree(extracted_dir)
                 return
