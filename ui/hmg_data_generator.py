@@ -185,7 +185,7 @@ class HMGDataGenerator:
                 QMessageBox.information(
                     None,
                     "エラー",
-                    "中心点が指定されていません。",
+                    "中心点を指定してください。",
                 )
                 return
             log = {
