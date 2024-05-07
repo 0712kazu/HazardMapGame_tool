@@ -227,7 +227,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに土地利用フォルダーが存在しません。"
+            message = "土地利用フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -245,7 +245,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに洪水フォルダーが存在しません。"
+            message = "洪水フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -262,7 +262,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに土砂フォルダーが存在しません。"
+            message = "土砂フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -285,7 +285,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに津波フォルダーが存在しません。"
+            message = "津波フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -308,7 +308,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに地すべりフォルダーが存在しません。"
+            message = "地すべりフォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -331,7 +331,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに災害危険フォルダーが存在しません。"
+            message = "災害危険フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -355,7 +355,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに高潮フォルダーが存在しません。"
+            message = "高潮フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -378,7 +378,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに地震フォルダーが存在しません。"
+            message = "地震フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
@@ -401,7 +401,7 @@ class Preprocessor:
             unpack_zips_from_dir(root_directory, extracted_dir)
         shapefiles = get_shapefiles_from_dir(extracted_dir)
         if len(shapefiles) == 0:
-            message = "シェープファイルに傾斜度フォルダーが存在しません。"
+            message = "傾斜度フォルダーにシェープファイルが存在しません。"
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
