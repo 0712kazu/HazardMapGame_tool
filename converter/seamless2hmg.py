@@ -991,7 +991,8 @@ def seamless2hmg_custom(
         if not custom_lyr.fields()[field_index].isNumeric():
             error_message = "エラーが発生しました。\n\n"
             error_message += (
-                f"シームレスレイヤの「{seamless_field}」属性に数値以外のデータが含まれています。"
+                f"シームレスレイヤの「{seamless_field}」属性に"
+                "数値以外のデータが含まれています。"
             )
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
@@ -1025,7 +1026,8 @@ def seamless2hmg_custom(
         if not custom_lyr.fields()[field_index].isNumeric():
             error_message = "エラーが発生しました。\n\n"
             error_message += (
-                f"シームレスレイヤの「{seamless_field}」属性に数値以外のデータが含まれています。"
+                f"シームレスレイヤの「{seamless_field}」属性に"
+                "数値以外のデータが含まれています。"
             )
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
