@@ -127,7 +127,7 @@ class PDFExporter:
         # check parameters
         if not self.main.pdf_folder.filePath():
             error_message = "エラーが発生しました。\n\n"
-            error_message += "出力PDFフォルダーが設定していません。"
+            error_message += "出力先を指定してください。"
             QMessageBox.information(None, "エラー", error_message)
             return
 
@@ -317,7 +317,7 @@ class PDFExporter:
                     hmg11_field = constants.field_surge
                 else:
                     error_message = "HMG11_a31の対象カラムが指定していません。\n"
-                    error_message += "津波に指定します。"
+                    error_message += "津波を指定します。"
                     QMessageBox.information(None, "エラー", error_message)
 
                 miss_lyrs = set_hmg11_tsunami(
@@ -346,7 +346,7 @@ class PDFExporter:
             # End process message
             message = "PDFの出力が完了しました。\n"
             if len(missing_layers) > 0:
-                message += "\n以下のレイヤが足りないため、PDFに表示しません。\n"
+                message += "\n以下のレイヤが足りないため、PDFに含まれません。\n"
                 message += "\n".join(missing_layers)
 
             QMessageBox.information(None, "完了", message)
