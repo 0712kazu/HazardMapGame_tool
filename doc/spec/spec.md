@@ -189,7 +189,7 @@
 
 ![Alt text](imgs/image-19.png)
 
-- 津波値の仕様を変更する場合
+- 津波値計算の仕様を変更する場合
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L693](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L693)
@@ -200,7 +200,7 @@
 
 ![Alt text](imgs/image-20.png)
 
-- 高潮値の仕様を変更する場合
+- 高潮値計算の仕様を変更する場合
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L804](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L804)
