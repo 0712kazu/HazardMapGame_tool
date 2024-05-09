@@ -52,7 +52,7 @@ def _handle_zero_polygon_hazard(
             "OUTPUT": "TEMPORARY_OUTPUT",
         },
     )["OUTPUT"]
-    message = f"対象領域にポリゴンが含めてないため「{target_field}」の値が0になります。"
+    message = f"対象領域にポリゴンが存在しないため「{target_field}」の値が0になります。"
     QMessageBox.information(None, "お知らせ", message)
     return mesh_calculated
 
@@ -964,7 +964,7 @@ def seamless2hmg_custom(
     if calc_method == "sum_surfaces":
         if custom_geom_type != QgsWkbTypes.PolygonGeometry:
             error_message = "エラーが発生しました。\n\n"
-            error_message += "追加災害のレイヤがポリゴンではありません。"
+            error_message += "追加災害のレイヤはポリゴンではありません。"
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
 
@@ -976,7 +976,7 @@ def seamless2hmg_custom(
     if calc_method == "sum_surfaces_values":
         if custom_geom_type != QgsWkbTypes.PolygonGeometry:
             error_message = "エラーが発生しました。\n\n"
-            error_message += "追加災害のレイヤがポリゴンではありません。"
+            error_message += "追加災害のレイヤはポリゴンではありません。"
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
 
@@ -991,7 +991,8 @@ def seamless2hmg_custom(
         if not custom_lyr.fields()[field_index].isNumeric():
             error_message = "エラーが発生しました。\n\n"
             error_message += (
-                f"シームレスレイヤに「{seamless_field}」属性が数字ではありません。"
+                f"シームレスレイヤの「{seamless_field}」属性に"
+                "数値以外のデータが含まれています。"
             )
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
@@ -1004,13 +1005,13 @@ def seamless2hmg_custom(
     if calc_method == "centroid_value_mean":
         if custom_geom_type != QgsWkbTypes.PolygonGeometry:
             error_message = "エラーが発生しました。\n\n"
-            error_message += "追加災害のレイヤがポリゴンではありません。"
+            error_message += "追加災害のレイヤはポリゴンではありません。"
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
 
         if seamless_field == "":
             error_message = "エラーが発生しました。\n\n"
-            error_message += "シームレス値属性名が記入していません"
+            error_message += "シームレス値属性名を指定してください。"
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
 
@@ -1025,7 +1026,8 @@ def seamless2hmg_custom(
         if not custom_lyr.fields()[field_index].isNumeric():
             error_message = "エラーが発生しました。\n\n"
             error_message += (
-                f"シームレスレイヤに「{seamless_field}」属性が数字ではありません。"
+                f"シームレスレイヤの「{seamless_field}」属性に"
+                "数値以外のデータが含まれています。"
             )
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
@@ -1038,7 +1040,7 @@ def seamless2hmg_custom(
     if calc_method == "count_points":
         if custom_geom_type != QgsWkbTypes.PointGeometry:
             error_message = "エラーが発生しました。\n\n"
-            error_message += "追加災害のレイヤがポイントではありません。"
+            error_message += "追加災害のレイヤはポイントではありません。"
             QMessageBox.information(None, "エラー", error_message)
             return mesh_lyr
 

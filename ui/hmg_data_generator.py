@@ -148,7 +148,7 @@ class HMGDataGenerator:
     def save_log(self):
         # checkpoint 1: title should not be empty
         if self.main.lineEdit_title.text() == "":
-            QMessageBox.information(None, "エラー", "ログ名を記入してください。")
+            QMessageBox.information(None, "エラー", "ログ名を指定してください。")
             return
 
         with open(self.log_csv, "r") as f:
@@ -159,7 +159,7 @@ class HMGDataGenerator:
                 QMessageBox.information(
                     None,
                     "エラー",
-                    f"「{self.main.lineEdit_title.text()}」のログ名が既に保存されています。",
+                    f"ログ名「{self.main.lineEdit_title.text()}」は既に使用されています。",
                 )
                 return
 
@@ -185,7 +185,7 @@ class HMGDataGenerator:
                 QMessageBox.information(
                     None,
                     "エラー",
-                    "中心点が指定していません。",
+                    "中心点を指定してください。",
                 )
                 return
             log = {
@@ -212,7 +212,7 @@ class HMGDataGenerator:
         QMessageBox.information(
             None,
             "Information",
-            f"「{self.main.lineEdit_title.text()}」ログが保存しました。",
+            f"ログ「{self.main.lineEdit_title.text()}」を保存しました。",
         )
 
     def _set_shikuchoson_csv_data(self):
@@ -234,7 +234,7 @@ class HMGDataGenerator:
         self.main.filter_pref.clear()
         self.main.filter_city.clear()
         # add default value
-        self.main.comboBox_pref.addItem("都道府県を選択")
+        self.main.comboBox_pref.addItem("都道府県名")
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             knames = list(dict.fromkeys([row["KNAME"] for row in reader]))
@@ -245,7 +245,7 @@ class HMGDataGenerator:
         text = self.main.filter_pref.text()
         self.main.comboBox_pref.clear()
         # add default value
-        self.main.comboBox_city.addItem("都道府県を選択")
+        self.main.comboBox_city.addItem("都道府県名")
 
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
@@ -263,13 +263,13 @@ class HMGDataGenerator:
                 self.main.comboBox_pref.addItem(name)
         self.main.filter_city.clear()
         # add default value
-        self.main.comboBox_city.addItem("市区町村を選択")
+        self.main.comboBox_city.addItem("市区町村名")
 
     def _on_city_filter_changed(self):
         text = self.main.filter_city.text()
         self.main.comboBox_city.clear()
         # add default value
-        self.main.comboBox_city.addItem("市区町村を選択")
+        self.main.comboBox_city.addItem("市区町村名")
 
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
@@ -289,7 +289,7 @@ class HMGDataGenerator:
     def _on_pref_changed(self, text):
         self.main.comboBox_city.clear()
         # add default value
-        self.main.comboBox_city.addItem("市区町村を選択")
+        self.main.comboBox_city.addItem("市区町村名")
         with open(self.pref_city_csv, "r") as f:
             reader = csv.DictReader(f)
             names = list(
@@ -379,18 +379,18 @@ class HMGDataGenerator:
                 # 市区町村からメッシュを作成する
 
                 # check selected pref city
-                if self.main.comboBox_pref.currentText() == "都道府県を選択":
+                if self.main.comboBox_pref.currentText() == "都道府県名":
                     QMessageBox.information(
                         None,
                         "エラー",
-                        "都道府県が指定していません。",
+                        "都道府県を指定してください。",
                     )
                     return
-                if self.main.comboBox_city.currentText() == "市区町村を選択":
+                if self.main.comboBox_city.currentText() == "市区町村名":
                     QMessageBox.information(
                         None,
                         "エラー",
-                        "市区町村が指定していません。",
+                        "市区町村を指定してください。",
                     )
                     return
 
@@ -408,7 +408,7 @@ class HMGDataGenerator:
                     QMessageBox.information(
                         None,
                         "エラー",
-                        "中心点が指定していません。",
+                        "中心点を指定してください。",
                     )
                     return
                 # 中心点座標からメッシュを作成する
@@ -436,7 +436,7 @@ class HMGDataGenerator:
                     mesh_lyr, landuse_lyr, self.main.spin_inland_percentage.value()
                 )
             else:
-                message = f"対象シムレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}を見つかりませんでした。\n"
+                message = f"対象シームレスフォルダーに{constants.SEAMLESS_FILE_LANDUSE}がありません。\n"
                 message += "マスに陸域率を100%に指定します。"
                 QMessageBox.information(None, "お知らせ", message)
                 mesh_lyr = processing.run(
@@ -699,13 +699,13 @@ class HMGDataGenerator:
                         self.main.custom_hmg_seamlessfilename.text()
                     )
                 elif custom_lyr and custom_field == "":
-                    message = "追加災害の属性名が記入されてません。"
+                    message = "追加災害の属性名を指定してください。"
                     QMessageBox.information(None, "お知らせ", message)
                     return
 
             # if no seamless data , message it
             if len(hmg_processed) == 0:
-                message = "Seamless dataがありませんでした。"
+                message = "シームレスデータがありません。"
                 QMessageBox.information(None, "完了", message)
                 return
 
