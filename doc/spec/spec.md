@@ -170,6 +170,8 @@
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L367](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L367)
+  - 例：追加する場合、以下の行を記入する
+    - `f"WHEN {field} = 7 THEN 35 "`
 
 ### 土砂
 
@@ -191,6 +193,8 @@
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L693](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L693)
+  - 例：追加する場合、以下の行を記入する
+    - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
 ### 高潮
 
@@ -200,6 +204,8 @@
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L804](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L804)
+  - 例：追加する場合、以下の行を記入する
+    - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
 ### 地震
 
@@ -311,7 +317,10 @@
 - 値の色の仕様を変更する場合
   - プラグイン自体のコードで値を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/MIERUNE/tcg-hmg-qgis/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590)
+  - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/MIERUNE/tcg-hmg-qgis/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590) 
+  - 例：以下の行に色コードを入れ替えする
+    - 変更前 ： `seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"`
+    - 変更後 ： `seamless_lyr, f"h_{target_field}", 10, "#ffc7f0", "#dc00e4"`
 
 ### 土地利用の色設定
 
