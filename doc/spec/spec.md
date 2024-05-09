@@ -166,11 +166,11 @@
 
 ![Alt text](imgs/image-11.png)
 
-- 洪水データの標準化の仕様を変更する場合
-  - プラグイン自体のコードで値を編集
+- 洪水値計算の標準化の仕様を変更する場合
+  - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L367](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L367)
-  - 例：追加する場合、以下の行を記入する
+  - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `f"WHEN {field} = 7 THEN 35 "`
 
 ### 土砂
@@ -190,10 +190,10 @@
 ![Alt text](imgs/image-19.png)
 
 - 津波値計算の仕様を変更する場合
-  - プラグイン自体のコードで値を編集
+  - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L693](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L693)
-  - 例：追加する場合、以下の行を記入する
+  - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
 ### 高潮
@@ -201,10 +201,10 @@
 ![Alt text](imgs/image-20.png)
 
 - 高潮値計算の仕様を変更する場合
-  - プラグイン自体のコードで値を編集
+  - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L804](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L804)
-  - 例：追加する場合、以下の行を記入する
+  - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
 ### 地震
@@ -314,11 +314,11 @@
 | seamless_tsunami | h_tsunami  | #bcaed5  | #3f007d |
 | seamless_surge   | h_surge    | #bcaed5  | #3f007d |
 
-- 値の色の仕様を変更する場合
-  - プラグイン自体のコードで値を編集
+- 値の条件に応じた色の仕様を変更する場合
+  - プラグインの設定ファイルの色コードを編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/MIERUNE/tcg-hmg-qgis/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590) 
-  - 例：以下の行に色コードを入れ替えする
+  - 例：下記のように色コードを変更する。
     - 変更前 ： `seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"`
     - 変更後 ： `seamless_lyr, f"h_{target_field}", 10, "#ffc7f0", "#dc00e4"`
 
