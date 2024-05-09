@@ -78,7 +78,7 @@ def merge_shapefiles(shapefiles: list, output_path: str, addfields=""):
     layer_name = os.path.splitext(os.path.basename(output_path))[0]
     cmd = (
         f"ogr2ogr -lco ENCODING=cp932 -oo ENCODING=cp932 -nln {layer_name} -f GPKG "
-        f"{output_path}"
+        f"-makevalid {output_path}"
         f" {shapefiles[0]}"
     )
     subprocess.run(
@@ -91,7 +91,7 @@ def merge_shapefiles(shapefiles: list, output_path: str, addfields=""):
         cmd = (
             f"ogr2ogr -lco ENCODING=cp932"
             f" -oo ENCODING=cp932 -nln {layer_name} -f GPKG"
-            f" -append {addfields} -update"
+            f" -append {addfields} -update -makevalid"
             f" {output_path} {shp}"
         )
         subprocess.run(

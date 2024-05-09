@@ -587,7 +587,7 @@ def set_hmg11_tsunami(
             f"seamless_{target_field}"
         )[0]
         _symbolize_fill_layer_graduated(
-            seamless_lyr, f"h_{target_field}", 10, "#e0e0ee", "#3f007d"
+            seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"
         )
         seamless_lyr.setOpacity(0.5)
         seamless_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
