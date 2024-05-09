@@ -166,6 +166,11 @@
 
 ![Alt text](imgs/image-11.png)
 
+- 洪水データの標準化の仕様を変更する場合
+  - プラグイン自体のコードで値を編集
+  - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L367](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L367)
+
 ### 土砂
 
 ![Alt text](imgs/image-13.png)
@@ -182,9 +187,19 @@
 
 ![Alt text](imgs/image-19.png)
 
+- 津波値の仕様を変更する場合
+  - プラグイン自体のコードで値を編集
+  - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L693](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L693)
+
 ### 高潮
 
 ![Alt text](imgs/image-20.png)
+
+- 高潮値の仕様を変更する場合
+  - プラグイン自体のコードで値を編集
+  - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L804](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L804)
 
 ### 地震
 
@@ -292,6 +307,11 @@
 | seamless_flood   | depth      | #aa95c8 | #3f007d |
 | seamless_tsunami | h_tsunami  | #bcaed5  | #3f007d |
 | seamless_surge   | h_surge    | #bcaed5  | #3f007d |
+
+- 値の色の仕様を変更する場合
+  - プラグイン自体のコードで値を編集
+  - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
+  - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/MIERUNE/tcg-hmg-qgis/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590)
 
 ### 土地利用の色設定
 
