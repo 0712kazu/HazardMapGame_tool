@@ -10,6 +10,8 @@
     
     ![Alt text](../manual/imgs/image-4.png)
 
+<div class="page"/>
+
 # 1. シムレースデータ作成
 
 ## 1.1. 入力データ構成
@@ -39,6 +41,8 @@
   | P20 | 避難所  | 避難施設         | [https://www.gsi.go.jp/bousaichiri/hinanbasho.html#info2](https://www.gsi.go.jp/bousaichiri/hinanbasho.html#info2)                       |             |
   | G04 | 傾斜度  | 標高・傾斜度5次メッシュ | [https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-G04-d.html](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-G04-d.html)           |             |
   | L03 | 土地利用 | 土地利用細分メッシュ   | [https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html](https://nlftp.mlit.go.jp/ksj/gml/datalist/KsjTmplt-L03-b-v3_1.html) |
+
+<div class="page"/>
 
 ## 1.3. 出力データ構成
 
@@ -74,6 +78,8 @@
 | ---- | -------------------- |
 | 竜巻 | a30_tornado.gpkg     |
 
+<div class="page"/>
+
 ### 1.4.3. 避難施設
 
 - CSVの経度、緯度からポイントを生成する。
@@ -85,7 +91,6 @@
 | ---- | -------------------- |
 | 避難施設 | p20_refuge.gpkg     |
 
-<div class="page"/>
 
 ### 1.4.4. 市区町村
 
@@ -190,6 +195,8 @@
 
 ![Alt text](imgs/image-13.png)
 
+<div class="page"/>
+
 ### 地すべり
 
 ![Alt text](imgs/image-14.png)
@@ -197,8 +204,6 @@
 ### 災害危険
 
 ![Alt text](imgs/image-15.png)
-
-<div class="page"/>
 
 ### 津波
 
@@ -211,6 +216,8 @@
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
+<div class="page"/>
+
 ### 高潮
 
 ![Alt text](imgs/image-20.png)
@@ -222,11 +229,11 @@
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
-<div class="page"/>
-
 ### 地震
 
 ![Alt text](imgs/image-18.png)
+
+<div class="page"/>
 
 ### 傾斜度
 
@@ -280,30 +287,7 @@
 
 ## 4.2. 各種PDFの仕様
 
-|                   |  PDF項目            | HMG01<br>ans  | HMG02<br>base | HMG02b<br>base2 | HMG03<br>tile | HMG04<br>use | HMG05<br>elev | HMG06<br>g04   | HMG07<br>b01   | HMG08<br>a30    | HMG09<br>a31   | HMG10<br>a33      | HMG11<br>a40               | HMG12<br>a46      | HMG13<br>a48      |
-| ----------------- | ------------ | ------ | ----- | ------ | ----- | ----- | ----- | ------- | ------- | --------- | ------- | ---------- | ------------------- | ---------- | ---------- |
-|                   | デフォルト        | ✔      | ✔     | ✔      | ✔     | ✔     | ✔     | ✔       | ✔       |           | ✔       | ✔          | ✔                   |            |            |
-| レイヤ (順番をQGISに反映)              | 内容           | 答え(フル) | タイル番号 | タイル番号  | タイル   | 土地利用  | 標高    | 傾斜      | 地震      | 竜巻        | 洪水      | 土砂         | 津波                  | 地すべり       | 災害危険       |
-| seamless_refuge   | 避難所          | 〇      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
-| label_score       | タイル_点数       | hazard |       |        |       |       |       | t_slope | t_quake | t_tornado | t_flood | t_sediment | t_tsunami<br>かt_surge | t_landslip | t_disaster |
-| label_refuge      | タイル_避難所数     | t_refuge      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
-| label_id          | タイル_番号       | 〇      | 〇     | 〇      |       | 〇     | 〇     | 〇       | 〇       | 〇         | 〇       | 〇          | 〇                   | 〇          | 〇          |
-| mesh_score        | タイル_枠線       | 70%    | 70%   | 70%    | 70%   | 70%   | 70%   | 70%     | 70%     | 70%       | 70%     | 70%        | 70%                 | 70%        | 70%        |
-| hazard_score     | タイル_点数ランク色わけ | 〇<br>※2      |       |        |       |       |       |         |         |           |         |            |                     |            |            |
-| waku              | 用紙枠線         |        |       |        |       |       |       |         |         |           |         |            |                     |            |            |
-| seamless_slope    | 傾斜度          |        |       |        |       |       |       | 50%<br>※1 ※2  |         |           |         |            |                     |            |            |
-| seamless_quake    | 確立論的地震動予測    |        |       |        |       |       |       |         | 50%<br>※1 ※2  |           |         |            |                     |            |            |
-| seamless_tornado | 竜巻等の突風       |        |       |        |       |       |       |         |         | 50%<br>※2      |         |            |                     |            |            |
-| seamless_flood    | 洪水浸水想定区域     |        |       |        |       |       |       |         |         |           | 50%<br>※1 ※2  |            |                     |            |            |
-| seamless_sediment | 土砂災害警戒区域     |        |       |        |       |       |       |         |         |           |         | 50%<br>※2 |                |            |            |
-| seamless_tsunami  | 津波浸水想定区域     |        |       |        |       |       |       |         |         |           |         |            | 50%<br>※1 ※2 ※3           |            |            |
-| seamless_surge    | 高潮浸水想定区域     |        |       |        |       |       |       |         |         |           |         |            | 50%<br>※1 ※2 ※3           |            |            |
-| seamless_landslip | 地すべり防止区域     |        |       |        |       |       |       |         |         |           |         |            |                     | 50%<br>※2       |            |
-| seamless_disaster | 災害危険区域       |        |       |        |       |       |       |         |         |           |         |            |                     |            | 50%<br>※2        |
-| seamless_landuse  | 土地利用         |        |       |        |       | 70%<br>※2  |       |         |         |           |         |            |                     |            |            |
-| basemap_standard  | 地理院 標準地図     | 〇      | 〇     | 50%    | 〇     | 50%   | 50%   | 50%     | 50%     | 50%       | 50%     | 50%        | 50%                 | 50%        | 50%        |
-| basemap_relief    | 地理院 色別標高図    |        |       |        |       |       | 〇     |         |         |           |         |            |                     |            |            |
-| basemap_hillshade | 地理院 陰影       |        |       | 〇      |       |       |       |         |         |           |         |            |                     |            |
+![alt text](imgs/image-22.png)
 
 - ※1　シンボル数値分類クラス10を都度設定する項目
 - ※2　描画モード：乗算（Multiply）
@@ -324,6 +308,8 @@
 | seamless_landslip | #FF0000 | #686868 0.1mm |
 | seamless_disaster | #FF0000 | #686868 0.1mm |
 
+<div class="page"/>
+
 ### 数値分類クラス10を都度設定項目
 
 | レイヤ名             | 対象属性       | 最低値の色   | 最大値の色   |
@@ -342,7 +328,6 @@
     - 変更前 ： `seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"`
     - 変更後 ： `seamless_lyr, f"h_{target_field}", 10, "#ffc7f0", "#dc00e4"`
 
-<div class="page"/>
 
 ### 土地利用の色設定
 
@@ -363,6 +348,8 @@
 | 1500  | 海水域     | #00ccff |
 | 1600  | ゴルフ場    | #00ff00 |
 | 0000     | 不明      | #e8e8e8 |
+
+<div class="page"/>
 
 ## 4.3. 出力処理フロー
 
