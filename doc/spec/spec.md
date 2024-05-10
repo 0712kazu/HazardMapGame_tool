@@ -18,6 +18,8 @@
 - 個別にフォルダーを指定することもできる。
 ![Alt text](imgs/image.png)
 
+<div class="page"/>
+
 ## 1.2. 入力データのダウンロードURL
 
 - 各項目で使用するデータのダウンロードURLである。
@@ -42,6 +44,8 @@
 
 下記のファイル名と合致するファイルが存在しない場合、該当の災害データの作成処理はスキップされる。
 ![Alt text](imgs/image-1.png)
+
+<div class="page"/>
 
 ## 1.4. シームレスデータ作成処理の仕様
 ### 1.4.1. ポリゴン系の項目
@@ -81,10 +85,13 @@
 | ---- | -------------------- |
 | 避難施設 | p20_refuge.gpkg     |
 
+<div class="page"/>
 
 ### 1.4.4. 市区町村
 
 ![Alt text](imgs/image-5.png)
+
+<div class="page"/>
 
 # 2. 枠・メッシュの作成
 
@@ -99,12 +106,16 @@
 
 ![Alt text](imgs/image-7.png)
 
+<div class="page"/>
+
 ## 2.3. 履歴指定
 
 - mesh_production_log.csvのカラム構成
 ![Alt text](imgs/image-8.png)
 - メッシュ・ワク作成処理フロー
 ![Alt text](imgs/image-9.png)
+
+<div class="page"/>
 
 # 3. ハザードマップゲームデータ作成
 
@@ -150,6 +161,7 @@
 - ランクごとのマスの数は均等にはならない。
 - 合計点数が同じ枠が複数ある場合には、同じランクとなるよう設定される。
 
+<div class="page"/>
 
 ## 3.2. 各種類の点数付与処理の仕様
 
@@ -161,6 +173,7 @@
 
 ![Alt text](imgs/image-12.png)
 
+<div class="page"/>
 
 ### 洪水
 
@@ -185,6 +198,8 @@
 
 ![Alt text](imgs/image-15.png)
 
+<div class="page"/>
+
 ### 津波
 
 ![Alt text](imgs/image-19.png)
@@ -207,6 +222,8 @@
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
+<div class="page"/>
+
 ### 地震
 
 ![Alt text](imgs/image-18.png)
@@ -218,6 +235,8 @@
 ### 避難施設
 
 ![Alt text](imgs/image-16.png)
+
+<div class="page"/>
 
 ## 4. PDFとSHP出力
 
@@ -257,6 +276,7 @@
       - 全体の上位80％以上：赤
       - ※ 合計点数が同じ枠が複数ある場合には、同じ色になるようにする。
 
+<div class="page"/>
 
 ## 4.2. 各種PDFの仕様
 
@@ -322,6 +342,8 @@
     - 変更前 ： `seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"`
     - 変更後 ： `seamless_lyr, f"h_{target_field}", 10, "#ffc7f0", "#dc00e4"`
 
+<div class="page"/>
+
 ### 土地利用の色設定
 
 - 対象レイヤ：seamless_landuse
@@ -346,11 +368,15 @@
 
 ![Alt text](imgs/image-21.png)
 
+<div class="page"/>
+
 ## 4.4. 出力PDFの事例
 
   - HMG01_ans : 災害点数合計と避難所数
 
     ![Alt text](imgs/pdf_hmg_01.jpg)
+
+<div class="page"/>
 
   - HMG02_base : タイル番号のみ
 
