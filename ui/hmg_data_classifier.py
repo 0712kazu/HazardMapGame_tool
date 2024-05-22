@@ -1,10 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from qgis.core import (
+    QgsVectorLayer,
     QgsProject,
     QgsMapLayerProxyModel,
+    QgsField,
+    QgsFeatureRequest,
 )
 
 from qgis.utils import iface
+from PyQt5.QtCore import QVariant
 
 from converter.mesh_score_classifier import (
     graduate_layer,
@@ -12,7 +16,7 @@ from converter.mesh_score_classifier import (
     get_color_from_range,
     classify_values_stdev,
     classify_values_tcg,
-    calculate_tcg_score,
+    get_tcg_ranks,
 )
 
 import constants
@@ -79,7 +83,7 @@ class HMGDataClassifier:
 
             # custom button
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
-            custom_button.setChecked(True)  # default button
+            custom_button.setChecked(True)  # default button TODO CHECK
             custom_button.clicked.connect(on_number_changed_function)
 
     def on_number_changed_tornado(self):
@@ -569,7 +573,7 @@ class HMGDataClassifier:
         self, mesh_score_layer: QgsVectorLayer, custom_field_name: str
     ) -> list:
         # list of added fields
-        tcg_rank_fields_added = []
+        rank_fields_added = []
         for hazard in constants.hazards_ui_names:
             # get mesh_score target field name
             if hazard == "custom":
@@ -585,13 +589,20 @@ class HMGDataClassifier:
             else:
                 continue
             # get ranks from values
-            tcg_ranks = get_tcg_ranks(y_values)
-            tcg_rank_field = f"t_{target_field}"
+            rank_field = f"t_{target_field}"
+
+            tcg_button = getattr(self.main, f"radiobutton_tcg_{hazard}")
+            if tcg_button.isChecked():
+                # get ranks from tcg method
+                ranks = get_tcg_ranks(y_values)
+            else:
+                # get ranks for standard deviation or custom method as defined in UI
+                ranks = self._get_ui_ranks(y_values)
 
             # add tcg rank field if not exists
-            if tcg_rank_field not in mesh_score_layer.fields().names():
+            if rank_field not in mesh_score_layer.fields().names():
                 mesh_score_layer.startEditing()
-                mesh_score_layer.addAttribute(QgsField(tcg_rank_field, QVariant.Int))
+                mesh_score_layer.addAttribute(QgsField(rank_field, QVariant.Int))
                 mesh_score_layer.commitChanges()
 
             # calculate tcg rank
@@ -604,11 +615,12 @@ class HMGDataClassifier:
 
             # Update the tcg rank field based on the sorting order
             for index, feature in enumerate(features):
-                feature.setAttribute(tcg_rank_field, tcg_ranks[index])
+                feature.setAttribute(rank_field, ranks[index])
                 mesh_score_layer.updateFeature(feature)
 
             # Stop editing and save changes
             mesh_score_layer.commitChanges()
 
-            tcg_rank_fields_added.append(tcg_rank_field)
-        return tcg_rank_fields_added
+            rank_fields_added.append(rank_field)
+
+        return rank_fields_added
