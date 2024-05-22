@@ -632,47 +632,19 @@ class HMGDataClassifier:
         output ui_ranks : [0,0,1,2,3,4]
         """
         ui_ranks = []
-        features_count = 0
-        for feature_value in values:
-            # increment feature_value
-            features_count = features_count + 1
-
-            # set 0 score if value less to minimum set
-            if feature_value < constants.MAP_MIN_VALUE:
-                ui_ranks.append(0)
-                continue
-
-            # get percentage of amount the feature
-            # round with 2 digits to fit to UI percentage values
-            feature_percentage = round(features_count / len(values) * 100, 2)
-
-            # check which class it is fitting
-            score = 0
-            for n in range(0, 10):
-                # get percent value
+        for value in values:
+            for n in range(0, 11):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
                 percent_value = percentage_box.value()
-                # get next percent value
-                if n == 10:
-                    next_percent_value = 100
-                    # always set as 100% if defined
-                else:
-                    next_percentage_box = getattr(
-                        self.main, f"classif_percent_{n+1}_{hazard}"
-                    )
-                    next_percent_value = next_percentage_box.value()
+                break_max = get_mesh_value_from_percentage(values, percent_value)
 
-                # get score from percentage
-                if (
-                    feature_percentage > percent_value
-                    and feature_percentage <= next_percent_value
-                ):
-                    score = n + 1
+                if value == break_max and value > 0 and sum(ui_ranks) == 0:
+                    print(value, break_max, 1)
+                    ui_ranks.append(1)
                     break
-                elif feature_percentage == percent_value:
-                    score = n + 1
+                elif value <= break_max:
+                    print(value, break_max, n)
+                    ui_ranks.append(n)
                     break
-
-            ui_ranks.append(score)
 
         return ui_ranks
