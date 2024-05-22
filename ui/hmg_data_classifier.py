@@ -38,7 +38,7 @@ class HMGDataClassifier:
 
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
-        self.main.pushButton_tcg_classify.clicked.connect(self.classify_data_tcg)
+        self.main.pushButton_classify.clicked.connect(self._set_classified_hazard_score)
 
         # stdev calculation flag to make calculate only once
         self.stdev_calculating = False
@@ -512,7 +512,12 @@ class HMGDataClassifier:
             )
             return
 
-    def classify_data_tcg(self):
+    def _set_classified_hazard_score(self):
+        """
+        update hazard_score field 't_{hazard}' in target layer (default mesh_score)
+        with score defined in UI (TCG方式, standard deviation or custom)
+        """
+
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
@@ -522,12 +527,12 @@ class HMGDataClassifier:
             mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
             # list of added fields
-            tcg_rank_fields_added = calculate_tcg_score(
+            rank_fields_added = self._calculate_ui_score(
                 mesh_score_layer, self.main.custom_hmg_fieldname.text()
             )
 
-            # add to each hazard mesh layer
-            for hazard_field in tcg_rank_fields_added:
+            # add to each mesh_score_{hazard_name} layer
+            for hazard_field in rank_fields_added:
                 hazard_name = hazard_field.split("_")[1]
 
                 # create if not exists
@@ -540,15 +545,15 @@ class HMGDataClassifier:
                 hazard_mesh_layer = QgsProject.instance().mapLayersByName(
                     f"mesh_score_{hazard_name}"
                 )[0]
-                calculate_tcg_score(
+                self._calculate_ui_score(
                     hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
                 )
 
             # message end
-            message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
-            for tcg_field in tcg_rank_fields_added:
-                message += f"{tcg_field}\n"
-            if len(tcg_rank_fields_added) == 0:
+            message = "点数化が完了しました。\n計算した属性:\n"
+            for rank_field in rank_fields_added:
+                message += f"{rank_field}\n"
+            if len(rank_fields_added) == 0:
                 message += "なし"
             QMessageBox.information(None, "完了", message)
 
@@ -559,3 +564,51 @@ class HMGDataClassifier:
                 f"エラーが発生しました：\n{e}",
             )
             return
+
+    def _calculate_ui_score(
+        self, mesh_score_layer: QgsVectorLayer, custom_field_name: str
+    ) -> list:
+        # list of added fields
+        tcg_rank_fields_added = []
+        for hazard in constants.hazards_ui_names:
+            # get mesh_score target field name
+            if hazard == "custom":
+                target_field = custom_field_name
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
+
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
+            else:
+                continue
+            # get ranks from values
+            tcg_ranks = get_tcg_ranks(y_values)
+            tcg_rank_field = f"t_{target_field}"
+
+            # add tcg rank field if not exists
+            if tcg_rank_field not in mesh_score_layer.fields().names():
+                mesh_score_layer.startEditing()
+                mesh_score_layer.addAttribute(QgsField(tcg_rank_field, QVariant.Int))
+                mesh_score_layer.commitChanges()
+
+            # calculate tcg rank
+            mesh_score_layer.startEditing()
+            # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
+            # associated tcg_ranks : [0,1,2,4,4,6]
+            # Sort the features based on hazard score ascending order
+            request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
+            features = mesh_score_layer.getFeatures(request)
+
+            # Update the tcg rank field based on the sorting order
+            for index, feature in enumerate(features):
+                feature.setAttribute(tcg_rank_field, tcg_ranks[index])
+                mesh_score_layer.updateFeature(feature)
+
+            # Stop editing and save changes
+            mesh_score_layer.commitChanges()
+
+            tcg_rank_fields_added.append(tcg_rank_field)
+        return tcg_rank_fields_added

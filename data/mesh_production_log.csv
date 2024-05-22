@@ -1,1 +1,5 @@
 title,paper_size,type,pref,city,scale,orientation,center_x,center_y,mesh_size_long,mesh_size_short
+Yamanashi error,A1,city,山梨県,山梨市,1:48161,,,,12,8
+Enoshimatest,A1,point,,,1:25000,横,15526540.065754265,4207843.719910334,4,3
+Asakusabashi,A1,point,,,1:25000,横,15560746.704122992,4259077.034808915,12,8
+Kamogawa city office,A1,point,,,1:25000,横,15595751.173272284,4179391.989668859,12,8
