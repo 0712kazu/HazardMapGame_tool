@@ -1,5 +1,5 @@
 [general]
-name=HMG DATA GENERATOR dev
+name=HMG DATA GENERATOR
 qgisMinimumVersion=3.0
 about=HMG DATA GENERATOR
 description=QGIS Sample Plugin
