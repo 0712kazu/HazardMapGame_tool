@@ -83,7 +83,7 @@ class HMGDataClassifier:
 
             # custom button
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
-            custom_button.setChecked(True)  # default button TODO CHECK
+            custom_button.setChecked(True)  # default button
             custom_button.clicked.connect(on_number_changed_function)
 
     def on_number_changed_tornado(self):
