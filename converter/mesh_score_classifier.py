@@ -151,6 +151,10 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     # Classify values
     classes = np.digitize(values, class_boundaries)
 
+    # Get minimum percentage to get all non-null values
+    null_values_count = len([x for x in values if x == 0])
+    min_percentage = ((null_values_count + 1) / len(values)) * 100
+
     # Convert to total percentages
     class_percentages = []
     total_sample = 0
@@ -158,6 +162,11 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
         nb_elements_in_class = classes.tolist().count(i)
         total_sample += nb_elements_in_class
         percentage = total_sample / len(values) * 100
+
+        # if it over minimum non null value, set as minimum percentage
+        if sum(class_percentages) == 0 and percentage > min_percentage:
+            percentage = min_percentage
+
         if percentage != 0:
             class_percentages.append(percentage)
     class_percentages.append(100)
