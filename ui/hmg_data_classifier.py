@@ -597,7 +597,7 @@ class HMGDataClassifier:
                 ranks = get_tcg_ranks(y_values)
             else:
                 # get ranks for standard deviation or custom method as defined in UI
-                ranks = self._get_ui_ranks(y_values)
+                ranks = self._get_ui_ranks(y_values, hazard)
 
             # add tcg rank field if not exists
             if rank_field not in mesh_score_layer.fields().names():
@@ -624,3 +624,55 @@ class HMGDataClassifier:
             rank_fields_added.append(rank_field)
 
         return rank_fields_added
+
+    def _get_ui_ranks(self, values: list, hazard: str) -> list:
+        """Return a list of rank associated to ui input values
+        and percentages set
+        input values :[0,10,255,3598,3699,8555]
+        output ui_ranks : [0,0,1,2,3,4]
+        """
+        ui_ranks = []
+        features_count = 0
+        for feature_value in values:
+            # increment feature_value
+            features_count = features_count + 1
+
+            # set 0 score if value less to minimum set
+            if feature_value < constants.MAP_MIN_VALUE:
+                ui_ranks.append(0)
+                continue
+
+            # get percentage of amount the feature
+            # round with 2 digits to fit to UI percentage values
+            feature_percentage = round(features_count / len(values) * 100, 2)
+
+            # check which class it is fitting
+            score = 0
+            for n in range(0, 10):
+                # get percent value
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percent_value = percentage_box.value()
+                # get next percent value
+                if n == 10:
+                    next_percent_value = 100
+                    # always set as 100% if defined
+                else:
+                    next_percentage_box = getattr(
+                        self.main, f"classif_percent_{n+1}_{hazard}"
+                    )
+                    next_percent_value = next_percentage_box.value()
+
+                # get score from percentage
+                if (
+                    feature_percentage > percent_value
+                    and feature_percentage <= next_percent_value
+                ):
+                    score = n + 1
+                    break
+                elif feature_percentage == percent_value:
+                    score = n + 1
+                    break
+
+            ui_ranks.append(score)
+
+        return ui_ranks
