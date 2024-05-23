@@ -1,10 +1,14 @@
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from qgis.core import (
+    QgsVectorLayer,
     QgsProject,
     QgsMapLayerProxyModel,
+    QgsField,
+    QgsFeatureRequest,
 )
 
 from qgis.utils import iface
+from PyQt5.QtCore import QVariant
 
 from converter.mesh_score_classifier import (
     graduate_layer,
@@ -12,7 +16,7 @@ from converter.mesh_score_classifier import (
     get_color_from_range,
     classify_values_stdev,
     classify_values_tcg,
-    calculate_tcg_score,
+    get_tcg_ranks,
 )
 
 import constants
@@ -38,7 +42,7 @@ class HMGDataClassifier:
 
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
-        self.main.pushButton_tcg_classify.clicked.connect(self.classify_data_tcg)
+        self.main.pushButton_classify.clicked.connect(self._set_classified_hazard_score)
 
         # stdev calculation flag to make calculate only once
         self.stdev_calculating = False
@@ -139,7 +143,7 @@ class HMGDataClassifier:
 
             if tcg_radio_btn.isChecked():
                 nbmax_box.setReadOnly(True)
-                self._set_percentages_tcg(hazard)
+                self.set_percentages_tcg(hazard)
 
             if custom_radio_btn.isChecked():
                 nbmax_box.setReadOnly(False)
@@ -251,39 +255,39 @@ class HMGDataClassifier:
             return
 
     def classify_tcg_tornado(self):
-        self._set_percentages_tcg("tornado")
+        self.set_percentages_tcg("tornado")
 
     def classify_tcg_kozui(self):
-        self._set_percentages_tcg("kozui")
+        self.set_percentages_tcg("kozui")
 
     def classify_tcg_sediments(self):
-        self._set_percentages_tcg("sediments")
+        self.set_percentages_tcg("sediments")
 
     def classify_tcg_tsunami(self):
-        self._set_percentages_tcg("tsunami")
+        self.set_percentages_tcg("tsunami")
 
     def classify_tcg_jisuberi(self):
-        self._set_percentages_tcg("jisuberi")
+        self.set_percentages_tcg("jisuberi")
 
     def classify_tcg_saigai(self):
-        self._set_percentages_tcg("saigai")
+        self.set_percentages_tcg("saigai")
 
     def classify_tcg_surge(self):
-        self._set_percentages_tcg("surge")
+        self.set_percentages_tcg("surge")
 
     def classify_tcg_earthquake(self):
-        self._set_percentages_tcg("earthquake")
+        self.set_percentages_tcg("earthquake")
 
     def classify_tcg_slope(self):
-        self._set_percentages_tcg("slope")
+        self.set_percentages_tcg("slope")
 
     def classify_tcg_refuge(self):
-        self._set_percentages_tcg("refuge")
+        self.set_percentages_tcg("refuge")
 
     def classify_tcg_custom(self):
-        self._set_percentages_tcg("custom")
+        self.set_percentages_tcg("custom")
 
-    def _set_percentages_tcg(self, hazard):
+    def set_percentages_tcg(self, hazard):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
@@ -512,7 +516,12 @@ class HMGDataClassifier:
             )
             return
 
-    def classify_data_tcg(self):
+    def _set_classified_hazard_score(self):
+        """
+        update hazard_score field 't_{hazard}' in target layer (default mesh_score)
+        with score defined in UI (TCG方式, standard deviation or custom)
+        """
+
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
@@ -522,12 +531,12 @@ class HMGDataClassifier:
             mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
             # list of added fields
-            tcg_rank_fields_added = calculate_tcg_score(
+            rank_fields_added = self._calculate_ui_score(
                 mesh_score_layer, self.main.custom_hmg_fieldname.text()
             )
 
-            # add to each hazard mesh layer
-            for hazard_field in tcg_rank_fields_added:
+            # add to each mesh_score_{hazard_name} layer
+            for hazard_field in rank_fields_added:
                 hazard_name = hazard_field.split("_")[1]
 
                 # create if not exists
@@ -540,15 +549,15 @@ class HMGDataClassifier:
                 hazard_mesh_layer = QgsProject.instance().mapLayersByName(
                     f"mesh_score_{hazard_name}"
                 )[0]
-                calculate_tcg_score(
+                self._calculate_ui_score(
                     hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
                 )
 
             # message end
-            message = "TCG方式での点数化が完了しました。\n計算した属性:\n"
-            for tcg_field in tcg_rank_fields_added:
-                message += f"{tcg_field}\n"
-            if len(tcg_rank_fields_added) == 0:
+            message = "点数化が完了しました。\n計算した属性:\n"
+            for rank_field in rank_fields_added:
+                message += f"{rank_field}\n"
+            if len(rank_fields_added) == 0:
                 message += "なし"
             QMessageBox.information(None, "完了", message)
 
@@ -559,3 +568,83 @@ class HMGDataClassifier:
                 f"エラーが発生しました：\n{e}",
             )
             return
+
+    def _calculate_ui_score(
+        self, mesh_score_layer: QgsVectorLayer, custom_field_name: str
+    ) -> list:
+        # list of added fields
+        rank_fields_added = []
+        for hazard in constants.hazards_ui_names:
+            # get mesh_score target field name
+            if hazard == "custom":
+                target_field = custom_field_name
+            else:
+                target_field = getattr(constants, f"field_{hazard}")
+
+            if target_field in mesh_score_layer.fields().names():
+                field_values = [
+                    feature[target_field] for feature in mesh_score_layer.getFeatures()
+                ]
+                y_values = sorted(field_values)
+            else:
+                continue
+            # get ranks from values
+            rank_field = f"t_{target_field}"
+
+            tcg_button = getattr(self.main, f"radiobutton_tcg_{hazard}")
+            if tcg_button.isChecked():
+                # get ranks from tcg method
+                ranks = get_tcg_ranks(y_values)
+            else:
+                # get ranks for standard deviation or custom method as defined in UI
+                ranks = self._get_ui_ranks(y_values, hazard)
+
+            # add tcg rank field if not exists
+            if rank_field not in mesh_score_layer.fields().names():
+                mesh_score_layer.startEditing()
+                mesh_score_layer.addAttribute(QgsField(rank_field, QVariant.Int))
+                mesh_score_layer.commitChanges()
+
+            # calculate tcg rank
+            mesh_score_layer.startEditing()
+            # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
+            # associated tcg_ranks : [0,1,2,4,4,6]
+            # Sort the features based on hazard score ascending order
+            request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
+            features = mesh_score_layer.getFeatures(request)
+
+            # Update the tcg rank field based on the sorting order
+            for index, feature in enumerate(features):
+                feature.setAttribute(rank_field, ranks[index])
+                mesh_score_layer.updateFeature(feature)
+
+            # Stop editing and save changes
+            mesh_score_layer.commitChanges()
+
+            rank_fields_added.append(rank_field)
+
+        return rank_fields_added
+
+    def _get_ui_ranks(self, values: list, hazard: str) -> list:
+        """Return a list of rank associated to ui input values
+        and percentages set
+        input values :[0,10,255,3598,3699,8555]
+        output ui_ranks : [0,0,1,2,3,4]
+        """
+        ui_ranks = []
+        for value in values:
+            for n in range(0, 11):
+                percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
+                percent_value = percentage_box.value()
+                break_max = get_mesh_value_from_percentage(values, percent_value)
+
+                if value == break_max and value > 0 and sum(ui_ranks) == 0:
+                    print(value, break_max, 1)
+                    ui_ranks.append(1)
+                    break
+                elif value <= break_max:
+                    print(value, break_max, n)
+                    ui_ranks.append(n)
+                    break
+
+        return ui_ranks
