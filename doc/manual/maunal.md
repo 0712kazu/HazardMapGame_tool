@@ -215,7 +215,7 @@
   - HMG06_g04 : 傾斜
     - seamless_slopeレイヤをグラデーションでシンボライズ
     - mesh_scoreレイヤのt_slope属性で点数を表示
-  - HMG07_g01 : 地震
+  - HMG07_b01 : 地震
     - seamless_quakeレイヤをグラデーションでシンボライズ
     - mesh_scoreレイヤのt_quake属性で点数を表示
   - HMG08_a30 : 竜巻

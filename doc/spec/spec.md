@@ -389,7 +389,7 @@
   
     ![Alt text](imgs/pdf_hmg_07.jpg)
   
-  - HMG07_g01 : 地震
+  - HMG07_b01 : 地震
   
     ![Alt text](imgs/pdf_hmg_08.jpg)
   
