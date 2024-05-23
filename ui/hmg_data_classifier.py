@@ -143,7 +143,7 @@ class HMGDataClassifier:
 
             if tcg_radio_btn.isChecked():
                 nbmax_box.setReadOnly(True)
-                self._set_percentages_tcg(hazard)
+                self.set_percentages_tcg(hazard)
 
             if custom_radio_btn.isChecked():
                 nbmax_box.setReadOnly(False)
@@ -255,39 +255,39 @@ class HMGDataClassifier:
             return
 
     def classify_tcg_tornado(self):
-        self._set_percentages_tcg("tornado")
+        self.set_percentages_tcg("tornado")
 
     def classify_tcg_kozui(self):
-        self._set_percentages_tcg("kozui")
+        self.set_percentages_tcg("kozui")
 
     def classify_tcg_sediments(self):
-        self._set_percentages_tcg("sediments")
+        self.set_percentages_tcg("sediments")
 
     def classify_tcg_tsunami(self):
-        self._set_percentages_tcg("tsunami")
+        self.set_percentages_tcg("tsunami")
 
     def classify_tcg_jisuberi(self):
-        self._set_percentages_tcg("jisuberi")
+        self.set_percentages_tcg("jisuberi")
 
     def classify_tcg_saigai(self):
-        self._set_percentages_tcg("saigai")
+        self.set_percentages_tcg("saigai")
 
     def classify_tcg_surge(self):
-        self._set_percentages_tcg("surge")
+        self.set_percentages_tcg("surge")
 
     def classify_tcg_earthquake(self):
-        self._set_percentages_tcg("earthquake")
+        self.set_percentages_tcg("earthquake")
 
     def classify_tcg_slope(self):
-        self._set_percentages_tcg("slope")
+        self.set_percentages_tcg("slope")
 
     def classify_tcg_refuge(self):
-        self._set_percentages_tcg("refuge")
+        self.set_percentages_tcg("refuge")
 
     def classify_tcg_custom(self):
-        self._set_percentages_tcg("custom")
+        self.set_percentages_tcg("custom")
 
-    def _set_percentages_tcg(self, hazard):
+    def set_percentages_tcg(self, hazard):
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)

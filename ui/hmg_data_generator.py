@@ -33,6 +33,8 @@ from converter.mesh_maker import (
 
 from converter.mesh_score_classifier import calculate_tcg_score
 
+from ui.hmg_data_classifier import HMGDataClassifier as hmgclassif
+
 from utils import set_map_canvas_to_webmercator
 from maptool import POIMapTool
 
@@ -724,6 +726,41 @@ class HMGDataGenerator:
             score_layer = QgsProject.instance().mapLayersByName("mesh_score")[0]
             if score_layer:
                 self.main.mesh_score_layer_combobox.setLayer(score_layer)
+
+            # Set to TCG method for processed hazards
+            if os.path.exists(tornado_path):
+                self.main.radiobutton_tcg_tornado.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "tornado")
+            if os.path.exists(kouzui_path):
+                self.main.radiobutton_tcg_kozui.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "kozui")
+            if os.path.exists(sediments_path):
+                self.main.radiobutton_tcg_sediments.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "sediments")
+            if os.path.exists(tsunami_path):
+                self.main.radiobutton_tcg_tsunami.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "tsunami")
+            if os.path.exists(jisuberi_path):
+                self.main.radiobutton_tcg_jisuberi.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "jisuberi")
+            if os.path.exists(saigai_path):
+                self.main.radiobutton_tcg_saigai.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "saigai")
+            if os.path.exists(surge_path):
+                self.main.radiobutton_tcg_surge.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "surge")
+            if os.path.exists(earthquake_path):
+                self.main.radiobutton_tcg_earthquake.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "earthquake")
+            if os.path.exists(slope_path):
+                self.main.radiobutton_tcg_slope.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "slope")
+            if os.path.exists(refuge_path):
+                self.main.radiobutton_tcg_refuge.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "refuge")
+            if os.path.exists(custom_path):
+                self.main.radiobutton_tcg_custom.setChecked(True)
+                hmgclassif.set_percentages_tcg(self, "custom")
 
             # message end
             message = "HMGデータの作成が完了しました。\n計算した属性:\n"
