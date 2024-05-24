@@ -4208,7 +4208,7 @@
          <item row="7" column="0">
           <widget class="QCheckBox" name="checkBox_hmg07">
            <property name="text">
-            <string>HMG07_g01</string>
+            <string>HMG07_b01</string>
            </property>
           </widget>
          </item>
