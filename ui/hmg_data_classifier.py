@@ -5,10 +5,14 @@ from qgis.core import (
     QgsMapLayerProxyModel,
     QgsField,
     QgsFeatureRequest,
+    QgsPalLayerSettings,
+    QgsTextFormat,
+    QgsVectorLayerSimpleLabeling,
 )
 
 from qgis.utils import iface
 from PyQt5.QtCore import QVariant
+from PyQt5.QtGui import QFont
 
 from converter.mesh_score_classifier import (
     graduate_layer,
@@ -552,6 +556,24 @@ class HMGDataClassifier:
                 self._calculate_ui_score(
                     hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
                 )
+
+                # label mesh_score_{hazard} with score
+                label_settings = QgsPalLayerSettings()
+                label_settings.fieldName = hazard_field
+                label_settings.enabled = True
+
+                # Set font properties
+                text_format = QgsTextFormat()
+                text_format.setFont(QFont("Arial Narrow", 8))
+                text_format.setSize(8)
+                label_settings.setFormat(text_format)
+
+                # Apply label settings to the layer
+                hazard_mesh_layer.setLabeling(
+                    QgsVectorLayerSimpleLabeling(label_settings)
+                )
+                hazard_mesh_layer.setLabelsEnabled(True)
+                hazard_mesh_layer.triggerRepaint()
 
             # message end
             message = "点数化が完了しました。\n計算した属性:\n"
