@@ -171,6 +171,11 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
             class_percentages.append(percentage)
     class_percentages.append(100)
 
+    # in case of one unique class (最大=1)
+    # avoid [100] and add minimum non null percentage [min,100]
+    if class_percentages == [100]:
+        class_percentages = [min_percentage, 100]
+
     # remove duplicate values
     class_percentages = list(set(class_percentages))
 
