@@ -132,8 +132,14 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     - values [0,0,24,255,484,1056...]
     - num_classes: 6
     output:
-    - class_percentages : [54,85,90,100] a list of percentages (0 is removed)
+    - class_percentages : [30,43,54,85,90,91,,100] a list of percentages
+    - output has num_classes + 1 breaks to make num_classes breaks
+    - percentage 0 is removed
+    - duplicated percentages are removed
     """
+
+    # output has num_classes + 1 breaks to make num_classes breaks
+    num_classes = num_classes + 1
 
     # Calculate mean and standard deviation
     mean_value = np.mean(values)
