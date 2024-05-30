@@ -6,6 +6,6 @@ sys.path.append(os.path.dirname(__file__))
 
 
 def classFactory(iface):
-    from hmg_plugin import Sample
+    from hmg_plugin import HmgPlugin
 
-    return Sample(iface)
+    return HmgPlugin(iface)

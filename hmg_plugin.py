@@ -8,7 +8,7 @@ from ui.main_window import MainWindow
 PLUGIN_NAME = "HMGデータ作成"
 
 
-class Sample:
+class HmgPlugin:
     def __init__(self, iface):
         self.iface = iface
         self.win = self.iface.mainWindow()
