@@ -92,80 +92,80 @@ class HMGDataClassifier:
 
     def on_number_changed_tornado(self):
         self._set_percentages("tornado")
-        self.show_chart_tornado()
+        self.update_map_tornado()
 
     def on_number_changed_kozui(self):
         self._set_percentages("kozui")
-        self.show_chart_kozui()
+        self.update_map_kozui()
 
     def on_number_changed_sediments(self):
         self._set_percentages("sediments")
-        self.show_chart_sediments()
+        self.update_map_sediments()
 
     def on_number_changed_tsunami(self):
         self._set_percentages("tsunami")
-        self.show_chart_tsunami()
+        self.update_map_tsunami()
 
     def on_number_changed_jisuberi(self):
         self._set_percentages("jisuberi")
-        self.show_chart_jisuberi()
+        self.update_map_jisuberi()
 
     def on_number_changed_saigai(self):
         self._set_percentages("saigai")
-        self.show_chart_saigai()
+        self.update_map_saigai()
 
     def on_number_changed_surge(self):
         self._set_percentages("surge")
-        self.show_chart_surge()
+        self.update_map_surge()
 
     def on_number_changed_earthquake(self):
         self._set_percentages("earthquake")
-        self.show_chart_earthquake()
+        self.update_map_earthquake()
 
     def on_number_changed_slope(self):
         self._set_percentages("slope")
-        self.show_chart_slope()
+        self.update_map_slope()
 
     def on_number_changed_refuge(self):
         self._set_percentages("refuge")
-        self.show_chart_refuge()
+        self.update_map_refuge()
 
     def on_number_changed_custom(self):
         self._set_percentages("custom")
-        self.show_chart_custom()
+        self.update_map_custom()
 
     def on_show_chart_clicked_tornado(self):
-        self._set_chart("竜巻", "tornado", display_chart=True)
+        self._set_map_and_chart("竜巻", "tornado", display_chart=True)
 
     def on_show_chart_clicked_kozui(self):
-        self._set_chart("洪水", "kozui", display_chart=True)
+        self._set_map_and_chart("洪水", "kozui", display_chart=True)
 
     def on_show_chart_clicked_sediments(self):
-        self._set_chart("土砂", "sediments", display_chart=True)
+        self._set_map_and_chart("土砂", "sediments", display_chart=True)
 
     def on_show_chart_clicked_tsunami(self):
-        self._set_chart("津波", "tsunami", display_chart=True)
+        self._set_map_and_chart("津波", "tsunami", display_chart=True)
 
     def on_show_chart_clicked_jisuberi(self):
-        self._set_chart("地すべり", "jisuberi", display_chart=True)
+        self._set_map_and_chart("地すべり", "jisuberi", display_chart=True)
 
     def on_show_chart_clicked_saigai(self):
-        self._set_chart("災害危険", "saigai", display_chart=True)
+        self._set_map_and_chart("災害危険", "saigai", display_chart=True)
 
     def on_show_chart_clicked_surge(self):
-        self._set_chart("高潮", "surge", display_chart=True)
+        self._set_map_and_chart("高潮", "surge", display_chart=True)
 
     def on_show_chart_clicked_earthquake(self):
-        self._set_chart("地震", "earthquake", display_chart=True)
+        self._set_map_and_chart("地震", "earthquake", display_chart=True)
 
     def on_show_chart_clicked_slope(self):
-        self._set_chart("傾斜度", "slope", display_chart=True)
+        self._set_map_and_chart("傾斜度", "slope", display_chart=True)
 
     def on_show_chart_clicked_refuge(self):
-        self._set_chart("避難施設", "refuge", display_chart=True)
+        self._set_map_and_chart("避難施設", "refuge", display_chart=True)
 
     def on_show_chart_clicked_custom(self):
-        self._set_chart(
+        self._set_map_and_chart(
             self.main.custom_hmg_seamlessfilename.text(), "custom", display_chart=True
         )
 
@@ -384,38 +384,38 @@ class HMGDataClassifier:
             )
             return
 
-    def show_chart_tornado(self):
-        self._set_chart("竜巻", "tornado")
+    def update_map_tornado(self):
+        self._set_map_and_chart("竜巻", "tornado")
 
-    def show_chart_kozui(self):
-        self._set_chart("洪水", "kozui")
+    def update_map_kozui(self):
+        self._set_map_and_chart("洪水", "kozui")
 
-    def show_chart_sediments(self):
-        self._set_chart("土砂", "sediments")
+    def update_map_sediments(self):
+        self._set_map_and_chart("土砂", "sediments")
 
-    def show_chart_tsunami(self):
-        self._set_chart("津波", "tsunami")
+    def update_map_tsunami(self):
+        self._set_map_and_chart("津波", "tsunami")
 
-    def show_chart_jisuberi(self):
-        self._set_chart("地すべり", "jisuberi")
+    def update_map_jisuberi(self):
+        self._set_map_and_chart("地すべり", "jisuberi")
 
-    def show_chart_saigai(self):
-        self._set_chart("災害危険", "saigai")
+    def update_map_saigai(self):
+        self._set_map_and_chart("災害危険", "saigai")
 
-    def show_chart_surge(self):
-        self._set_chart("高潮", "surge")
+    def update_map_surge(self):
+        self._set_map_and_chart("高潮", "surge")
 
-    def show_chart_earthquake(self):
-        self._set_chart("地震", "earthquake")
+    def update_map_earthquake(self):
+        self._set_map_and_chart("地震", "earthquake")
 
-    def show_chart_slope(self):
-        self._set_chart("傾斜度", "slope")
+    def update_map_slope(self):
+        self._set_map_and_chart("傾斜度", "slope")
 
-    def show_chart_refuge(self):
-        self._set_chart("避難施設", "refuge")
+    def update_map_refuge(self):
+        self._set_map_and_chart("避難施設", "refuge")
 
-    def show_chart_custom(self):
-        self._set_chart(self.main.custom_hmg_seamlessfilename.text(), "custom")
+    def update_map_custom(self):
+        self._set_map_and_chart(self.main.custom_hmg_seamlessfilename.text(), "custom")
 
     def _handle_plot_close(self, event):
         # Set the flag to indicate that the plot has been closed
@@ -432,7 +432,9 @@ class HMGDataClassifier:
             elif prefix in layer.name():
                 layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
 
-    def _set_chart(self, chart_title: str, hazard: str, display_chart=False) -> None:
+    def _set_map_and_chart(
+        self, chart_title: str, hazard: str, display_chart=False
+    ) -> None:
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
