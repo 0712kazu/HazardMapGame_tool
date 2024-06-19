@@ -397,7 +397,7 @@ class HMGDataClassifier:
             elif prefix in layer.name():
                 layer_tree.findLayer(layer.id()).setItemVisibilityChecked(False)
 
-    def _set_chart(self, chart_title: str, hazard: str) -> None:
+    def _set_chart(self, chart_title: str, hazard: str, display_chart=False) -> None:
         if not self.main.mesh_score_layer_combobox.currentLayer():
             error_message = "対象HMGデータレイヤ(例：mesh_score)が足りません。"
             QMessageBox.information(None, "エラー", error_message)
@@ -423,38 +423,40 @@ class HMGDataClassifier:
                 QMessageBox.information(None, "エラー", error_message)
                 return
 
-            if self.plot_widget:
-                # if plot exists, update
-                self.plot_widget.clear()
-            else:
-                # If plot not exists Create a Pyqtgraph PlotWidget
-                # Switch to using white background and black foreground
-                pg.setConfigOption("background", "w")
-                pg.setConfigOption("foreground", "k")
-                self.plot_widget = pg.plot(title="HMGデータグラフ")
-                self.plot_widget.closeEvent = self._handle_plot_close
+            if display_chart:
+                if self.plot_widget:
+                    # if plot exists, update
+                    self.plot_widget.clear()
+                else:
+                    # If plot not exists Create a Pyqtgraph PlotWidget
+                    # Switch to using white background and black foreground
+                    pg.setConfigOption("background", "w")
+                    pg.setConfigOption("foreground", "k")
+                    self.plot_widget = pg.plot(title="HMGデータグラフ")
+                    self.plot_widget.closeEvent = self._handle_plot_close
 
-            # Add scatter plot to the Pyqtgraph PlotWidget
-            scatter = pg.ScatterPlotItem(
-                x=x_values,
-                y=y_values,
-                size=5,
-                pen=pg.mkPen(None),
-                brush=pg.mkBrush(0, 0, 255),
-                name=chart_title,
-            )
-            self.plot_widget.addItem(scatter)
-            self.plot_widget.getPlotItem().getViewBox().setRange(
-                yRange=[0, max(y_values)]
-            )
+                # Add scatter plot to the Pyqtgraph PlotWidget
+                scatter = pg.ScatterPlotItem(
+                    x=x_values,
+                    y=y_values,
+                    size=5,
+                    pen=pg.mkPen(None),
+                    brush=pg.mkBrush(0, 0, 255),
+                    name=chart_title,
+                )
+                self.plot_widget.addItem(scatter)
+                self.plot_widget.getPlotItem().getViewBox().setRange(
+                    yRange=[0, max(y_values)]
+                )
 
-            # Set axis labels
-            self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
-            self.plot_widget.setLabel("left", "体積", color="blue")
+                # Set axis labels
+                self.plot_widget.setLabel("bottom", "メッシュ数", color="black")
+                self.plot_widget.setLabel("left", "体積", color="blue")
 
-            # set title
-            self.plot_widget.setTitle(chart_title)
+                # set title
+                self.plot_widget.setTitle(chart_title)
 
+            # set classes for map and chart
             # set default minimum class as 0.001
             # under minimum is set transparent
 
@@ -475,20 +477,21 @@ class HMGDataClassifier:
                 # get color to show in graph and map
                 color = get_color_from_range(n + 1, nbmax_box.value() + 1)
 
-                # add break_max line as plot
-                line_label = f"{percent_value}% ({round(break_max,1)})"
-                percent_line = self.plot_widget.plot(
-                    [0, len(y_values)],
-                    [break_max, break_max],
-                    pen=pg.mkPen(color, width=2),
-                    name=line_label,
-                )
-                # labeling
-                label_item = pg.TextItem(text=line_label, color=color)
-                self.plot_widget.addItem(label_item)
-                label_item.setPos(0, break_max)
+                # graph : add break_max line as plot
+                if display_chart:
+                    line_label = f"{percent_value}% ({round(break_max,1)})"
+                    percent_line = self.plot_widget.plot(
+                        [0, len(y_values)],
+                        [break_max, break_max],
+                        pen=pg.mkPen(color, width=2),
+                        name=line_label,
+                    )
+                    # labeling
+                    label_item = pg.TextItem(text=line_label, color=color)
+                    self.plot_widget.addItem(label_item)
+                    label_item.setPos(0, break_max)
 
-                self.plot_widget.addItem(percent_line)
+                    self.plot_widget.addItem(percent_line)
 
                 # calculate break for maps
                 breaks.append([break_min, break_max, color])
