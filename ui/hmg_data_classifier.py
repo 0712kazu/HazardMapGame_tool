@@ -57,7 +57,7 @@ class HMGDataClassifier:
         for hazard in constants.hazards_ui_names:
             # Connect graphs
             show_graph_button = getattr(self.main, f"classif_showgraph_{hazard}")
-            show_graph_function = getattr(self, f"on_number_changed_{hazard}")
+            show_graph_function = getattr(self, f"on_show_chart_clicked_{hazard}")
             show_graph_button.clicked.connect(show_graph_function)
 
             # Set max break values to 10 as default
@@ -133,6 +133,41 @@ class HMGDataClassifier:
     def on_number_changed_custom(self):
         self._set_percentages("custom")
         self.show_chart_custom()
+
+    def on_show_chart_clicked_tornado(self):
+        self._set_chart("竜巻", "tornado", display_chart=True)
+
+    def on_show_chart_clicked_kozui(self):
+        self._set_chart("洪水", "kozui", display_chart=True)
+
+    def on_show_chart_clicked_sediments(self):
+        self._set_chart("土砂", "sediments", display_chart=True)
+
+    def on_show_chart_clicked_tsunami(self):
+        self._set_chart("津波", "tsunami", display_chart=True)
+
+    def on_show_chart_clicked_jisuberi(self):
+        self._set_chart("地すべり", "jisuberi", display_chart=True)
+
+    def on_show_chart_clicked_saigai(self):
+        self._set_chart("災害危険", "saigai", display_chart=True)
+
+    def on_show_chart_clicked_surge(self):
+        self._set_chart("高潮", "surge", display_chart=True)
+
+    def on_show_chart_clicked_earthquake(self):
+        self._set_chart("地震", "earthquake", display_chart=True)
+
+    def on_show_chart_clicked_slope(self):
+        self._set_chart("傾斜度", "slope", display_chart=True)
+
+    def on_show_chart_clicked_refuge(self):
+        self._set_chart("避難施設", "refuge", display_chart=True)
+
+    def on_show_chart_clicked_custom(self):
+        self._set_chart(
+            self.main.custom_hmg_seamlessfilename.text(), "custom", display_chart=True
+        )
 
     def _set_percentages(self, hazard: str):
         nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
