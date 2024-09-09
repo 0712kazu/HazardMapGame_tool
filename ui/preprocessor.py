@@ -251,8 +251,13 @@ class Preprocessor:
             return
         merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
 
-        # merge all shp to gpkg
-        merge_shapefiles(shapefiles, merged_shapefiles, "-addfields")
+        if os.path.exists(merged_shapefiles):
+            # #TODO: If confirmed Add to existing seamless data
+            merge_shapefiles(shapefiles, merged_shapefiles, "-addfields", add_data=True)
+
+        else:
+            # merge all shp to gpkg
+            merge_shapefiles(shapefiles, merged_shapefiles, "-addfields")
         shutil.rmtree(extracted_dir)
         self.seamless_processed.append(SEAMLESS_FILE_FLOOD)
 
