@@ -3,7 +3,7 @@ name=HMG DATA GENERATOR
 qgisMinimumVersion=3.0
 about=HMG DATA GENERATOR
 description=Create Hazard Map Game data
-version=1.0
+version=1.1
 
 #Plugin main icon
 icon=imgs/icon.png

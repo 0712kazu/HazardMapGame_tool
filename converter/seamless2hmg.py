@@ -360,6 +360,14 @@ def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
         "A31_305",
         "A31_401",
         "A31_405",
+        "A31a_101",
+        "A31a_105",
+        "A31a_201",
+        "A31a_205",
+        "A31a_301",
+        "A31a_305",
+        "A31a_401",
+        "A31a_405",
     ]
 
     depth_sql = "SELECT geometry, CASE "
