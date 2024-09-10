@@ -192,17 +192,18 @@
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
   - [対象属性のコード先： tcg-hmg-qgis/converter/seamless2hmg.py #L354](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L354)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
-    - `"A31a_405","`
+    - `"A31a_405",`
   - [洪水値計算のコード先 (v1)： tcg-hmg-qgis/converter/seamless2hmg.py #L375](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L375)
   - [洪水値計算のコード先 (v2)： tcg-hmg-qgis/converter/seamless2hmg.py #L394](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L394)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `f"WHEN {field} = 7 THEN 35 "`
 
+<div class="page"/>
+
 ### 土砂
 
 ![Alt text](imgs/image-13.png)
 
-<div class="page"/>
 
 ### 地すべり
 
