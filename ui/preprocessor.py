@@ -240,6 +240,19 @@ class Preprocessor:
         self.seamless_processed.append(SEAMLESS_FILE_LANDUSE)
 
     def preprocess_kozui(self, root_directory: str, output_directory: str):
+        merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
+
+        # check for overwrite data
+        if os.path.exists(merged_shapefiles):
+            if QMessageBox.No == QMessageBox.question(
+                None,
+                "確認",
+                "a31_flood.gpkgが上書きされます。続けてもよろしいですか?",
+                QMessageBox.Yes,
+                QMessageBox.No,
+            ):
+                return
+
         extracted_dir = os.path.join(root_directory, "temp")
         if not os.path.exists(extracted_dir):
             unpack_zips_from_dir(root_directory, extracted_dir)
@@ -249,10 +262,9 @@ class Preprocessor:
             QMessageBox.information(None, "お知らせ", message)
             shutil.rmtree(extracted_dir)
             return
-        merged_shapefiles = os.path.join(output_directory, SEAMLESS_FILE_FLOOD)
 
         if os.path.exists(merged_shapefiles):
-            # #TODO: If confirmed Add to existing seamless data
+            # If confirmed Add to existing seamless data
             merge_shapefiles(shapefiles, merged_shapefiles, "-addfields", add_data=True)
 
         else:
