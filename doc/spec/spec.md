@@ -59,7 +59,6 @@
 | 対象項目 | 出力ファイル               |
 | ---- | -------------------- |
 | 土地利用 | l03_landuse.gpkg     |
-| 洪水   | a31_flood.gpkg       |
 | 土砂   | a33_sediments.gpkg   |
 | 津波   | a40_tsunami.gpkg     |
 | 地すべり | a46_landslip.gpkg    |
@@ -68,7 +67,11 @@
 | 地震   | b01_earthquake.gpkg  |
 | 傾斜度  | g04_slope.gpkg |
 
-### 1.4.2. 竜巻
+### 1.4.2. 洪水
+
+![alt text](imgs/image-23.png)
+
+### 1.4.3. 竜巻
 
 - 2種類のポイントを１つにマージする。
 - 500mの融合したバッファを生成する。
@@ -80,7 +83,7 @@
 
 <div class="page"/>
 
-### 1.4.3. 避難施設
+### 1.4.4. 避難施設
 
 - CSVの経度、緯度からポイントを生成する。
     - CSVファイルの経度カラム名：`経度`
@@ -92,7 +95,7 @@
 | 避難施設 | p20_refuge.gpkg     |
 
 
-### 1.4.4. 市区町村
+### 1.4.5. 市区町村
 
 ![Alt text](imgs/image-5.png)
 
@@ -187,15 +190,20 @@
 - 洪水値計算の標準化の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L367](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L367)
+  - [対象属性のコード先： tcg-hmg-qgis/converter/seamless2hmg.py #L354](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L354)
+  - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
+    - `"A31a_405",`
+  - [洪水値計算のコード先 (v1)： tcg-hmg-qgis/converter/seamless2hmg.py #L375](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L375)
+  - [洪水値計算のコード先 (v2)： tcg-hmg-qgis/converter/seamless2hmg.py #L394](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L394)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `f"WHEN {field} = 7 THEN 35 "`
+
+<div class="page"/>
 
 ### 土砂
 
 ![Alt text](imgs/image-13.png)
 
-<div class="page"/>
 
 ### 地すべり
 
@@ -212,7 +220,7 @@
 - 津波値計算の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L693](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L693)
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L699](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L699)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
@@ -225,7 +233,7 @@
 - 高潮値計算の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L804](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L804)
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L810](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L810)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
