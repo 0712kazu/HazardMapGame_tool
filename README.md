@@ -9,4 +9,4 @@
 
 ### Authors
 - MIERUNE Inc.
-- ディレクティングマップ Directing a map / Product of Tokyo Cartographic
+- ディレクティングマップ　Directing a Map / product of Tokyo Cartographic Co., Ltd
