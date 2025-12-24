@@ -190,11 +190,11 @@
 - 洪水値計算の標準化の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [対象属性のコード先： tcg-hmg-qgis/converter/seamless2hmg.py #L354](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L354)
+  - [対象属性のコード先： tcg-hmg-qgis/converter/seamless2hmg.py #L354](https://github.com/0712kazu/HazardMapGame_tool/blob/main/converter/seamless2hmg.py#L354)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `"A31a_405",`
-  - [洪水値計算のコード先 (v1)： tcg-hmg-qgis/converter/seamless2hmg.py #L375](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L375)
-  - [洪水値計算のコード先 (v2)： tcg-hmg-qgis/converter/seamless2hmg.py #L394](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L394)
+  - [洪水値計算のコード先 (v1)： tcg-hmg-qgis/converter/seamless2hmg.py #L375](https://github.com/0712kazu/HazardMapGame_tool/blob/main/converter/seamless2hmg.py#L375)
+  - [洪水値計算のコード先 (v2)： tcg-hmg-qgis/converter/seamless2hmg.py #L394](https://github.com/0712kazu/HazardMapGame_tool/blob/main/converter/seamless2hmg.py#L394)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `f"WHEN {field} = 7 THEN 35 "`
 
@@ -220,7 +220,7 @@
 - 津波値計算の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L699](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L699)
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L699](https://github.com/0712kazu/HazardMapGame_tool/blob/main/converter/seamless2hmg.py#L699)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
@@ -233,7 +233,7 @@
 - 高潮値計算の仕様を変更する場合
   - プラグイン設定ファイルの条件を編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L810](https://github.com/MIERUNE/tcg-hmg-qgis/blob/main/converter/seamless2hmg.py#L810)
+  - [コード先： tcg-hmg-qgis/converter/seamless2hmg.py #L810](https://github.com/0712kazu/HazardMapGame_tool/blob/main/converter/seamless2hmg.py#L810)
   - 例えば下記フォーマットで条件が定められているので、必要に応じて追加・変更を行う。
     - `sql += f"WHEN \"{height}\" = '40m以上 〜 50m未満' THEN 45 "`
 
@@ -331,7 +331,7 @@
 - 値の条件に応じた色の仕様を変更する場合
   - プラグインの設定ファイルの色コードを編集
   - プラグインフォルダー先 : C:\Users\USER\AppData\Roaming\QGIS\QGIS3\profiles\default\python\plugins\tcg-hmg-qgis
-  - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/MIERUNE/tcg-hmg-qgis/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590) 
+  - [コード先： tcg-hmg-qgis/converter/hmg2pdf.py #L590](https://github.com/0712kazu/HazardMapGame_tool/blob/2c5f703820dae254ff4a0b2deeee6b5e51376047/converter/hmg2pdf.py#L590) 
   - 例：下記のように色コードを変更する。
     - 変更前 ： `seamless_lyr, f"h_{target_field}", 10, "#bcaed5", "#3f007d"`
     - 変更後 ： `seamless_lyr, f"h_{target_field}", 10, "#ffc7f0", "#dc00e4"`
