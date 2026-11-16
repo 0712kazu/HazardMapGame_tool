@@ -189,7 +189,7 @@ def _symbolize_point_layer_categorized(
 def set_hmg01_ans_refuge(
     gsi_std_lyr: QgsRasterLayer, label_mesh_score: QgsVectorLayer
 ) -> list:
-    # HMG01_ans : gsi standard only, refuges score & count, total hazard score, colors
+    # HMG01_ans : gsi standard, total hazard score and colors
     # return result as list of missing layers text
 
     miss_lyr = []
@@ -232,41 +232,14 @@ def set_hmg01_ans_refuge(
         hazard_score_lyr.setBlendMode(QPainter.CompositionMode_Multiply)
     else:
         # return missing layer to add in list
-        miss_lyr.append["hazard_score"]
-
-    # symbolize POINT refuge
-    target_field = constants.field_refuge
-    if QgsProject.instance().mapLayersByName(f"seamless_{target_field}"):
-        seamless_lyr = QgsProject.instance().mapLayersByName(
-            f"seamless_{target_field}"
-        )[0]
-
-        svg_path = os.path.join(
-            os.path.dirname(__file__),
-            constants.data_dir,
-            "styles",
-            "refuge_marker.svg",
-        )
-        symbol = QgsSymbol.defaultSymbol(seamless_lyr.geometryType())
-        symbol_layer = QgsSvgMarkerSymbolLayer(svg_path)
-        symbol_layer.setSize(5)  # in mm
-        symbol.changeSymbolLayer(0, symbol_layer)
-        renderer = QgsSingleSymbolRenderer(symbol)
-        seamless_lyr.setRenderer(renderer)
-        seamless_lyr.triggerRepaint()
-        seamless_lyr.setOpacity(1)
-
-    else:
-        miss_lyr.append(f"seamless_{target_field}")
+        miss_lyr.append("hazard_score")
 
     _display_only_layers(
         [
             "mesh_score",
             "basemap_standard",
-            f"label_{target_field}",
             "label_id",
             "label_score",
-            f"seamless_{target_field}",
             "hazard_score",
         ]
     )

@@ -14,14 +14,11 @@ from converter.seamless2hmg import (
     seamless2hmg_kosui,
     seamless2hmg_jisuberi,
     seamless2hmg_saigai,
-    seamless2hmg_tornado,
     seamless2hmg_sediments,
     seamless2hmg_tsunami,
     seamless2hmg_surge,
     seamless2hmg_earthquake,
     seamless2hmg_slope,
-    seamless2hmg_refuge,
-    seamless2hmg_custom,
     seamless2hmg_landuse,
 )
 from converter.mesh_maker import (
@@ -511,21 +508,6 @@ class HMGDataGenerator:
                 if landuse_lyr:
                     seamless2hmg_landuse(landuse_lyr, waku_lyr)
 
-            # 竜巻
-            tornado_path = os.path.join(
-                self.main.FileWidgetSeamlessDir.filePath(),
-                constants.SEAMLESS_FILE_TORNADO,
-            )
-            if os.path.exists(tornado_path):
-                tornado_lyr = QgsVectorLayer(
-                    tornado_path,
-                    "tornado_merged",
-                    "ogr",
-                )
-                if tornado_lyr:
-                    mesh_lyr = seamless2hmg_tornado(tornado_lyr, mesh_lyr, waku_lyr)
-                    hmg_processed.append(constants.field_tornado)
-
             # 洪水
             kouzui_path = os.path.join(
                 self.main.FileWidgetSeamlessDir.filePath(),
@@ -647,64 +629,6 @@ class HMGDataGenerator:
                     mesh_lyr = seamless2hmg_slope(slope_lyr, mesh_lyr, waku_lyr)
                     hmg_processed.append(constants.field_slope)
 
-            # 避難施設
-            refuge_path = os.path.join(
-                self.main.FileWidgetSeamlessDir.filePath(),
-                constants.SEAMLESS_FILE_REFUGE,
-            )
-            if os.path.exists(refuge_path):
-                refuge_lyr = QgsVectorLayer(
-                    refuge_path,
-                    "refuge_merged",
-                    "ogr",
-                )
-                if refuge_lyr:
-                    mesh_lyr = seamless2hmg_refuge(refuge_lyr, mesh_lyr, waku_lyr)
-                    hmg_processed.append(constants.field_refuge)
-
-            # 追加災害
-            custom_path = os.path.join(
-                self.main.FileWidgetSeamlessDir.filePath(),
-                self.main.custom_hmg_seamlessfilename.text() + ".gpkg",
-            )
-            print(custom_path)
-            if os.path.exists(custom_path):
-                custom_lyr = QgsVectorLayer(
-                    custom_path,
-                    "hazard_custom_merged",
-                    "ogr",
-                )
-                custom_field = self.main.custom_hmg_fieldname.text()
-                if custom_lyr and custom_field != "":
-                    # checked calculation method
-                    if self.main.btn_custom_calc_sumsurf.isChecked():
-                        calc_method = "sum_surfaces"
-                    if self.main.btn_custom_calc_sumsurfvalue.isChecked():
-                        calc_method = "sum_surfaces_values"
-                    if self.main.btn_custom_calc_centroidmean.isChecked():
-                        calc_method = "centroid_value_mean"
-                    if self.main.btn_custom_calc_countpoints.isChecked():
-                        calc_method = "count_points"
-
-                    mesh_lyr = seamless2hmg_custom(
-                        custom_lyr,
-                        mesh_lyr,
-                        waku_lyr,
-                        custom_field,
-                        calc_method,
-                        self.main.custom_seamless_fieldname.text(),
-                        self.main.custom_inland_adjust_checkbox.isChecked(),
-                    )
-                    hmg_processed.append(custom_field)
-                    # change name of classification class
-                    self.main.label_classif_title_custom.setText(
-                        self.main.custom_hmg_seamlessfilename.text()
-                    )
-                elif custom_lyr and custom_field == "":
-                    message = "追加災害の属性名を指定してください。"
-                    QMessageBox.information(None, "お知らせ", message)
-                    return
-
             # if no seamless data , message it
             if len(hmg_processed) == 0:
                 message = "シームレスデータがありません。"
@@ -728,9 +652,6 @@ class HMGDataGenerator:
                 self.main.mesh_score_layer_combobox.setLayer(score_layer)
 
             # Set to TCG method for processed hazards
-            if os.path.exists(tornado_path):
-                self.main.radiobutton_tcg_tornado.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "tornado")
             if os.path.exists(kouzui_path):
                 self.main.radiobutton_tcg_kozui.setChecked(True)
                 hmgclassif.set_percentages_tcg(self, "kozui")
@@ -740,27 +661,9 @@ class HMGDataGenerator:
             if os.path.exists(tsunami_path):
                 self.main.radiobutton_tcg_tsunami.setChecked(True)
                 hmgclassif.set_percentages_tcg(self, "tsunami")
-            if os.path.exists(jisuberi_path):
-                self.main.radiobutton_tcg_jisuberi.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "jisuberi")
-            if os.path.exists(saigai_path):
-                self.main.radiobutton_tcg_saigai.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "saigai")
-            if os.path.exists(surge_path):
-                self.main.radiobutton_tcg_surge.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "surge")
-            if os.path.exists(earthquake_path):
-                self.main.radiobutton_tcg_earthquake.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "earthquake")
             if os.path.exists(slope_path):
                 self.main.radiobutton_tcg_slope.setChecked(True)
                 hmgclassif.set_percentages_tcg(self, "slope")
-            if os.path.exists(refuge_path):
-                self.main.radiobutton_tcg_refuge.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "refuge")
-            if os.path.exists(custom_path):
-                self.main.radiobutton_tcg_custom.setChecked(True)
-                hmgclassif.set_percentages_tcg(self, "custom")
 
             # message end
             message = "HMGデータの作成が完了しました。\n計算した属性:\n"

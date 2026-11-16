@@ -1,7 +1,7 @@
 import os
 
 from qgis.PyQt import uic
-from qgis.PyQt.QtWidgets import QDialog
+from qgis.PyQt.QtWidgets import QDialog, QGroupBox, QLabel
 
 from .hmg_data_generator import HMGDataGenerator
 from .preprocessor import Preprocessor
@@ -29,6 +29,14 @@ class MainWindow(QDialog):
         self.pushButton_processhmg.setText("リスク値を計算")
         self.pushButton_classify.setText("点数を再計算")
         self.pushButton_total_hazard.setText("現在の点数を確認")
+
+        self.QgsFileWidget_tatumaki.hide()
+        self.QgsFileWidget_refuge.hide()
+        for label in self.groupBox_6.findChildren(QLabel):
+            if label.text() in ("竜巻", "避難施設"):
+                label.hide()
+        for group in self.findChildren(QGroupBox, "groupBox_custom"):
+            group.hide()
 
         score_tab_index = self.tabWidget.indexOf(self.tab_3_hmg_data_generator)
         self.tabWidget.setTabText(score_tab_index, "リスク計算・点数調整")

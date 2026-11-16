@@ -67,7 +67,6 @@ class PDFExporter:
             "hmg04",
             "hmg05",
             "hmg06",
-            "hmg07",
             "hmg09",
             "hmg10",
             "hmg11",
@@ -75,6 +74,24 @@ class PDFExporter:
         for pdf_to_export in default_pdf_to_exports:
             checkbox = getattr(self.main, f"checkBox_{pdf_to_export}")
             checkbox.setChecked(True)
+
+        # 竜巻は現在の処理・出力対象外
+        self.main.checkBox_hmg08.setChecked(False)
+        self.main.checkBox_hmg08.hide()
+        self.main.label_hmg08.hide()
+
+        # 地震は将来拡張用としてコードを残すが、現在の画面・出力対象にはしない
+        self.main.checkBox_hmg07.setChecked(False)
+        self.main.checkBox_hmg07.hide()
+        self.main.label_hmg07.hide()
+
+        for suffix in ("hmg12", "hmg13"):
+            getattr(self.main, f"checkBox_{suffix}").setChecked(False)
+            getattr(self.main, f"checkBox_{suffix}").hide()
+            getattr(self.main, f"label_{suffix}").hide()
+
+        self.main.radioButton_hmg11_tsunami.setChecked(True)
+        self.main.radioButton_hmg11_surge.hide()
 
         # set tsunami radiobutton as default for hmg11
         self.main.radioButton_hmg11_tsunami.setChecked(True)
@@ -272,9 +289,6 @@ class PDFExporter:
 
             # label score
             label_mesh_score = self._make_label_mesh_score(mesh_lyr, label_mesh_id)
-
-            # Label Hinan #0070ff
-            self._make_label_refuge(mesh_lyr, label_mesh_id)
 
             # import basemaps
 
@@ -521,47 +535,15 @@ class PDFExporter:
         return ranked_hazard
 
     def _make_hazard_scores_formula(self):
-        target_fields = []
-        if self.main.checkBox_hmg06.isChecked():
-            target_fields.append(f"t_{constants.field_slope}")
-        if self.main.checkBox_hmg07.isChecked():
-            target_fields.append(f"t_{constants.field_earthquake}")
-        if self.main.checkBox_hmg08.isChecked():
-            target_fields.append(f"t_{constants.field_tornado}")
-        if self.main.checkBox_hmg09.isChecked():
-            target_fields.append(f"t_{constants.field_kozui}")
-        if self.main.checkBox_hmg10.isChecked():
-            target_fields.append(f"t_{constants.field_sediments}")
-        if (
-            self.main.checkBox_hmg11.isChecked()
-            and self.main.radioButton_hmg11_tsunami.isChecked()
-        ):
-            target_fields.append(f"t_{constants.field_tsunami}")
-        if (
-            self.main.checkBox_hmg11.isChecked()
-            and self.main.radioButton_hmg11_surge.isChecked()
-        ):
-            target_fields.append(f"t_{constants.field_surge}")
-        if self.main.checkBox_hmg12.isChecked():
-            target_fields.append(f"t_{constants.field_jisuberi}")
-        if self.main.checkBox_hmg13.isChecked():
-            target_fields.append(f"t_{constants.field_saigai}")
-
-        # handle if no hazard
-        if len(target_fields) == 0:
-            error_message = (
-                "選択した出力項目に災害地図が無いため、合計点数が0になります。"
-            )
-            QMessageBox.information(None, "お知らせ", error_message)
-            return "0"
-        score_formula = '" + "'.join(target_fields)
-
-        return ' "' + score_formula + '" '
+        return ' "HZD" '
 
     def _check_hazard_fields(self, mesh_lyr: QgsVectorLayer) -> list:
         """Return hazard score fields which are missing"""
         missing_fields = []
         mesh_lyr_fields = mesh_lyr.fields().names()
+
+        if "HZD" not in mesh_lyr_fields:
+            missing_fields.append("HZD")
 
         if (
             self.main.checkBox_hmg06.isChecked()

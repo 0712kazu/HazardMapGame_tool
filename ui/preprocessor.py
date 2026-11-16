@@ -8,7 +8,6 @@ from qgis.PyQt.QtCore import Qt
 from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from constants import (
-    INPUT_DIR_TATUMAKI,
     INPUT_DIR_KOZUI,
     INPUT_DIR_SEDIMENTS,
     INPUT_DIR_TSUNAMI,
@@ -17,10 +16,8 @@ from constants import (
     INPUT_DIR_SURGE,
     INPUT_DIR_EARTHQUAKE,
     INPUT_DIR_SLOPE,
-    INPUT_DIR_REFUGE,
     INPUT_DIR_TOCHIRIYOU,
     INPUT_DIR_SHIKUCHOSON,
-    SEAMLESS_FILE_TORNADO,
     SEAMLESS_FILE_FLOOD,
     SEAMLESS_FILE_LANDSLIP,
     SEAMLESS_FILE_SEDIMENTS,
@@ -29,7 +26,6 @@ from constants import (
     SEAMLESS_FILE_SURGE,
     SEAMLESS_FILE_EARTHQUAKE,
     SEAMLESS_FILE_SLOPE,
-    SEAMLESS_FILE_REFUGE,
     SEAMLESS_FILE_CITIES,
     SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
@@ -82,7 +78,6 @@ class Preprocessor:
         selected_dir = QFileDialog.getExistingDirectory(self.main, "フォルダを選択")
 
         for folder_name, filewidget in (
-            (INPUT_DIR_TATUMAKI, self.main.QgsFileWidget_tatumaki),
             (INPUT_DIR_KOZUI, self.main.QgsFileWidget_kozui),
             (INPUT_DIR_SEDIMENTS, self.main.QgsFileWidget_sediments),
             (INPUT_DIR_TSUNAMI, self.main.QgsFileWidget_tsunami),
@@ -91,7 +86,6 @@ class Preprocessor:
             (INPUT_DIR_SURGE, self.main.QgsFileWidget_surge),
             (INPUT_DIR_EARTHQUAKE, self.main.QgsFileWidget_earthquake),
             (INPUT_DIR_SLOPE, self.main.QgsFileWidget_slope),
-            (INPUT_DIR_REFUGE, self.main.QgsFileWidget_refuge),
             (INPUT_DIR_TOCHIRIYOU, self.main.QgsFileWidget_tochiriyou),
             (INPUT_DIR_SHIKUCHOSON, self.main.QgsFileWidget_shikuchoson),
             (OUTPUT_DIR, self.main.FileWidgetSeamlessDir),
@@ -128,12 +122,6 @@ class Preprocessor:
         # process list
         self.seamless_processed = []
         try:
-            if self.main.QgsFileWidget_tatumaki.filePath():
-                self.preprocess_tatumaki(
-                    self.main.QgsFileWidget_tatumaki.filePath(),
-                    self.main.FileWidgetSeamlessDir.filePath(),
-                )
-
             if self.main.QgsFileWidget_kozui.filePath():
                 self.preprocess_kozui(
                     self.main.QgsFileWidget_kozui.filePath(),
@@ -182,12 +170,6 @@ class Preprocessor:
                     self.main.FileWidgetSeamlessDir.filePath(),
                 )
 
-            if self.main.QgsFileWidget_refuge.filePath():
-                self.preprocess_refuge(
-                    self.main.QgsFileWidget_refuge.filePath(),
-                    self.main.FileWidgetSeamlessDir.filePath(),
-                )
-
             if self.main.QgsFileWidget_tochiriyou.filePath():
                 self.preprocess_tochiriyou(
                     self.main.QgsFileWidget_tochiriyou.filePath(),
@@ -197,12 +179,6 @@ class Preprocessor:
             if self.main.QgsFileWidget_shikuchoson.filePath():
                 self.preprocess_shikuchoson(
                     self.main.QgsFileWidget_shikuchoson.filePath(),
-                    self.main.FileWidgetSeamlessDir.filePath(),
-                )
-
-            if self.main.QgsFileWidget_custom.filePath():
-                self.preprocess_custom(
-                    self.main.QgsFileWidget_custom.filePath(),
                     self.main.FileWidgetSeamlessDir.filePath(),
                 )
 
