@@ -27,13 +27,16 @@ from converter.mesh_score_classifier import (
     get_color_from_range,
     classify_values_stdev,
     classify_values_tcg,
-    get_tcg_ranks,
 )
 
 import constants
 from utils import add_to_map
 from modules import pyqtgraph as pg
 from scoring.qgis_layer import LayerScoringError, calculate_layer_scores
+from scoring.classification import (
+    classify_standard_deviation_ranks,
+    classify_tcg_ranks,
+)
 
 
 class HMGDataClassifier:
@@ -72,11 +75,11 @@ class HMGDataClassifier:
             show_graph_function = getattr(self, f"on_show_chart_clicked_{hazard}")
             show_graph_button.clicked.connect(show_graph_function)
 
-            # Set max break values to 10 as default
+            # ゲームの既定値は6ランク。1〜10の範囲で変更可能。
             on_number_changed_function = getattr(self, f"on_number_changed_{hazard}")
             nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
             nbmax_box.setRange(1, 10)
-            nbmax_box.setValue(10)
+            nbmax_box.setValue(6)
             nbmax_box.valueChanged.connect(on_number_changed_function)
 
             # default percentages: 10 classes by 10%
@@ -96,11 +99,12 @@ class HMGDataClassifier:
             tcg_button = getattr(self.main, f"radiobutton_tcg_{hazard}")
             tcg_function = getattr(self, f"classify_tcg_{hazard}")
             tcg_button.clicked.connect(tcg_function)
+            tcg_button.setChecked(True)
 
             # custom button
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
-            custom_button.setChecked(True)  # default button
             custom_button.clicked.connect(on_number_changed_function)
+            custom_button.hide()
 
     def _hide_unused_hazard_controls(self):
         """ゲームで使用しない旧分類項目を画面から隠す。"""
@@ -319,7 +323,7 @@ class HMGDataClassifier:
                 self._set_percentages_stdev(hazard)
 
             if tcg_radio_btn.isChecked():
-                nbmax_box.setReadOnly(True)
+                nbmax_box.setReadOnly(False)
                 self.set_percentages_tcg(hazard)
 
             if custom_radio_btn.isChecked():
@@ -502,13 +506,12 @@ class HMGDataClassifier:
                 return
 
             # classify if values are not equals
-            percentages_classes = classify_values_tcg(y_values)
-
-            if len(percentages_classes) - 1 != nbmax_box.value():
-                nbmax_box.setValue(len(percentages_classes) - 1)
+            percentages_classes = classify_values_tcg(
+                y_values, nbmax_box.value()
+            )
 
             # update UI
-            nbmax_box.setReadOnly(True)
+            nbmax_box.setReadOnly(False)
 
             for n in range(0, len(percentages_classes)):
                 percentage_box = getattr(self.main, f"classif_percent_{n}_{hazard}")
@@ -798,10 +801,15 @@ class HMGDataClassifier:
             # get ranks from values
             rank_field = f"t_{target_field}"
 
+            stdev_button = getattr(self.main, f"radiobutton_stdev_{hazard}")
             tcg_button = getattr(self.main, f"radiobutton_tcg_{hazard}")
-            if tcg_button.isChecked():
-                # get ranks from tcg method
-                ranks = get_tcg_ranks(y_values)
+            nbmax_box = getattr(self.main, f"classif_nbmax_{hazard}")
+            if stdev_button.isChecked():
+                ranks = classify_standard_deviation_ranks(
+                    y_values, nbmax_box.value()
+                )
+            elif tcg_button.isChecked():
+                ranks = classify_tcg_ranks(y_values, nbmax_box.value())
             else:
                 # get ranks for standard deviation or custom method as defined in UI
                 ranks = self._get_ui_ranks(y_values, hazard)

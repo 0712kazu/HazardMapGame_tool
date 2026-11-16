@@ -13,8 +13,12 @@ from qgis.core import (
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QFont
 
-import numpy as np
 import constants
+from scoring.classification import (
+    classify_standard_deviation_ranks,
+    classify_tcg_ranks,
+    ranks_to_percentages,
+)
 
 
 def _get_round_precision(value: float) -> int:
@@ -138,123 +142,22 @@ def classify_values_stdev(values: list, num_classes: int) -> list:
     - duplicated percentages are removed
     """
 
-    # output has num_classes + 1 breaks to make num_classes breaks
-    num_classes = num_classes + 1
-
-    # Calculate mean and standard deviation
-    mean_value = np.mean(values)
-    std_dev = np.std(values)
-
-    # Calculate class width
-    class_width = 2 * std_dev / num_classes
-
-    # Calculate class boundaries
-    class_boundaries = [
-        mean_value - std_dev + i * class_width for i in range(1, num_classes)
-    ]
-    class_boundaries.append(mean_value + std_dev)  # Add the upper boundary
-
-    # Classify values
-    classes = np.digitize(values, class_boundaries)
-
-    # Get minimum percentage to get all non-null values
-    null_values_count = len([x for x in values if x == 0])
-    min_percentage = ((null_values_count + 1) / len(values)) * 100
-
-    # Convert to total percentages
-    class_percentages = []
-    total_sample = 0
-    for i in range(1, num_classes):
-        nb_elements_in_class = classes.tolist().count(i)
-        total_sample += nb_elements_in_class
-        percentage = total_sample / len(values) * 100
-
-        # if it over minimum non null value, set as minimum percentage
-        if sum(class_percentages) == 0 and percentage > min_percentage:
-            percentage = min_percentage
-
-        if percentage != 0:
-            class_percentages.append(percentage)
-    class_percentages.append(100)
-
-    # in case of one unique class (最大=1)
-    # avoid [100] and add minimum non null percentage [min,100]
-    if class_percentages == [100]:
-        class_percentages = [min_percentage, 100]
-
-    # remove duplicate values
-    class_percentages = list(set(class_percentages))
-
-    return sorted(class_percentages)
+    ranks = classify_standard_deviation_ranks(values, num_classes)
+    return ranks_to_percentages(ranks, num_classes)
 
 
-def classify_values_tcg(values: list) -> list:
+def classify_values_tcg(values: list, max_rank: int = 6) -> list:
     """get tcg classification as percentage"""
-    tcg_classes = get_tcg_ranks(values)
-
-    # Convert to total percentages
-    class_percentages = []
-    total_sample = 0
-    for i in range(0, 6):
-        nb_elements_in_class = tcg_classes.count(i)
-        total_sample += nb_elements_in_class
-        percentage = total_sample / len(values) * 100
-        class_percentages.append(percentage)
-    class_percentages.append(100)
-
-    # remove duplicated values
-    class_percentages = list(set(class_percentages))
-
-    return sorted(class_percentages)
+    tcg_classes = get_tcg_ranks(values, max_rank)
+    return ranks_to_percentages(tcg_classes, max_rank)
 
 
-def get_tcg_ranks(values: list) -> list:
+def get_tcg_ranks(values: list, max_rank: int = 6) -> list:
     """Return a list of TCG rank associated to input values
     input :[0,10,255,3598,3699,8555]
-    output : [0,1,2,4,4,6]
+    output with max_rank=6 : [0,1,1,2,3,5]
     """
-    # ①全てのマスのリスク値のトータル合計を求める
-    sum_all_values = sum(values)
-
-    # ②リスク値の小さい順番に、マスの順番を決める　※リスク値が同じ場合には、同じ順番を付ける
-    # ③順番にリスク値を合計して、トータル合計で割って、そこまでのリスク割合を求める
-    tcg_classes = []
-    tcg_values_dict = {}  # use dict to have unique rank for same value
-
-    total_values = 0.0
-    for value in values:
-        total_values += value
-        if sum_all_values == 0:
-            risk_rate = 0
-        else:
-            risk_rate = total_values / sum_all_values
-        # ④ランクを付けて行く
-        if risk_rate == 0:
-            rank = 0
-        elif risk_rate <= 0.1:
-            rank = 1
-        elif risk_rate <= 0.3:
-            rank = 2
-        elif risk_rate <= 0.5:
-            rank = 3
-        elif risk_rate <= 0.7:
-            rank = 4
-        elif risk_rate <= 0.9:
-            rank = 5
-        else:  # >0.9
-            if tcg_classes[-1] >= 5:
-                rank = 6
-            else:
-                rank = 5
-        tcg_classes.append(rank)
-        tcg_values_dict[value] = rank  # will have the upper rank for same value
-
-    # make revised tcg values with same rank for same values
-    tcg_ranks = []
-    for value in values:
-        tcg_ranks.append(tcg_values_dict[value])
-
-    return tcg_ranks
+    return classify_tcg_ranks(values, max_rank)
 
 
 def calculate_tcg_score(
@@ -289,7 +192,7 @@ def calculate_tcg_score(
         # calculate tcg rank
         mesh_score_layer.startEditing()
         # input y_values to be in ascending order :[0,10,255,3598,3699,8555]
-        # associated tcg_ranks : [0,1,2,4,4,6]
+        # ranks are calculated from cumulative risk share
         # Sort the features based on hazard score ascending order
         request = QgsFeatureRequest().addOrderBy(target_field, ascending=True)
         features = mesh_score_layer.getFeatures(request)
