@@ -9,6 +9,7 @@ from qgis.core import (
     QgsCoordinateReferenceSystem,
 )
 from qgis.PyQt.QtXml import QDomDocument
+from qgis.PyQt.QtGui import QPainter
 
 
 from qgis.utils import iface
@@ -40,6 +41,7 @@ from utils import (
     get_layer_orientation,
     add_xyz_basemap_layer,
     add_to_map,
+    configure_hmg_layer_tree,
     remove_layer,
 )
 from output.game_data_exporter import OutputValidationError, export_game_data
@@ -297,6 +299,7 @@ class PDFExporter:
                 "https://cyberjapandata.gsi.go.jp/xyz/hillshademap/{z}/{x}/{y}.png",
                 "basemap_hillshade",
             )
+            configure_hmg_layer_tree()
 
             # HMG01_ans : gsi standard only,
             # refuge score colors&count, total hazard score
@@ -425,6 +428,7 @@ class PDFExporter:
         output:
         - No variable, but PDF file
         """
+        self._apply_background_style()
         project = QgsProject.instance()
 
         if QgsProject.instance().mapLayersByName("waku"):
@@ -478,6 +482,23 @@ class PDFExporter:
             pdf_file_name,
         )
         exporter.exportToPdf(pdf_path, QgsLayoutExporter.PdfExportSettings())
+
+    def _apply_background_style(self):
+        """QGIS画面とPDFで背景地図の濃さを一致させる。"""
+
+        standard_layers = QgsProject.instance().mapLayersByName("basemap_standard")
+        if standard_layers:
+            standard_layers[0].setOpacity(1.0)
+
+        hillshade_layers = QgsProject.instance().mapLayersByName("basemap_hillshade")
+        if hillshade_layers:
+            hillshade = hillshade_layers[0]
+            hillshade.setOpacity(0.8)
+            try:
+                multiply_mode = QPainter.CompositionMode.CompositionMode_Multiply
+            except AttributeError:
+                multiply_mode = QPainter.CompositionMode_Multiply
+            hillshade.setBlendMode(multiply_mode)
 
     def _total_hazard_score(self, mesh_lyr: QgsVectorLayer) -> QgsVectorLayer:
         # calculate total hazard score

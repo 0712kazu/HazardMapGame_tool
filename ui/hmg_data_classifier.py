@@ -30,7 +30,7 @@ from converter.mesh_score_classifier import (
 )
 
 import constants
-from utils import add_to_map
+from utils import add_to_map, configure_hmg_layer_tree
 from modules import pyqtgraph as pg
 from scoring.qgis_layer import LayerScoringError, calculate_layer_scores
 from scoring.classification import (
@@ -209,6 +209,7 @@ class HMGDataClassifier:
             hzd_target_maximum=self.hzd_target_maximum.value(),
         )
         self._update_game_score_status(result)
+        configure_hmg_layer_tree()
         return result
 
     def _recalculate_hzd_multiplier(self):
