@@ -183,7 +183,9 @@ class HMGDataClassifier:
         button_layout.insertWidget(button_index + 1, self.recalculation_target)
         button_layout.insertWidget(button_index + 2, QLabel("目標最高点", self.main))
         button_layout.insertWidget(button_index + 3, self.hzd_target_maximum)
-        button_layout.insertWidget(button_index + 4, QLabel("HZD倍率", self.main))
+        button_layout.insertWidget(
+            button_index + 4, QLabel("総合得点倍率", self.main)
+        )
         button_layout.insertWidget(button_index + 5, self.hzd_multiplier)
         button_layout.insertWidget(
             button_index + 6, self.recalculate_multiplier_button
@@ -198,12 +200,12 @@ class HMGDataClassifier:
         self.hzd_multiplier_initialized = True
 
         status = (
-            f"最大 A33: {result.maximum_a33} / "
+            f"土砂・傾斜 最大: {result.maximum_a33} / "
             f"補正前: {result.maximum_base_hzd} / "
-            f"HZD: {result.maximum_hzd}"
+            f"総合得点: {result.maximum_hzd}"
         )
         hzd_summary = result.score_summary.fields["HZD"]
-        status += f" / HZD 0点: {hzd_summary.zero_count}件"
+        status += f" / 総合得点0点: {hzd_summary.zero_count}件"
         if result.sediment_slope_overlap_count:
             status += (
                 " / 警告: 土砂と傾斜の重複 "
@@ -244,7 +246,7 @@ class HMGDataClassifier:
         QMessageBox.information(
             None,
             "完了",
-            "現在の点数分布からHZD倍率を再計算しました。\n"
+            "現在の点数分布から総合得点倍率を再計算しました。\n"
             f"倍率: {result.hzd_multiplier:.3f}",
         )
 
@@ -832,8 +834,8 @@ class HMGDataClassifier:
                 message += "なし"
             message += (
                 "\n\nゲーム用総合得点:"
-                f"\n- HZD倍率: {game_result.hzd_multiplier:.3f}"
-                f"\n- 最大HZD: {game_result.maximum_hzd}"
+                f"\n- 総合得点倍率: {game_result.hzd_multiplier:.3f}"
+                f"\n- 総合得点の最大: {game_result.maximum_hzd}"
             )
             message += "\n\n" + format_score_summary(game_result.score_summary)
             QMessageBox.information(None, "完了", message)

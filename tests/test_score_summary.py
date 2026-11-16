@@ -24,8 +24,9 @@ class TestScoreSummary(unittest.TestCase):
             summarize_scores({"A31": [0, 1], "HZD": [0, 18]})
         )
 
-        self.assertIn("A31: 0 / 1 / 0.5 / 1件", text)
-        self.assertIn("HZD: 0 / 18 / 9.0 / 1件", text)
+        self.assertIn("洪水: 0 / 1 / 0.5 / 1件", text)
+        self.assertIn("総合得点: 0 / 18 / 9.0 / 1件", text)
+        self.assertIn("総合得点の点数別件数", text)
         self.assertIn("0点:1件 / 18点:1件", text)
 
     def test_rejects_non_integer_scores(self):
