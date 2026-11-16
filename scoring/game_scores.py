@@ -122,7 +122,10 @@ def calculate_hzd(
         raise ValueError("総合得点の災害別メッシュ数が一致していません")
 
     base_hzd = tuple(
-        sum(_ceil(values[index]) if values[index] > 0 else 0 for values in validated.values())
+        sum(
+            _ceil(values[index]) if values[index] > 0 else 0
+            for values in validated.values()
+        )
         for index in range(next(iter(lengths)))
     )
     selected_multiplier = (

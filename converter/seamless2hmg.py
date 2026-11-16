@@ -1,6 +1,7 @@
 import processing
 from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
 from qgis.core import (
+    NULL,
     QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
     QgsProcessingFeatureSourceDefinition,
@@ -14,7 +15,33 @@ from qgis.gui import QgisInterface
 from qgis.core import QgsProcessingFeatureSourceDefinition as qpfsd
 
 import constants
+from converter.inundation_categories import (
+    FLOOD_V1_DEPTHS,
+    FLOOD_V1_FIELDS,
+    FLOOD_V2_DEPTHS,
+    FLOOD_V2_FIELDS,
+    STORM_SURGE_DEPTHS,
+    TSUNAMI_DEPTHS,
+    validate_categories,
+)
 from utils import add_to_map, remove_layer
+
+
+def _validate_layer_categories(layer, hazard_name, field_name, allowed_values):
+    if layer.fields().lookupField(field_name) == -1:
+        raise ValueError(
+            f"{hazard_name}の浸水区分フィールド「{field_name}」が見つかりません。"
+        )
+    values = (
+        None if feature[field_name] == NULL else feature[field_name]
+        for feature in layer.getFeatures()
+    )
+    validate_categories(
+        hazard_name,
+        field_name,
+        values,
+        allowed_values,
+    )
 
 
 def _clip_with_valid_geometries(
@@ -350,57 +377,39 @@ def _adjust_inland_score(layer: QgsVectorLayer, hazard_field: str) -> QgsVectorL
 
 
 def _make_depth_sql(kozui_layer: QgsVectorLayer) -> str:
-    kouzui_v1_fields = ["A31_001"]
-    kouzui_v2_fields = [
-        "A31_101",
-        "A31_105",
-        "A31_201",
-        "A31_205",
-        "A31_301",
-        "A31_305",
-        "A31_401",
-        "A31_405",
-        "A31a_101",
-        "A31a_105",
-        "A31a_201",
-        "A31a_205",
-        "A31a_301",
-        "A31a_305",
-        "A31a_401",
-        "A31a_405",
-    ]
-
     depth_sql = "SELECT geometry, CASE "
+    supported_field_found = False
+    present_fields = []
 
-    for field in kouzui_v1_fields:
+    for field in FLOOD_V1_FIELDS:
         if kozui_layer.fields().lookupField(field) != -1:
-            depth_sql += (
-                f"WHEN {field} = 11 THEN 0.2 "
-                f"WHEN {field} = 12 THEN 0.7 "
-                f"WHEN {field} = 13 THEN 1.4 "
-                f"WHEN {field} = 14 THEN 3 "
-                f"WHEN {field} = 15 THEN 7 "
-                f"WHEN {field} = 21 THEN 0.2 "
-                f"WHEN {field} = 22 THEN 0.7 "
-                f"WHEN {field} = 23 THEN 1.4 "
-                f"WHEN {field} = 24 THEN 2.4 "
-                f"WHEN {field} = 25 THEN 3.4 "
-                f"WHEN {field} = 26 THEN 4.4 "
-                f"WHEN {field} = 27 THEN 7 "
+            supported_field_found = True
+            present_fields.append(field)
+            _validate_layer_categories(
+                kozui_layer, "洪水", field, FLOOD_V1_DEPTHS.keys()
             )
+            for category, depth in FLOOD_V1_DEPTHS.items():
+                depth_sql += f"WHEN {field} = {category} THEN {depth} "
 
-    for field in kouzui_v2_fields:
+    for field in FLOOD_V2_FIELDS:
         if kozui_layer.fields().lookupField(field) != -1:
-            depth_sql += (
-                f"WHEN {field} = 1 THEN 0.2 "
-                f"WHEN {field} = 2 THEN 2 "
-                f"WHEN {field} = 3 THEN 3.6 "
-                f"WHEN {field} = 4 THEN 7 "
-                f"WHEN {field} = 5 THEN 14 "
-                f"WHEN {field} = 6 THEN 25 "
+            supported_field_found = True
+            present_fields.append(field)
+            _validate_layer_categories(
+                kozui_layer, "洪水", field, FLOOD_V2_DEPTHS.keys()
             )
+            for category, depth in FLOOD_V2_DEPTHS.items():
+                depth_sql += f"WHEN {field} = {category} THEN {depth} "
 
-    depth_sql += "END AS depth "
+    if not supported_field_found:
+        raise ValueError("洪水の浸水区分フィールドが見つかりません。")
+
+    # 複数の区分フィールドがある場合、他フィールドの有効値を先に採用する。
+    # すべての既知区分を判定した後でのみ、明示的な0を0として扱う。
+    for field in present_fields:
+        depth_sql += f"WHEN {field} = 0 THEN 0 "
+
+    depth_sql += "ELSE NULL END AS depth "
     depth_sql += f"FROM {kozui_layer.name()}"
 
     return depth_sql
@@ -698,72 +707,11 @@ def seamless2hmg_sediments(
 def _make_tsunami_rank_sql() -> str:
     height = "A40_003"
     sql = "CASE "
-    sql += f"WHEN \"{height}\" = '～ 0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.01m以上 ～ 0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.01m以上 0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.01m以上～0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.3m以上 ～ 0.5m未満' THEN 0.4 "
-    sql += f"WHEN \"{height}\" = '0.3m以上 0.5m未満' THEN 0.4 "
-    sql += f"WHEN \"{height}\" = '0.3m以上 ～ 1m未満' THEN 0.6 "
-    sql += f"WHEN \"{height}\" = '0.3m以上～1m未満' THEN 0.6 "
-    sql += f"WHEN \"{height}\" = '0.5m以上 ～ 1m未満' THEN 0.7 "
-    sql += f"WHEN \"{height}\" = '0.5m以上 1.0m未満' THEN 0.7 "
-    sql += f"WHEN \"{height}\" = '1m以上 ～ 2m未満' THEN 1.5 "
-    sql += f"WHEN \"{height}\" = '1m以上～2m未満' THEN 1.5 "
-    sql += f"WHEN \"{height}\" = '1.0m以上 3.0m未満' THEN 2 "
-    sql += f"WHEN \"{height}\" = '1m以上 ～ 3m未満' THEN 2 "
-    sql += f"WHEN \"{height}\" = '2m以上 ～ 3m未満' THEN 2.5 "
-    sql += f"WHEN \"{height}\" = '2m以上～3m未満' THEN 2.5 "
-    sql += f"WHEN \"{height}\" = '2m以上 ～ 4m未満' THEN 3 "
-    sql += f"WHEN \"{height}\" = '2m以上 ～ 5m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3m以上 ～ 4m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3m以上～4m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3.0m以上 5.0m未満' THEN 4 "
-    sql += f"WHEN \"{height}\" = '3m以上 ～ 5m未満' THEN 4 "
-    sql += f"WHEN \"{height}\" = '4m以上 ～ 5m未満' THEN 4.5 "
-    sql += f"WHEN \"{height}\" = '4m以上～5m未満' THEN 4.5 "
-    sql += f"WHEN \"{height}\" = '4m以上' THEN 6 "
-    sql += f"WHEN \"{height}\" = '5.0m以上 10.0m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '5m以上' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '5m以上 ～ 10m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '5m以上～10m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '10m以上 ～ 15m未満' THEN 12.5 "
-    sql += f"WHEN \"{height}\" = '10.0m以上 20.0m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '10m以上' THEN 15 "
-    sql += f"WHEN \"{height}\" = '10m以上 ～ 20m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '10m以上～20m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '15m以上 ～ 20m未満' THEN 17.5 "
-    sql += f"WHEN \"{height}\" = '20.0m以上' THEN 30 "
-    sql += f"WHEN \"{height}\" = '20m以上' THEN 30 "
-    sql += f"WHEN \"{height}\" = '20m以上 ～ 50m未満' THEN 35 "
-    sql += f"WHEN \"{height}\" = '〜 0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.01m以上 〜 0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.01m以上〜0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.3m以上 〜 0.5m未満' THEN 0.4 "
-    sql += f"WHEN \"{height}\" = '0.3m以上 〜 1m未満' THEN 0.6 "
-    sql += f"WHEN \"{height}\" = '0.3m以上〜1m未満' THEN 0.6 "
-    sql += f"WHEN \"{height}\" = '0.5m以上 〜 1m未満' THEN 0.7 "
-    sql += f"WHEN \"{height}\" = '1m以上 〜 2m未満' THEN 1.5 "
-    sql += f"WHEN \"{height}\" = '1m以上〜2m未満' THEN 1.5 "
-    sql += f"WHEN \"{height}\" = '1m以上 〜 3m未満' THEN 2 "
-    sql += f"WHEN \"{height}\" = '2m以上 〜 3m未満' THEN 2.5 "
-    sql += f"WHEN \"{height}\" = '2m以上〜3m未満' THEN 2.5 "
-    sql += f"WHEN \"{height}\" = '2m以上 〜 4m未満' THEN 3 "
-    sql += f"WHEN \"{height}\" = '2m以上 〜 5m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3m以上 〜 4m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3m以上〜4m未満' THEN 3.5 "
-    sql += f"WHEN \"{height}\" = '3m以上 〜 5m未満' THEN 4 "
-    sql += f"WHEN \"{height}\" = '4m以上 〜 5m未満' THEN 4.5 "
-    sql += f"WHEN \"{height}\" = '4m以上〜5m未満' THEN 4.5 "
-    sql += f"WHEN \"{height}\" = '5m以上 〜 10m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '5m以上〜10m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '10m以上 〜 15m未満' THEN 12.5 "
-    sql += f"WHEN \"{height}\" = '10m以上 〜 20m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '10m以上〜20m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '15m以上 〜 20m未満' THEN 17.5 "
-    sql += f"WHEN \"{height}\" = '20m以上 〜 50m未満' THEN 35 "
-    sql += "ELSE 0 END"
+    sql += f'WHEN "{height}" IS NULL THEN 0 '
+    sql += f'WHEN "{height}" IN (0, \'0\', \'0.0\') THEN 0 '
+    for category, depth in TSUNAMI_DEPTHS.items():
+        sql += f'WHEN "{height}" = \'{category}\' THEN {depth} '
+    sql += "ELSE NULL END"
     return sql
 
 
@@ -777,6 +725,10 @@ def seamless2hmg_tsunami(
     if tsunami_clipped.featureCount() == 0:
         tsunami_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_tsunami)
         return tsunami_mesh
+
+    _validate_layer_categories(
+        tsunami_clipped, "津波", "A40_003", TSUNAMI_DEPTHS.keys()
+    )
 
     # calculate tsunami rank according to height
     tsunami_value_field = "h_tsunami"
@@ -809,18 +761,11 @@ def seamless2hmg_tsunami(
 def _make_storm_surge_rank_sql() -> str:
     height = "A49_003"
     sql = "CASE "
-    sql += f"WHEN \"{height}\" = '0.3m未満' THEN 0.1 "
-    sql += f"WHEN \"{height}\" = '0.5m未満' THEN 0.2 "
-    sql += f"WHEN \"{height}\" = '0.3m以上0.5m未満' THEN 0.4 "
-    sql += f"WHEN \"{height}\" = '0.5m以上1m未満' THEN 0.7 "
-    sql += f"WHEN \"{height}\" = '0.5m以上3m未満' THEN 2 "
-    sql += f"WHEN \"{height}\" = '1m以上3m未満' THEN 2 "
-    sql += f"WHEN \"{height}\" = '3m以上5m未満' THEN 4 "
-    sql += f"WHEN \"{height}\" = '5m以上10m未満' THEN 7.5 "
-    sql += f"WHEN \"{height}\" = '10m以上20m未満' THEN 15 "
-    sql += f"WHEN \"{height}\" = '20m以上' THEN 30 "
-
-    sql += "ELSE 0 END"
+    sql += f'WHEN "{height}" IS NULL THEN 0 '
+    sql += f'WHEN "{height}" IN (0, \'0\', \'0.0\') THEN 0 '
+    for category, depth in STORM_SURGE_DEPTHS.items():
+        sql += f'WHEN "{height}" = \'{category}\' THEN {depth} '
+    sql += "ELSE NULL END"
     return sql
 
 
@@ -834,6 +779,10 @@ def seamless2hmg_surge(
     if surge_clipped.featureCount() == 0:
         surge_mesh = _handle_zero_polygon_hazard(mesh_lyr, constants.field_surge)
         return surge_mesh
+
+    _validate_layer_categories(
+        surge_clipped, "高潮", "A49_003", STORM_SURGE_DEPTHS.keys()
+    )
 
     # calculate surge rank according to height
     surge_value_field = "h_surge"

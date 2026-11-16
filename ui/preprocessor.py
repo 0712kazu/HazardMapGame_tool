@@ -411,57 +411,6 @@ class Preprocessor:
         shutil.rmtree(extracted_dir)
         self.seamless_processed.append(SEAMLESS_FILE_SLOPE)
 
-    def preprocess_refuge(self, root_directory: str, output_directory: str):
-        extracted_dir = os.path.join(root_directory, "temp")
-        if not os.path.exists(extracted_dir):
-            unpack_zips_from_dir(root_directory, extracted_dir)
-
-        csvfiles = []
-        for root, dirs, files in os.walk(extracted_dir):
-            csv_files = glob.glob(os.path.join(root, "*.csv"))
-            csvfiles.extend(csv_files)
-
-        if len(csvfiles) == 0:
-            message = "避難施設フォルダーにCSVファイルが存在しません。"
-            QMessageBox.information(None, "お知らせ", message)
-            shutil.rmtree(extracted_dir)
-            return
-
-        # get only CSV with 緯度/経度 column
-        for csv_file in csvfiles:
-            with open(csv_file, "r", newline="", encoding="utf-8") as file:
-                reader = csv.reader(file)
-
-                # Read the header row
-                header = next(reader, None)
-
-                # Check if 'x' and 'y' columns are present
-                if "緯度" in header and "経度" in header:
-                    refuge_csv_file = csv_file
-
-        if not refuge_csv_file:
-            message = "No valid CSV file in 避難施設 directory."
-            QMessageBox.information(None, "お知らせ", message)
-            shutil.rmtree(extracted_dir)
-            return
-
-        cmd = (
-            f"ogr2ogr -t_srs EPSG:3857 -f GPKG "
-            "-oo X_POSSIBLE_NAMES=経度 -oo Y_POSSIBLE_NAMES=緯度"
-            f" -nln {SEAMLESS_FILE_REFUGE.split('.')[0]}"
-            f" {os.path.join(output_directory, SEAMLESS_FILE_REFUGE)}"
-            f" {refuge_csv_file} -s_srs EPSG:4326"
-        )
-
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-        )
-
-        shutil.rmtree(extracted_dir)
-        self.seamless_processed.append(SEAMLESS_FILE_REFUGE)
-
     def preprocess_shikuchoson(self, root_directory: str, output_directory: str):
         extracted_dir = os.path.join(root_directory, "temp")
 
@@ -517,50 +466,6 @@ class Preprocessor:
         # remove tmp files
         os.remove(tmp_cities_file)
         self.seamless_processed.append(SEAMLESS_FILE_CITIES)
-
-    def preprocess_tatumaki(self, root_directory: str, output_directory: str):
-        extracted_dir = os.path.join(root_directory, "temp")
-        if not os.path.exists(extracted_dir):
-            unpack_zips_from_dir(root_directory, extracted_dir)
-
-        extracted_shapefiles = get_shapefiles_from_dir(extracted_dir)
-
-        # get only point shapefiles
-        shapefiles = []
-        for shapefile in extracted_shapefiles:
-            if geom_type_from_shp(shapefile) == "POINT":
-                shapefiles.append(shapefile)
-
-        if len(shapefiles) == 0:
-            message = "No point shapefile in 竜巻 directory"
-            QMessageBox.information(None, "お知らせ", message)
-            shutil.rmtree(extracted_dir)
-            return
-
-        # merge all shp to gpkg
-        tmp_tornado_merged = os.path.join(extracted_dir, "tmp_" + SEAMLESS_FILE_TORNADO)
-        merge_shapefiles(shapefiles, tmp_tornado_merged)
-
-        # make 500m buffer
-        sql = "SELECT ST_Union(ST_Buffer(ST_Transform(geom, 32654), 500)) as geometry "
-        sql += f"FROM tmp_{SEAMLESS_FILE_TORNADO.split('.')[0]}"
-
-        cmd = (
-            f"ogr2ogr {os.path.join(output_directory, SEAMLESS_FILE_TORNADO)} "
-            f"{tmp_tornado_merged} "
-            f'-nlt PROMOTE_TO_MULTI -dialect sqlite -sql "{sql}" '
-            f"-nln {SEAMLESS_FILE_TORNADO.split('.')[0]} "
-            f"-t_srs EPSG:3857 -f GPKG "
-        )
-        subprocess.run(
-            cmd,
-            shell=True,
-            check=True,
-        )
-
-        shutil.rmtree(extracted_dir)
-
-        self.seamless_processed.append(SEAMLESS_FILE_TORNADO)
 
     def preprocess_custom(self, root_directory: str, output_directory: str):
         if self.main.custom_seamless_filename.text() == "":
