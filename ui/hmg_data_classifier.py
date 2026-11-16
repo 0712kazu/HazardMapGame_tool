@@ -1,6 +1,7 @@
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QFont
 from qgis.PyQt.QtWidgets import (
+    QComboBox,
     QDialog,
     QDoubleSpinBox,
     QLabel,
@@ -143,6 +144,14 @@ class HMGDataClassifier:
         if button_layout is None:
             return
 
+        self.recalculation_target = QComboBox(self.main)
+        self.recalculation_target.setObjectName("recalculation_target")
+        self.recalculation_target.addItem("全災害（初回・一括）", "all")
+        self.recalculation_target.addItem("洪水のみ", "kozui")
+        self.recalculation_target.addItem("土砂災害のみ", "sediments")
+        self.recalculation_target.addItem("傾斜度のみ", "slope")
+        self.recalculation_target.addItem("津波のみ", "tsunami")
+
         self.hzd_target_maximum = QSpinBox(self.main)
         self.hzd_target_maximum.setObjectName("hzd_target_maximum")
         self.hzd_target_maximum.setRange(1, 999)
@@ -169,14 +178,17 @@ class HMGDataClassifier:
         self.game_score_status.setObjectName("label_game_score_status")
 
         button_index = button_layout.indexOf(self.main.pushButton_classify)
-        button_layout.insertWidget(button_index, QLabel("目標最高点", self.main))
-        button_layout.insertWidget(button_index + 1, self.hzd_target_maximum)
-        button_layout.insertWidget(button_index + 2, QLabel("HZD倍率", self.main))
-        button_layout.insertWidget(button_index + 3, self.hzd_multiplier)
+        button_layout.insertWidget(button_index, QLabel("再計算対象", self.main))
+        button_layout.insertWidget(button_index + 1, self.recalculation_target)
+        button_layout.insertWidget(button_index + 2, QLabel("目標最高点", self.main))
+        button_layout.insertWidget(button_index + 3, self.hzd_target_maximum)
+        button_layout.insertWidget(button_index + 4, QLabel("HZD倍率", self.main))
+        button_layout.insertWidget(button_index + 5, self.hzd_multiplier)
         button_layout.insertWidget(
-            button_index + 4, self.recalculate_multiplier_button
+            button_index + 6, self.recalculate_multiplier_button
         )
-        button_layout.insertWidget(button_index + 5, self.game_score_status)
+        button_layout.insertWidget(button_index + 7, self.game_score_status)
+        self.main.pushButton_classify.setText("点数を計算／再計算")
 
     def _update_game_score_status(self, result):
         self.hzd_multiplier.blockSignals(True)
@@ -716,12 +728,59 @@ class HMGDataClassifier:
         try:
             mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
 
+            target = self.recalculation_target.currentData()
+            hazards = (
+                list(constants.hazards_ui_names)
+                if target == "all"
+                else [target]
+            )
+            risk_fields = [
+                getattr(constants, f"field_{hazard}") for hazard in hazards
+            ]
+            missing_risk_fields = [
+                field
+                for field in risk_fields
+                if field not in mesh_score_layer.fields().names()
+            ]
+            if missing_risk_fields:
+                raise LayerScoringError(
+                    "再計算に必要なリスク値フィールドがありません: "
+                    + ", ".join(missing_risk_fields)
+                )
+            if target != "all":
+                required_rank_fields = [
+                    f"t_{getattr(constants, f'field_{hazard}')}"
+                    for hazard in constants.hazards_ui_names
+                ]
+                missing_rank_fields = [
+                    field
+                    for field in required_rank_fields
+                    if field not in mesh_score_layer.fields().names()
+                ]
+                if missing_rank_fields:
+                    raise LayerScoringError(
+                        "選択した災害だけを再計算する前に、"
+                        "「全災害（初回・一括）」で初回点数化を実行してください。\n"
+                        "不足フィールド: " + ", ".join(missing_rank_fields)
+                    )
+
             # list of added fields
             rank_fields_added = self._calculate_ui_score(
-                mesh_score_layer, self.main.custom_hmg_fieldname.text()
+                mesh_score_layer,
+                self.main.custom_hmg_fieldname.text(),
+                hazards,
             )
 
-            game_result = self._calculate_game_scores(mesh_score_layer)
+            try:
+                game_result = self._calculate_game_scores(mesh_score_layer)
+            except LayerScoringError as error:
+                if target != "all":
+                    raise LayerScoringError(
+                        "選択した災害だけを再計算する前に、"
+                        "「全災害（初回・一括）」で初回点数化を実行してください。\n"
+                        f"詳細: {error}"
+                    ) from error
+                raise
 
             # add to each mesh_score_{hazard_name} layer
             for hazard_field in rank_fields_added:
@@ -738,7 +797,9 @@ class HMGDataClassifier:
                     f"mesh_score_{hazard_name}"
                 )[0]
                 self._calculate_ui_score(
-                    hazard_mesh_layer, self.main.custom_hmg_fieldname.text()
+                    hazard_mesh_layer,
+                    self.main.custom_hmg_fieldname.text(),
+                    hazards,
                 )
 
                 # label mesh_score_{hazard} with score
@@ -760,7 +821,8 @@ class HMGDataClassifier:
                 hazard_mesh_layer.triggerRepaint()
 
             # message end
-            message = "点数化が完了しました。\n計算した属性:\n"
+            target_label = self.recalculation_target.currentText()
+            message = f"点数化が完了しました（{target_label}）。\n計算した属性:\n"
             for rank_field in rank_fields_added:
                 message += f"{rank_field}\n"
             if len(rank_fields_added) == 0:
@@ -781,11 +843,15 @@ class HMGDataClassifier:
             return
 
     def _calculate_ui_score(
-        self, mesh_score_layer: QgsVectorLayer, custom_field_name: str
+        self,
+        mesh_score_layer: QgsVectorLayer,
+        custom_field_name: str,
+        hazards=None,
     ) -> list:
         # list of added fields
         rank_fields_added = []
-        for hazard in constants.hazards_ui_names:
+        target_hazards = hazards or constants.hazards_ui_names
+        for hazard in target_hazards:
             # get mesh_score target field name
             if hazard == "custom":
                 target_field = custom_field_name
