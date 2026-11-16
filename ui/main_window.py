@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtWidgets import QDialog
 from qgis.PyQt import uic
+from qgis.PyQt.QtWidgets import QDialog
 
 from .hmg_data_generator import HMGDataGenerator
 from .preprocessor import Preprocessor

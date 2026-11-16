@@ -10,8 +10,8 @@ from qgis.core import (
     QgsField,
     QgsFeatureRequest,
 )
+from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QFont
-from PyQt5.QtCore import QVariant
 
 import numpy as np
 import constants

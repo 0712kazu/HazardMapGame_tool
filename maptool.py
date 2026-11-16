@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, pyqtSignal
+from qgis.PyQt.QtCore import Qt, pyqtSignal
 from qgis.core import QgsPointXY, QgsRectangle
 from qgis.gui import QgsMapTool, QgsRubberBand, QgsVertexMarker
 from qgis.utils import iface

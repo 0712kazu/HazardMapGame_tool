@@ -4,8 +4,8 @@ import shutil
 import subprocess
 import csv
 
-from PyQt5.QtWidgets import QDialog, QFileDialog, QMessageBox
-from PyQt5.QtCore import Qt
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QFileDialog, QMessageBox
 
 from constants import (
     INPUT_DIR_TATUMAKI,

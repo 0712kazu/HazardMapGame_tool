@@ -1,4 +1,6 @@
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtCore import QVariant
+from qgis.PyQt.QtGui import QFont
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
@@ -11,9 +13,6 @@ from qgis.core import (
 )
 
 from qgis.utils import iface
-from PyQt5.QtCore import QVariant
-from PyQt5.QtGui import QFont
-
 from converter.mesh_score_classifier import (
     graduate_layer,
     get_mesh_value_from_percentage,

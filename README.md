@@ -7,6 +7,13 @@
 
 このプラグインは<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.ja">CC BY-NC-SA</a>のライセンスの下、自由に利用できます。
 
+## 動作環境
+
+- QGIS 3.44 LTR
+- Windows 11 / macOS
+
+QGIS 4.xへの対応は検証中です。
+
 ### Authors
 - MIERUNE Inc.
 - ディレクティングマップ　Directing a Map / product of Tokyo Cartographic Co., Ltd

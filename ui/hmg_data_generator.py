@@ -2,9 +2,9 @@ import processing
 import csv
 import os
 
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox
 from qgis.core import QgsProject, QgsRectangle, QgsVectorLayer, QgsPointXY
-from qgis.gui import QtCore
+from qgis.PyQt import QtCore
 from qgis.utils import iface
 
 import constants

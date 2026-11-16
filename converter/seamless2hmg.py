@@ -1,5 +1,5 @@
 import processing
-from PyQt5.QtWidgets import QProgressBar, QMessageBox
+from qgis.PyQt.QtWidgets import QProgressBar, QMessageBox
 from qgis.core import (
     QgsCoordinateReferenceSystem,
     QgsFeatureRequest,
