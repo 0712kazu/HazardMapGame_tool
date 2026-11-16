@@ -1,4 +1,4 @@
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import QDialog, QMessageBox, QPushButton
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
@@ -42,6 +42,7 @@ from utils import (
     add_to_map,
     remove_layer,
 )
+from output.game_data_exporter import OutputValidationError, export_game_data
 
 
 class PDFExporter:
@@ -53,6 +54,7 @@ class PDFExporter:
         self.main.pushButton_export_pdf.clicked.connect(self._on_export_pdf_clicked)
         self.main.pushButton_total_hazard.clicked.connect(self._on_total_hazard_clicked)
         self.main.pushButton_cancel_pdf.clicked.connect(lambda: self.main.close())
+        self._add_data_export_button()
 
         # set default checkbox
         default_pdf_to_exports = [
@@ -78,6 +80,62 @@ class PDFExporter:
         # set default copyright
         self.main.pdf_map_copyright.setText(
             "©ハザードマップゲーム2022 ディレクティングマップ"
+        )
+        self.main.label_pdffolder.setText("出力先")
+        self.main.label_maptitle.setText("出力名・PDFタイトル")
+
+    def _find_layout_containing(self, layout, widget):
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item.widget() is widget:
+                return layout
+            child_layout = item.layout()
+            if child_layout:
+                found = self._find_layout_containing(child_layout, widget)
+                if found:
+                    return found
+        return None
+
+    def _add_data_export_button(self):
+        button_layout = self._find_layout_containing(
+            self.main.tab_4_pdf.layout(), self.main.pushButton_export_pdf
+        )
+        if button_layout is None:
+            return
+        self.export_data_button = QPushButton(
+            "処理データ・ゲームデータを出力", self.main
+        )
+        self.export_data_button.setObjectName("pushButton_export_game_data")
+        self.export_data_button.clicked.connect(self._on_export_data_clicked)
+        button_layout.insertWidget(
+            button_layout.indexOf(self.main.pushButton_export_pdf),
+            self.export_data_button,
+        )
+        self.main.pushButton_export_pdf.setText("PDFを出力")
+
+    def _on_export_data_clicked(self):
+        layers = QgsProject.instance().mapLayersByName("mesh_score")
+        if not layers:
+            QMessageBox.information(
+                None, "エラー", "「mesh_score」レイヤがありません。"
+            )
+            return
+        try:
+            result = export_game_data(
+                layers[0],
+                self.main.pdf_folder.filePath(),
+                self.main.pdf_map_title.text(),
+            )
+        except OutputValidationError as error:
+            QMessageBox.information(None, "エラー", str(error))
+            return
+
+        QMessageBox.information(
+            None,
+            "完了",
+            f"{result.feature_count}メッシュを出力しました。\n\n"
+            f"処理用:\n{result.processing_gpkg_path}\n\n"
+            f"サイガイ防衛隊用:\n{result.game_geojson_path}",
         )
 
     def _on_total_hazard_clicked(self):
