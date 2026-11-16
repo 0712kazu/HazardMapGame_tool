@@ -1,6 +1,14 @@
 from qgis.PyQt.QtCore import QVariant
 from qgis.PyQt.QtGui import QFont
-from qgis.PyQt.QtWidgets import QDialog, QMessageBox
+from qgis.PyQt.QtWidgets import (
+    QDialog,
+    QDoubleSpinBox,
+    QLabel,
+    QMessageBox,
+    QPushButton,
+    QSpinBox,
+    QWidget,
+)
 from qgis.core import (
     QgsVectorLayer,
     QgsProject,
@@ -25,6 +33,7 @@ from converter.mesh_score_classifier import (
 import constants
 from utils import add_to_map
 from modules import pyqtgraph as pg
+from scoring.qgis_layer import LayerScoringError, calculate_layer_scores
 
 
 class HMGDataClassifier:
@@ -46,6 +55,10 @@ class HMGDataClassifier:
         # ラムダ式でもconnectできる
         self.main.pushButton_cancel_3.clicked.connect(lambda: self.main.close())
         self.main.pushButton_classify.clicked.connect(self._set_classified_hazard_score)
+
+        self.hzd_multiplier_initialized = False
+        self._hide_unused_hazard_controls()
+        self._add_game_score_controls()
 
         # stdev calculation flag to make calculate only once
         self.stdev_calculating = False
@@ -88,6 +101,132 @@ class HMGDataClassifier:
             custom_button = getattr(self.main, f"radiobutton_custom_{hazard}")
             custom_button.setChecked(True)  # default button
             custom_button.clicked.connect(on_number_changed_function)
+
+    def _hide_unused_hazard_controls(self):
+        """ゲームで使用しない旧分類項目を画面から隠す。"""
+
+        for widget in self.main.findChildren(QWidget):
+            object_name = widget.objectName()
+            if any(
+                object_name.endswith(f"_{hazard}")
+                for hazard in constants.inactive_hazards_ui_names
+            ):
+                widget.hide()
+
+        self.main.label_classif_title_kozui.setText("洪水")
+        self.main.label_classif_title_sediments.setText("土砂災害")
+        self.main.label_classif_title_slope.setText("傾斜度（警戒区域外）")
+
+    def _find_layout_containing(self, layout, widget):
+        for index in range(layout.count()):
+            item = layout.itemAt(index)
+            if item.widget() is widget:
+                return layout
+            child_layout = item.layout()
+            if child_layout:
+                found = self._find_layout_containing(child_layout, widget)
+                if found:
+                    return found
+        return None
+
+    def _add_game_score_controls(self):
+        """既存の実行ボタン行へ総合得点の最小限の設定を追加する。"""
+
+        button_layout = self._find_layout_containing(
+            self.main.scrollAreaWidgetContents.layout(),
+            self.main.pushButton_classify,
+        )
+        if button_layout is None:
+            return
+
+        self.hzd_target_maximum = QSpinBox(self.main)
+        self.hzd_target_maximum.setObjectName("hzd_target_maximum")
+        self.hzd_target_maximum.setRange(1, 999)
+        self.hzd_target_maximum.setValue(15)
+
+        self.hzd_multiplier = QDoubleSpinBox(self.main)
+        self.hzd_multiplier.setObjectName("hzd_multiplier")
+        self.hzd_multiplier.setRange(0.01, 100.0)
+        self.hzd_multiplier.setDecimals(3)
+        self.hzd_multiplier.setSingleStep(0.05)
+        self.hzd_multiplier.setValue(1.0)
+
+        self.recalculate_multiplier_button = QPushButton(
+            "目標点から倍率を再計算", self.main
+        )
+        self.recalculate_multiplier_button.setObjectName(
+            "pushButton_recalculate_multiplier"
+        )
+        self.recalculate_multiplier_button.clicked.connect(
+            self._recalculate_hzd_multiplier
+        )
+
+        self.game_score_status = QLabel("未計算", self.main)
+        self.game_score_status.setObjectName("label_game_score_status")
+
+        button_index = button_layout.indexOf(self.main.pushButton_classify)
+        button_layout.insertWidget(button_index, QLabel("目標最高点", self.main))
+        button_layout.insertWidget(button_index + 1, self.hzd_target_maximum)
+        button_layout.insertWidget(button_index + 2, QLabel("HZD倍率", self.main))
+        button_layout.insertWidget(button_index + 3, self.hzd_multiplier)
+        button_layout.insertWidget(
+            button_index + 4, self.recalculate_multiplier_button
+        )
+        button_layout.insertWidget(button_index + 5, self.game_score_status)
+
+    def _update_game_score_status(self, result):
+        self.hzd_multiplier.blockSignals(True)
+        self.hzd_multiplier.setValue(result.hzd_multiplier)
+        self.hzd_multiplier.blockSignals(False)
+        self.hzd_multiplier_initialized = True
+
+        status = (
+            f"最大 A33: {result.maximum_a33} / "
+            f"補正前: {result.maximum_base_hzd} / "
+            f"HZD: {result.maximum_hzd}"
+        )
+        if result.sediment_slope_overlap_count:
+            status += (
+                " / 警告: 土砂と傾斜の重複 "
+                f"{result.sediment_slope_overlap_count}件"
+            )
+            self.game_score_status.setStyleSheet("color: #b54708;")
+        else:
+            self.game_score_status.setStyleSheet("")
+        self.game_score_status.setText(status)
+
+    def _calculate_game_scores(self, mesh_score_layer, recalculate_multiplier=False):
+        multiplier = None
+        if self.hzd_multiplier_initialized and not recalculate_multiplier:
+            multiplier = self.hzd_multiplier.value()
+        result = calculate_layer_scores(
+            mesh_score_layer,
+            hzd_multiplier=multiplier,
+            hzd_target_maximum=self.hzd_target_maximum.value(),
+        )
+        self._update_game_score_status(result)
+        return result
+
+    def _recalculate_hzd_multiplier(self):
+        mesh_score_layer = self.main.mesh_score_layer_combobox.currentLayer()
+        if not mesh_score_layer:
+            QMessageBox.information(
+                None, "エラー", "点数を再計算するメッシュレイヤーを選択してください。"
+            )
+            return
+        try:
+            result = self._calculate_game_scores(
+                mesh_score_layer, recalculate_multiplier=True
+            )
+        except LayerScoringError as error:
+            QMessageBox.information(None, "エラー", str(error))
+            return
+        QMessageBox.information(
+            None,
+            "完了",
+            "現在の点数分布からHZD倍率を再計算しました。\n"
+            f"倍率: {result.hzd_multiplier:.3f}",
+        )
 
     def on_number_changed_tornado(self):
         self._set_percentages("tornado")
@@ -578,6 +717,8 @@ class HMGDataClassifier:
                 mesh_score_layer, self.main.custom_hmg_fieldname.text()
             )
 
+            game_result = self._calculate_game_scores(mesh_score_layer)
+
             # add to each mesh_score_{hazard_name} layer
             for hazard_field in rank_fields_added:
                 hazard_name = hazard_field.split("_")[1]
@@ -620,6 +761,11 @@ class HMGDataClassifier:
                 message += f"{rank_field}\n"
             if len(rank_fields_added) == 0:
                 message += "なし"
+            message += (
+                "\n\nゲーム用総合得点:"
+                f"\n- HZD倍率: {game_result.hzd_multiplier:.3f}"
+                f"\n- 最大HZD: {game_result.maximum_hzd}"
+            )
             QMessageBox.information(None, "完了", message)
 
         except Exception as e:

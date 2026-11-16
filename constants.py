@@ -45,15 +45,19 @@ field_hazard_score = "hazard"
 field_hazard_rank = "rank"
 
 hazards_ui_names = [
-    "tornado",
     "kozui",
     "sediments",
     "tsunami",
+    "slope",
+]
+
+# 旧UIに残っている行を非表示にするための一覧。ゲーム用点数化では使用しない。
+inactive_hazards_ui_names = [
+    "tornado",
     "jisuberi",
     "saigai",
     "surge",
     "earthquake",
-    "slope",
     "refuge",
     "custom",
 ]

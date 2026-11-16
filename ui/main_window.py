@@ -16,7 +16,21 @@ class MainWindow(QDialog):
             os.path.join(os.path.dirname(__file__), "main_window.ui"), self
         )
 
+        self._set_workflow_labels()
+
         self.preprocessor = Preprocessor(self)
         self.hmg_data_generator = HMGDataGenerator(self)
         self.hmg_data_classifier = HMGDataClassifier(self)
         self.pdf_exporter = PDFExporter(self)
+
+    def _set_workflow_labels(self):
+        """処理順とボタンの役割が伝わる名称にそろえる。"""
+
+        self.pushButton_processhmg.setText("リスク値を計算")
+        self.pushButton_classify.setText("点数を再計算")
+        self.pushButton_total_hazard.setText("現在の点数を確認")
+
+        score_tab_index = self.tabWidget.indexOf(self.tab_3_hmg_data_generator)
+        self.tabWidget.setTabText(score_tab_index, "リスク計算・点数調整")
+        output_tab_index = self.tabWidget.indexOf(self.tab_4_pdf)
+        self.tabWidget.setTabText(output_tab_index, "PDF・ゲームデータ出力")
