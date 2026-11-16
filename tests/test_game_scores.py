@@ -51,6 +51,18 @@ class TestGameScores(unittest.TestCase):
         self.assertEqual(result.base_hzd, (0, 18))
         self.assertEqual(result.hzd, (0, 36))
 
+    def test_recalculation_keeps_the_user_multiplier(self):
+        first = calculate_game_scores(
+            [1], [1], [0], [1], hzd_multiplier=2.5
+        )
+        recalculated = calculate_game_scores(
+            [2], [1], [0], [1], hzd_multiplier=first.hzd_multiplier
+        )
+
+        self.assertEqual(first.hzd_multiplier, 2.5)
+        self.assertEqual(recalculated.hzd_multiplier, 2.5)
+        self.assertEqual(recalculated.hzd, (10,))
+
     def test_total_score_is_rounded_up_after_multiplication(self):
         result = calculate_game_scores(
             [1], [0], [0], [0], hzd_multiplier=1.01
