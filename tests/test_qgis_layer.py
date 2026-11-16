@@ -38,6 +38,8 @@ def test_scores_are_written_to_the_layer():
     assert [row["hzd_multiplier"] for row in rows] == [2.0, 2.0]
     assert result.maximum_hzd == 18
     assert result.sediment_slope_overlap_count == 1
+    assert result.score_summary.fields["HZD"].zero_count == 1
+    assert result.score_summary.fields["HZD"].distribution == ((0, 1), (18, 1))
 
 
 def test_recalculation_uses_the_passed_multiplier():

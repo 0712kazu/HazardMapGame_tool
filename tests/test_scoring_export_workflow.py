@@ -72,6 +72,7 @@ def test_scoring_recalculation_and_game_export_are_consistent(tmp_path):
     # 既に目標15点を超える場合は縮小せず、16点以上を許容する。
     assert initial.maximum_hzd == 18
     assert initial_rows[0]["HZD"] == 0
+    assert initial.score_summary.fields["HZD"].zero_count == 1
 
     assert layer.startEditing()
     flood_index = layer.fields().indexFromName("t_flood")

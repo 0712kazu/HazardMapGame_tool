@@ -34,6 +34,7 @@ import constants
 from utils import add_to_map, configure_hmg_layer_tree
 from modules import pyqtgraph as pg
 from scoring.qgis_layer import LayerScoringError, calculate_layer_scores
+from scoring.score_summary import format_score_summary
 from scoring.classification import (
     classify_standard_deviation_ranks,
     classify_tcg_ranks,
@@ -201,6 +202,8 @@ class HMGDataClassifier:
             f"補正前: {result.maximum_base_hzd} / "
             f"HZD: {result.maximum_hzd}"
         )
+        hzd_summary = result.score_summary.fields["HZD"]
+        status += f" / HZD 0点: {hzd_summary.zero_count}件"
         if result.sediment_slope_overlap_count:
             status += (
                 " / 警告: 土砂と傾斜の重複 "
@@ -832,6 +835,7 @@ class HMGDataClassifier:
                 f"\n- HZD倍率: {game_result.hzd_multiplier:.3f}"
                 f"\n- 最大HZD: {game_result.maximum_hzd}"
             )
+            message += "\n\n" + format_score_summary(game_result.score_summary)
             QMessageBox.information(None, "完了", message)
 
         except Exception as e:

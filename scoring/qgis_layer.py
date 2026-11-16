@@ -7,6 +7,7 @@ from qgis.PyQt.QtCore import QMetaType
 from qgis.core import NULL, QgsField, QgsVectorLayer
 
 from .game_scores import GameScores, calculate_game_scores
+from .score_summary import ScoreSummary, summarize_scores
 
 
 INPUT_FIELDS = {
@@ -38,6 +39,7 @@ class LayerScoringResult:
     maximum_base_hzd: int
     maximum_hzd: int
     sediment_slope_overlap_count: int
+    score_summary: ScoreSummary
 
 
 def _integer_field_type():
@@ -211,4 +213,12 @@ def calculate_layer_scores(
         maximum_base_hzd=max(scores.base_hzd, default=0),
         maximum_hzd=max(scores.hzd, default=0),
         sediment_slope_overlap_count=overlap_count,
+        score_summary=summarize_scores(
+            {
+                "A31": scores.a31,
+                "A33": scores.a33,
+                "A40": scores.a40,
+                "HZD": scores.hzd,
+            }
+        ),
     )
