@@ -18,7 +18,8 @@ class TestBuildPlugin(unittest.TestCase):
 
         self.assertIn(f"{PLUGIN_DIRECTORY}/metadata.txt", names)
         self.assertIn(f"{PLUGIN_DIRECTORY}/__init__.py", names)
-        self.assertIn(f"{PLUGIN_DIRECTORY}/utils.py", names)
+        self.assertIn(f"{PLUGIN_DIRECTORY}/hmg_utils.py", names)
+        self.assertNotIn(f"{PLUGIN_DIRECTORY}/utils.py", names)
         self.assertIn(f"{PLUGIN_DIRECTORY}/ui/main_window.ui", names)
         self.assertFalse(any("/__pycache__/" in name for name in names))
         self.assertFalse(any(name.endswith(".pyc") for name in names))

@@ -30,7 +30,7 @@ from constants import (
     SEAMLESS_FILE_LANDUSE,
     OUTPUT_DIR,
 )
-from utils import (
+from hmg_utils import (
     get_shapefiles_from_dir,
     unpack_zips_from_dir,
     geom_type_from_shp,

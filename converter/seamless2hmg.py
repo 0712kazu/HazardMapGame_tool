@@ -24,7 +24,7 @@ from converter.inundation_categories import (
     TSUNAMI_DEPTHS,
     validate_categories,
 )
-from utils import add_to_map, remove_layer
+from hmg_utils import add_to_map, remove_layer
 
 
 def _validate_layer_categories(layer, hazard_name, field_name, allowed_values):

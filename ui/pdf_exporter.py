@@ -37,7 +37,7 @@ from converter.hmg2pdf import (
     set_hmg13_disaster,
     calculate_hazard_rank,
 )
-from utils import (
+from hmg_utils import (
     get_layer_orientation,
     add_xyz_basemap_layer,
     add_to_map,

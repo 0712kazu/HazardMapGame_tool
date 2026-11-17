@@ -11,7 +11,7 @@ ROOT_FILES = (
     "constants.py",
     "hmg_plugin.py",
     "maptool.py",
-    "utils.py",
+    "hmg_utils.py",
     "metadata.txt",
     "LICENSE",
     "README.md",

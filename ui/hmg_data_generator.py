@@ -9,7 +9,7 @@ from qgis.utils import iface
 
 import constants
 
-from utils import add_to_map
+from hmg_utils import add_to_map
 from converter.seamless2hmg import (
     seamless2hmg_kosui,
     seamless2hmg_jisuberi,
@@ -32,7 +32,7 @@ from converter.mesh_score_classifier import calculate_tcg_score
 
 from ui.hmg_data_classifier import HMGDataClassifier as hmgclassif
 
-from utils import set_map_canvas_to_webmercator
+from hmg_utils import set_map_canvas_to_webmercator
 from maptool import POIMapTool
 
 

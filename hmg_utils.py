@@ -1,3 +1,5 @@
+"""Hazard Map Game plugin utility functions."""
+
 import glob
 import os
 import subprocess
