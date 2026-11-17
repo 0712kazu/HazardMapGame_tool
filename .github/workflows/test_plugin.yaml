@@ -23,7 +23,10 @@ jobs:
           /tmp/hmg-test-venv/bin/pip install
           pytest==9.2.0 pytest-qgis==5.0.2 pytest-cov==7.1.0 &&
           PYTHONPATH=/app xvfb-run -s '+extension GLX -screen 0 1024x768x24'
-          /tmp/hmg-test-venv/bin/python -m pytest -v --cov --cov-report=xml --cov-report=term"
+          /tmp/hmg-test-venv/bin/python -m pytest -v tests
+          --cov=converter --cov=output --cov=scoring --cov=ui
+          --cov=hmg_plugin --cov=hmg_utils
+          --cov-report=xml --cov-report=term"
 
       - name: Upload coverage
         uses: codecov/codecov-action@v5

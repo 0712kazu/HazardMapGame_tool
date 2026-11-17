@@ -24,6 +24,9 @@ pytest-qgis = "^1.3.2"
 [tool.poetry.group.pyqt5.dependencies]
 pyqt5 = "^5.15.9"
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
