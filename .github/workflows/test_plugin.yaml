@@ -16,16 +16,12 @@ jobs:
       - name: Pull QGIS 3.44.15 LTR
         run: docker pull qgis/qgis:${{ env.QGIS_IMAGE_TAG }}
 
-      - name: Export requirements.txt
-        run: |
-          pip3 install poetry poetry-plugin-export
-          poetry export --with dev --without pyqt5 --without-hashes -f requirements.txt -o requirements.txt
-
       - name: Run tests on QGIS 3.44.15
         run: >
           docker run --rm --volume `pwd`:/app -w=/app qgis/qgis:${{ env.QGIS_IMAGE_TAG }} sh -c
           "python3 -m venv --system-site-packages /tmp/hmg-test-venv &&
-          /tmp/hmg-test-venv/bin/pip install -r requirements.txt &&
+          /tmp/hmg-test-venv/bin/pip install
+          pytest==9.2.0 pytest-qgis==5.0.2 pytest-cov==7.1.0 &&
           PYTHONPATH=/app xvfb-run -s '+extension GLX -screen 0 1024x768x24'
           /tmp/hmg-test-venv/bin/python -m pytest -v --cov --cov-report=xml --cov-report=term"
 
