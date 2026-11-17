@@ -11,7 +11,7 @@ jobs:
       OS: ubuntu
       QGIS_IMAGE_TAG: 3.44.15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Pull QGIS 3.44.15 LTR
         run: docker pull qgis/qgis:${{ env.QGIS_IMAGE_TAG }}
@@ -24,11 +24,13 @@ jobs:
       - name: Run tests on QGIS 3.44.15
         run: >
           docker run --rm --volume `pwd`:/app -w=/app qgis/qgis:${{ env.QGIS_IMAGE_TAG }} sh -c
-          "pip3 install -r requirements.txt && PYTHONPATH=/app xvfb-run -s '+extension GLX -screen 0 1024x768x24'
-          pytest -v --cov --cov-report=xml --cov-report=term"
+          "python3 -m venv --system-site-packages /tmp/hmg-test-venv &&
+          /tmp/hmg-test-venv/bin/pip install -r requirements.txt &&
+          PYTHONPATH=/app xvfb-run -s '+extension GLX -screen 0 1024x768x24'
+          /tmp/hmg-test-venv/bin/python -m pytest -v --cov --cov-report=xml --cov-report=term"
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./coverage.xml
           flags: unittests
