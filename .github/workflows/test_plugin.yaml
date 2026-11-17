@@ -1,31 +1,29 @@
 name: Test
 
 on:
+  pull_request:
   workflow_dispatch:
 
 jobs:
   Test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        qgis_image_tag: [release-3_22, release-3_28]
     env:
       OS: ubuntu
-      QGIS_IMAGE_TAG: ${{ matrix.qgis_image_tag }}
+      QGIS_IMAGE_TAG: 3.44.15
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Pull QGIS
-        run: docker pull qgis/qgis:${{ matrix.qgis_image_tag }}
+      - name: Pull QGIS 3.44.15 LTR
+        run: docker pull qgis/qgis:${{ env.QGIS_IMAGE_TAG }}
 
       - name: Export requirements.txt
         run: |
-          pip3 install poetry
-          poetry export --with dev --without pyqt5 -f requirements.txt -o requirements.txt
+          pip3 install poetry poetry-plugin-export
+          poetry export --with dev --without pyqt5 --without-hashes -f requirements.txt -o requirements.txt
 
-      - name: Run tests
+      - name: Run tests on QGIS 3.44.15
         run: >
-          docker run --rm --volume `pwd`:/app -w=/app qgis/qgis:latest sh -c
+          docker run --rm --volume `pwd`:/app -w=/app qgis/qgis:${{ env.QGIS_IMAGE_TAG }} sh -c
           "pip3 install -r requirements.txt && PYTHONPATH=/app xvfb-run -s '+extension GLX -screen 0 1024x768x24'
           pytest -v --cov --cov-report=xml --cov-report=term"
 

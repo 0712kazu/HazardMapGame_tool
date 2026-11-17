@@ -64,3 +64,4 @@ class HmgPlugin:
 
     def show_data_generator_window(self):
         self.main_window.show()
+        return self.main_window

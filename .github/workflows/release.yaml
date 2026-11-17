@@ -1,32 +1,29 @@
-name:
-  export_plugin
+name: Export plugin
 on:
   release:
     types: [published]
+  workflow_dispatch:
 
 env:
-  PLUGIN_NAME: qgis-plugin-template
+  ARCHIVE_NAME: HazardMapGame_tool.zip
 jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Create Plugin Directory
+    - uses: actions/checkout@v4
+    - name: Create installable plugin archive
+      run: python3 scripts/build_plugin.py --output "${{ env.ARCHIVE_NAME }}"
+    - name: Verify archive structure
       run: |
-        mkdir ${{env.PLUGIN_NAME}}
-        find . -type f | grep -ve './.git' \
-          -ve '.github' \
-          -ve './.vscode' \
-          -ve '__pycache__/' \
-          -ve './tests' \
-          -ve './pyproject.toml' \
-          -ve './poetry.toml' \
-          -ve './poetry.lock' | xargs -I src cp --parents src ${{env.PLUGIN_NAME}}
-    - name: Create Archive
-      run: |
-        zip -r ${{env.PLUGIN_NAME}}.zip ./${{env.PLUGIN_NAME}}
+        unzip -l "${{ env.ARCHIVE_NAME }}" | grep 'hazard_map_game_tool/metadata.txt'
+        unzip -l "${{ env.ARCHIVE_NAME }}" | grep 'hazard_map_game_tool/__init__.py'
+    - name: Upload workflow artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: HazardMapGame_tool
+        path: ${{ env.ARCHIVE_NAME }}
     - name: Upload release asset
+      if: github.event_name == 'release'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release upload ${{ github.event.release.tag_name }} ${{env.PLUGIN_NAME}}.zip#${{env.PLUGIN_NAME}}
+      run: gh release upload "${{ github.event.release.tag_name }}" "${{ env.ARCHIVE_NAME }}"
